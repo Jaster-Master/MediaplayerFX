@@ -51,7 +51,7 @@
                 </HBox>
                 <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                        <Label text="Account">
+                        <Label text="Einstellungen">
                             <font>
                                 <Font name="System Bold" size="20.0" />
                             </font>
@@ -120,7 +120,7 @@
                             <children>
                                 <HBox alignment="CENTER" prefHeight="50.0" spacing="20.0">
                                     <children>
-                                        <Button fx:id="randomPlayButton" mnemonicParsing="false">
+                                        <Button fx:id="randomPlayButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: GRAY;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
@@ -128,7 +128,7 @@
                                        </image></ImageView>
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="lastSongButton" mnemonicParsing="false">
+                                        <Button fx:id="lastSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: GRAY;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
@@ -136,7 +136,7 @@
                                        </image></ImageView>
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="playButton" mnemonicParsing="false">
+                                        <Button fx:id="playButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: GRAY;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
@@ -144,7 +144,7 @@
                                        </image></ImageView>
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="nextSongButton" mnemonicParsing="false">
+                                        <Button fx:id="nextSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: GRAY;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
@@ -152,7 +152,7 @@
                                        </image></ImageView>
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="loopSongButton" mnemonicParsing="false">
+                                        <Button fx:id="loopSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: GRAY;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                        <image>

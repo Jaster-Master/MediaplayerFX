@@ -9,12 +9,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.TimeZone;
 
 public class MainController implements Initializable {
 
@@ -40,21 +42,61 @@ public class MainController implements Initializable {
     }
 
     private void setUpSlider() {
+        timeSlider.setLabelFormatter(new StringConverter<>() {
+            @Override
+            public String toString(Double aDouble) {
+                SimpleDateFormat timeFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+                return timeFormat.format(new Date((long) (aDouble * 1000)));
+            }
+
+            @Override
+            public Double fromString(String s) {
+                SimpleDateFormat timeFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+                double result = 0.0;
+                try {
+                    result = timeFormat.parse(s).getTime() / 1000f;
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return result;
+            }
+        });
         timeSlider.setValue(0.0);
-        timeSlider.setMax(program.mediaPlayer.getMedia().getDuration().toSeconds());
+        program.mediaPlayer.setOnReady(() -> {
+            timeSlider.setMax(program.mediaPlayer.getTotalDuration().toSeconds());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+            timeLabel.setText(timeFormat.format(new Date((long) program.mediaPlayer.getTotalDuration().toMillis())));
+        });
         volumeSlider.setValue(50.0);
-        timeSlider.valueProperty().addListener((observableValue, oldValue, newValue) -> {
-            program.mediaPlayer.seek(Duration.seconds(newValue.doubleValue()));
+        timeSlider.setOnMouseReleased(mouseEvent -> {
+            program.mediaPlayer.seek(Duration.seconds(timeSlider.getValue()));
         });
         program.mediaPlayer.currentTimeProperty().addListener((observableValue, oldValue, newValue) -> {
-            TimeZone tz = TimeZone.getTimeZone("UTC");
-            SimpleDateFormat df = new SimpleDateFormat("mm:ss");
-            df.setTimeZone(tz);
-            currentTimeLabel.setText(df.format(new Date((long) newValue.toMillis())));
+            SimpleDateFormat timeFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+            currentTimeLabel.setText(timeFormat.format(new Date((long) newValue.toMillis())));
+            if (!timeSlider.isPressed()) {
+                timeSlider.setValue(newValue.toSeconds());
+            }
         });
     }
 
     private void setUpButtons() {
+        playButton.setOnMouseEntered(mouseEvent -> {
+            ((ImageView) playButton.getGraphic()).setFitHeight(45);
+            ((ImageView) playButton.getGraphic()).setFitWidth(45);
+        });
+        playButton.setOnMouseExited(mouseEvent -> {
+            ((ImageView) playButton.getGraphic()).setFitHeight(40);
+            ((ImageView) playButton.getGraphic()).setFitWidth(40);
+        });
+        playButton.setOnMousePressed(mouseEvent -> {
+            ((ImageView) playButton.getGraphic()).setFitHeight(35);
+            ((ImageView) playButton.getGraphic()).setFitWidth(35);
+        });
+        playButton.setOnMouseReleased(mouseEvent -> {
+            ((ImageView) playButton.getGraphic()).setFitHeight(40);
+            ((ImageView) playButton.getGraphic()).setFitWidth(40);
+        });
         playButton.setOnAction(actionEvent -> {
             URL currentUrl;
             if (program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
@@ -74,10 +116,11 @@ public class MainController implements Initializable {
     private double lastVolume;
 
     private void setImageListener() {
+        lastVolume = 50.0;
         volumeSlider.valueProperty().addListener((observableValue, oldValue, newValue) -> {
             URL currentUrl;
             program.mediaPlayer.setVolume(newValue.doubleValue() / 100);
-            if (newValue.doubleValue() != 0.0) {
+            if (newValue.doubleValue() != 0) {
                 lastVolume = volumeSlider.getValue();
             }
             if (newValue.doubleValue() == 0.0) {

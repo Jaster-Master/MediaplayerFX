@@ -2,8 +2,7 @@ package com.jastermaster;
 
 import javafx.scene.control.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Playlist extends Label {
     private String title;
@@ -17,6 +16,7 @@ public class Playlist extends Label {
     public Playlist(String title) {
         songs = new ArrayList<>();
         this.title = title;
+        setText(title);
     }
 
     public void addSong(Song song) {

@@ -1,10 +1,10 @@
 package com.jastermaster;
 
 import com.jfoenix.controls.*;
+import javafx.animation.*;
 import javafx.application.*;
 import javafx.beans.property.*;
 import javafx.collections.*;
-import javafx.event.*;
 import javafx.fxml.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
@@ -12,6 +12,7 @@ import javafx.scene.control.skin.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.media.*;
+import javafx.stage.*;
 import javafx.util.*;
 
 import java.io.*;
@@ -29,7 +30,7 @@ public class MainController implements Initializable {
     @FXML
     public JFXSlider timeSlider, volumeSlider;
     @FXML
-    public Label timeLabel, currentTimeLabel, songTitleLabel;
+    public Label timeLabel, currentTimeLabel, songTitleLabel, songInterpreterLabel;
     @FXML
     public TableView<Song> songsTableView;
     @FXML
@@ -40,6 +41,7 @@ public class MainController implements Initializable {
     public ComboBox<String> sortComboBox;
     private final Program program;
     private final SimpleObjectProperty<Number> songIndex = new SimpleObjectProperty<>();
+    private Playlist currentPlaylist;
     private ContextMenu playlistContextMenu;
 
     public MainController(Program program) {
@@ -68,48 +70,48 @@ public class MainController implements Initializable {
         playlistListView.getItems().add(new Playlist("First"));
         MenuItem addSongMenu = new MenuItem("Add Song");
         addSongMenu.setOnAction(actionEvent -> openSongDialog());
-        playlistContextMenu = new ContextMenu(addSongMenu);
+        MenuItem addSongsMenu = new MenuItem("Add Songs");
+        addSongsMenu.setOnAction(actionEvent -> openSongs());
+        playlistContextMenu = new ContextMenu(addSongMenu, addSongsMenu);
         playlistListView.setCellFactory(playlistListView -> {
             ListCell<Playlist> cell = new ListCell<>();
             cell.setOnMouseClicked(mouseEvent -> {
+                currentPlaylist = playlistListView.getSelectionModel().getSelectedItem();
                 if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
                     playlistContextMenu.show(cell, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                 }
                 songsTableView.getItems().clear();
-                songsTableView.getItems().addAll(playlistListView.getSelectionModel().getSelectedItem().getSongs());
+                songsTableView.getItems().addAll(currentPlaylist.getSongs());
             });
             return cell;
         });
     }
 
     private void setUpSortComboBox() {
-        sortComboBox.getItems().addAll("Title", "Interpreter", "Album", "AddedOn", "Time");
+        sortComboBox.getItems().addAll("Custom", "Title", "Interpreter", "Album", "AddedOn", "Time");
         sortComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null) return;
             switch (newValue.intValue()) {
-                case 0 -> songsTableView.setSortPolicy(songTableView -> {
+                case 1 -> songsTableView.setSortPolicy(songTableView -> {
                     songsTableView.getItems().sort(Comparator.comparing(Song::getTitle));
                     return true;
                 });
-                case 1 -> songsTableView.setSortPolicy(songTableView -> {
+                case 2 -> songsTableView.setSortPolicy(songTableView -> {
                     songsTableView.getItems().sort(Comparator.comparing(Song::getInterpreter));
                     return true;
                 });
-                case 2 -> songsTableView.setSortPolicy(songTableView -> {
+                case 3 -> songsTableView.setSortPolicy(songTableView -> {
                     songsTableView.getItems().sort(Comparator.comparing(Song::getAlbum));
                     return true;
                 });
-                case 3 -> songsTableView.setSortPolicy(songTableView -> {
+                case 4 -> songsTableView.setSortPolicy(songTableView -> {
                     songsTableView.getItems().sort(Comparator.comparing(Song::getAddedOn));
                     return true;
                 });
-                case 4 -> songsTableView.setSortPolicy(songTableView -> {
+                case 5 -> songsTableView.setSortPolicy(songTableView -> {
                     songsTableView.getItems().sort(Comparator.comparing(Song::getTime));
                     return true;
                 });
-                default -> {
-                }
-                // TODO: Default-Sorting?
             }
         });
     }
@@ -149,7 +151,7 @@ public class MainController implements Initializable {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
                     songIndex.set(songsTableView.getSelectionModel().getSelectedIndex());
                     program.mediaPlayer.seek(Duration.ZERO);
-                    program.mediaPlayer.play();
+                    fadeInAudio();
                 }
             });
             return row;
@@ -258,7 +260,7 @@ public class MainController implements Initializable {
 
     private void setUpMediaplayer() {
         program.mediaPlayer.setOnEndOfMedia(() -> {
-            program.mediaPlayer.stop();
+            fadeOutAudio();
             if (songIndex.get().intValue() + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.LOOP)) {
                 songIndex.set(0);
             } else if (songIndex.get().intValue() + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.NORMAL)) {
@@ -269,7 +271,7 @@ public class MainController implements Initializable {
                 program.mediaPlayer.seek(Duration.ZERO);
             } else if (playingType.equals(PlayingType.LOOP_SONG)) {
                 program.mediaPlayer.seek(Duration.ZERO);
-                program.mediaPlayer.play();
+                fadeInAudio();
             } else {
                 songIndex.set(songIndex.get().intValue() + 1);
             }
@@ -301,6 +303,22 @@ public class MainController implements Initializable {
 
     private PlayingType playingType = PlayingType.NORMAL;
     private boolean randomPlaying;
+
+    private void fadeOutAudio() {
+        KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), 0);
+        KeyFrame duration = new KeyFrame(Duration.millis(100), volume);
+        Timeline timeline = new Timeline(duration);
+        timeline.play();
+        timeline.setOnFinished(actionEvent1 -> program.mediaPlayer.pause());
+    }
+
+    private void fadeInAudio() {
+        program.mediaPlayer.play();
+        KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), lastVolume);
+        KeyFrame duration = new KeyFrame(Duration.millis(100), volume);
+        Timeline timeline = new Timeline(duration);
+        timeline.play();
+    }
 
     private void setUpButtons() {
         setButtonBehaviour(randomPlayButton);
@@ -334,9 +352,9 @@ public class MainController implements Initializable {
         playButton.setOnAction(actionEvent -> {
             if (program.mediaPlayer == null) return;
             if (program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
-                program.mediaPlayer.pause();
+                fadeOutAudio();
             } else {
-                program.mediaPlayer.play();
+                fadeInAudio();
             }
         });
         nextSongButton.setOnAction(actionEvent -> {
@@ -372,14 +390,15 @@ public class MainController implements Initializable {
             boolean isPlaying = false;
             if (program.mediaPlayer != null) {
                 isPlaying = program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
-                program.mediaPlayer.stop();
+                fadeOutAudio();
             }
             Song newSong = songsTableView.getItems().get(newValue.intValue());
             program.mediaPlayer = new MediaPlayer(newSong.getSong());
             songTitleLabel.setText(newSong.getTitle());
+            songInterpreterLabel.setText(newSong.getInterpreter());
             setUpMediaplayer();
             if (isPlaying) {
-                program.mediaPlayer.play();
+                fadeInAudio();
             }
         });
     }
@@ -405,6 +424,8 @@ public class MainController implements Initializable {
 
     private void openSongDialog() {
         Dialog<Song> addSongDialog = new Dialog<>();
+        addSongDialog.initOwner(program.primaryStage);
+        Util.centerWindow(addSongDialog.getDialogPane().getScene().getWindow());
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("fxml/addSongDialog.fxml"));
         loader.setControllerFactory(callback -> new AddSongDialogController(program));
         try {
@@ -415,6 +436,24 @@ public class MainController implements Initializable {
         addSongDialog.setTitle("Add Song");
         addSongDialog.setResultConverter(((AddSongDialogController) loader.getController()).getCallback());
         Optional<Song> result = addSongDialog.showAndWait();
-        result.ifPresent(song -> songsTableView.getItems().add(song));
+        result.ifPresent(song -> {
+            songsTableView.getItems().add(song);
+            currentPlaylist.addSong(song);
+        });
+    }
+
+    private void openSongs() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Audio", "*.mp3", ".MP3", "*.wav", "*.WAV", "*.aac", "*.AAC", "*.aiff", "*.AIFF"));
+        fileChooser.setTitle("Choose Path");
+        List<File> chosenFiles = fileChooser.showOpenMultipleDialog(program.primaryStage);
+        if (chosenFiles == null || chosenFiles.isEmpty()) return;
+        for (File chosenFile : chosenFiles) {
+            Song newSong = new Song();
+            newSong.setSong(new Media(chosenFile.toURI().toString()));
+            newSong.setTitle(chosenFile.getName().split("\\.")[0]);
+            songsTableView.getItems().add(newSong);
+            currentPlaylist.addSong(newSong);
+        }
     }
 }

@@ -107,11 +107,20 @@
                                         <Image url="@../images/UpdatedLogoBrighter.png" />
                                     </image>
                                 </ImageView>
-                                <Label fx:id="songTitleLabel" text="Title">
-                                    <font>
-                                        <Font name="System Bold" size="20.0" />
-                                    </font>
-                                </Label>
+                        <VBox alignment="CENTER_LEFT">
+                           <children>
+                                      <Label fx:id="songTitleLabel" text="Title">
+                                          <font>
+                                              <Font name="System Bold" size="20.0" />
+                                          </font>
+                                      </Label>
+                              <Label fx:id="songInterpreterLabel" text="Interpreter">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
                             </children>
                         </HBox>
                         <VBox alignment="CENTER" minWidth="680.0" spacing="10.0" HBox.hgrow="ALWAYS">

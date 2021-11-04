@@ -84,6 +84,7 @@
                             <columns>
                                 <TableColumn maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Number" />
                                 <TableColumn prefWidth="75.0" text="Title" />
+                        <TableColumn prefWidth="75.0" text="Interpreter" />
                                 <TableColumn prefWidth="75.0" text="Album" />
                                 <TableColumn prefWidth="75.0" text="Added on" />
                                 <TableColumn prefWidth="75.0" text="Time" />

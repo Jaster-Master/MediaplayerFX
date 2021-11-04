@@ -26,11 +26,11 @@ public class Song implements Comparable<Song> {
     }
 
     private void initializeProperties() {
-        title = new SimpleStringProperty();
-        interpreter = new SimpleStringProperty();
-        album = new SimpleStringProperty();
-        addedOn = new SimpleStringProperty();
-        time = new SimpleStringProperty();
+        title = new SimpleStringProperty("-");
+        interpreter = new SimpleStringProperty("-");
+        album = new SimpleStringProperty("-");
+        addedOn = new SimpleStringProperty("-");
+        time = new SimpleStringProperty("-");
     }
 
     public Media getSong() {

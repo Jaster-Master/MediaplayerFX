@@ -62,6 +62,7 @@ public class MainController implements Initializable {
 
         Song glamour = new Song(new Media(new File("C:\\Users\\Julian\\Desktop\\Projects\\Java\\Test\\FXMediaPlayer\\marnie.mp3").toURI().toString()));
         glamour.setTitle("Marnie Battle Theme");
+        glamour.setInterpreter("Junichi Masuda");
         glamour.setAlbum("Pokemon");
         playlistListView.getItems().get(0).addSong(glamour);
     }
@@ -151,7 +152,9 @@ public class MainController implements Initializable {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
                     songIndex.set(songsTableView.getSelectionModel().getSelectedIndex());
                     program.mediaPlayer.seek(Duration.ZERO);
-                    fadeInAudio();
+                    if (!program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                        fadeInAudio();
+                    }
                 }
             });
             return row;
@@ -181,16 +184,22 @@ public class MainController implements Initializable {
         songsTableView.getColumns().get(2).setCellValueFactory(cellData -> {
             Label label = new Label();
             label.setAlignment(Pos.CENTER);
-            label.textProperty().bind(cellData.getValue().albumProperty());
+            label.textProperty().bind(cellData.getValue().interpreterProperty());
             return new ReadOnlyObjectWrapper(label);
         });
         songsTableView.getColumns().get(3).setCellValueFactory(cellData -> {
             Label label = new Label();
             label.setAlignment(Pos.CENTER);
-            label.textProperty().bind(cellData.getValue().addedOnProperty());
+            label.textProperty().bind(cellData.getValue().albumProperty());
             return new ReadOnlyObjectWrapper(label);
         });
         songsTableView.getColumns().get(4).setCellValueFactory(cellData -> {
+            Label label = new Label();
+            label.setAlignment(Pos.CENTER);
+            label.textProperty().bind(cellData.getValue().addedOnProperty());
+            return new ReadOnlyObjectWrapper(label);
+        });
+        songsTableView.getColumns().get(5).setCellValueFactory(cellData -> {
             Label label = new Label();
             label.setAlignment(Pos.CENTER);
             label.textProperty().bind(cellData.getValue().timeProperty());

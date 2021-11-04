@@ -9,6 +9,7 @@ import java.util.Date;
 public class Song {
     private Media song;
     private SimpleStringProperty title;
+    private SimpleStringProperty interpreter;
     private SimpleStringProperty album;
     private SimpleStringProperty addedOn;
     private SimpleStringProperty time;
@@ -52,6 +53,18 @@ public class Song {
         this.title.set(title);
     }
 
+    public String getInterpreter() {
+        return interpreter.get();
+    }
+
+    public SimpleStringProperty interpreterProperty() {
+        return interpreter;
+    }
+
+    public void setInterpreter(String interpreter) {
+        this.interpreter.set(interpreter);
+    }
+
     public String getAlbum() {
         return album.get();
     }
@@ -70,6 +83,10 @@ public class Song {
 
     public SimpleStringProperty addedOnProperty() {
         return addedOn;
+    }
+
+    public void setAddedOn(String addedOn) {
+        this.addedOn.set(addedOn);
     }
 
     public void setAddedOn(Date addedOn) {

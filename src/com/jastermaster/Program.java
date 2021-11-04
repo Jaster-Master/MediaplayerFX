@@ -23,6 +23,8 @@ public class Program extends Application {
         primaryStage.setScene(new Scene(loader.load()));
         mainCon = loader.getController();
         primaryStage.setTitle("MediaplayerFX");
+        primaryStage.setMinWidth(1280);
+        primaryStage.setMinHeight(720);
         primaryStage.show();
         primaryStage.setMaximized(true);
     }

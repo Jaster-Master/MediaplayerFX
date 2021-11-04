@@ -1,25 +1,36 @@
 package com.jastermaster;
 
-import com.jfoenix.controls.*;
-import javafx.animation.*;
-import javafx.application.*;
-import javafx.beans.property.*;
-import javafx.collections.*;
-import javafx.fxml.*;
-import javafx.geometry.*;
+import com.jfoenix.controls.JFXSlider;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.*;
-import javafx.scene.image.*;
-import javafx.scene.input.*;
-import javafx.scene.media.*;
-import javafx.stage.*;
-import javafx.util.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.FileChooser;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
 
-import java.io.*;
-import java.net.*;
-import java.text.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 public class MainController implements Initializable {
 
@@ -40,9 +51,12 @@ public class MainController implements Initializable {
     @FXML
     public ComboBox<String> sortComboBox;
     private final Program program;
-    private final SimpleObjectProperty<Number> songIndex = new SimpleObjectProperty<>();
+    private int songIndex;
     private Playlist currentPlaylist;
     private ContextMenu playlistContextMenu;
+    private double lastVolume;
+    private PlayingType playingType = PlayingType.NORMAL;
+    private boolean randomPlaying;
 
     public MainController(Program program) {
         this.program = program;
@@ -53,15 +67,14 @@ public class MainController implements Initializable {
         setUpButtons();
         setUpTimeSlider();
         setUpVolumeObjects();
-        setUpSongIndex();
         setUpSongsTableView();
         setUpKeyCodes();
         setUpSearchInPlaylistField();
         setUpSortComboBox();
         setUpPlaylistListView();
 
-        Song glamour = new Song(new Media(new File("C:\\Users\\Julian\\Desktop\\Projects\\Java\\Test\\FXMediaPlayer\\marnie.mp3").toURI().toString()));
-        glamour.setTitle("Marnie Battle Theme");
+        Song glamour = new Song(new Media(new File("C:\\Users\\zecki\\Desktop\\Youtube Jaster\\Musik\\Pokemon\\XY\\Route 15 - Pokémon X Y.mp3").toURI().toString()));
+        glamour.setTitle("XY Route 15");
         glamour.setInterpreter("Junichi Masuda");
         glamour.setAlbum("Pokemon");
         playlistListView.getItems().get(0).addSong(glamour);
@@ -150,11 +163,8 @@ public class MainController implements Initializable {
             TableRow<Song> row = new TableRow<>();
             row.setOnMouseClicked(mouseEvent -> {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
-                    songIndex.set(songsTableView.getSelectionModel().getSelectedIndex());
-                    program.mediaPlayer.seek(Duration.ZERO);
-                    if (!program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
-                        fadeInAudio();
-                    }
+                    setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
+                    fadeInAudio();
                 }
             });
             return row;
@@ -206,8 +216,6 @@ public class MainController implements Initializable {
             return new ReadOnlyObjectWrapper(label);
         });
     }
-
-    private double lastVolume;
 
     private void setUpVolumeObjects() {
         lastVolume = 50.0;
@@ -262,17 +270,17 @@ public class MainController implements Initializable {
             }
         });
         timeSlider.setValue(0.0);
-        timeSlider.setOnMouseReleased(mouseEvent -> {
-            program.mediaPlayer.seek(Duration.seconds(timeSlider.getValue()));
-        });
+        timeSlider.setOnMouseReleased(mouseEvent -> program.mediaPlayer.seek(Duration.seconds(timeSlider.getValue())));
     }
 
     private void setUpMediaplayer() {
         program.mediaPlayer.setOnEndOfMedia(() -> {
             fadeOutAudio();
-            if (songIndex.get().intValue() + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.LOOP)) {
-                songIndex.set(0);
-            } else if (songIndex.get().intValue() + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.NORMAL)) {
+            if (randomPlaying) {
+                setUpNewSong(new Random().nextInt(0, songsTableView.getItems().size()));
+            } else if (songIndex + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.LOOP)) {
+                setUpNewSong(0);
+            } else if (songIndex + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.NORMAL)) {
                 URL currentUrl;
                 if ((currentUrl = Main.class.getResource("images/play-round.png")) != null) {
                     ((ImageView) playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
@@ -282,7 +290,7 @@ public class MainController implements Initializable {
                 program.mediaPlayer.seek(Duration.ZERO);
                 fadeInAudio();
             } else {
-                songIndex.set(songIndex.get().intValue() + 1);
+                setUpNewSong(songIndex + 1);
             }
         });
         program.mediaPlayer.setOnReady(() -> {
@@ -310,21 +318,18 @@ public class MainController implements Initializable {
         program.mediaPlayer.setVolume(lastVolume / 100);
     }
 
-    private PlayingType playingType = PlayingType.NORMAL;
-    private boolean randomPlaying;
-
     private void fadeOutAudio() {
         KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), 0);
-        KeyFrame duration = new KeyFrame(Duration.millis(100), volume);
+        KeyFrame duration = new KeyFrame(Duration.millis(200), volume);
         Timeline timeline = new Timeline(duration);
+        timeline.setOnFinished(actionEvent1 -> program.mediaPlayer.pause()); // TODO: too late, mediaplayer paused
         timeline.play();
-        timeline.setOnFinished(actionEvent1 -> program.mediaPlayer.pause());
     }
 
     private void fadeInAudio() {
         program.mediaPlayer.play();
-        KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), lastVolume);
-        KeyFrame duration = new KeyFrame(Duration.millis(100), volume);
+        KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), lastVolume / 100);
+        KeyFrame duration = new KeyFrame(Duration.millis(200), volume);
         Timeline timeline = new Timeline(duration);
         timeline.play();
     }
@@ -352,10 +357,10 @@ public class MainController implements Initializable {
         lastSongButton.setOnAction(actionEvent -> {
             if (program.mediaPlayer.getCurrentTime().toSeconds() >= 5) {
                 program.mediaPlayer.seek(Duration.ZERO);
-            } else if (songIndex.get().intValue() - 1 <= -1) {
-                songIndex.set(songsTableView.getItems().size() - 1);
+            } else if (songIndex - 1 <= -1) {
+                setUpNewSong(songsTableView.getItems().size() - 1);
             } else {
-                songIndex.set(songIndex.get().intValue() - 1);
+                setUpNewSong(songIndex - 1);
             }
         });
         playButton.setOnAction(actionEvent -> {
@@ -367,10 +372,10 @@ public class MainController implements Initializable {
             }
         });
         nextSongButton.setOnAction(actionEvent -> {
-            if (songIndex.get().intValue() + 1 >= songsTableView.getItems().size()) {
-                songIndex.set(0);
+            if (songIndex + 1 >= songsTableView.getItems().size()) {
+                setUpNewSong(0);
             } else {
-                songIndex.set(songIndex.get().intValue() + 1);
+                setUpNewSong(songIndex + 1);
             }
         });
         loopSongButton.setOnAction(actionEvent -> {
@@ -394,22 +399,22 @@ public class MainController implements Initializable {
         });
     }
 
-    private void setUpSongIndex() {
-        songIndex.addListener((observableValue, oldValue, newValue) -> {
-            boolean isPlaying = false;
-            if (program.mediaPlayer != null) {
-                isPlaying = program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
-                fadeOutAudio();
-            }
-            Song newSong = songsTableView.getItems().get(newValue.intValue());
-            program.mediaPlayer = new MediaPlayer(newSong.getSong());
-            songTitleLabel.setText(newSong.getTitle());
-            songInterpreterLabel.setText(newSong.getInterpreter());
-            setUpMediaplayer();
-            if (isPlaying) {
-                fadeInAudio();
-            }
-        });
+    private void setUpNewSong(int index) {
+        songIndex = index;
+        boolean isPlaying = false;
+        if (program.mediaPlayer != null) {
+            isPlaying = program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+            fadeOutAudio();
+            program.mediaPlayer.stop();
+        }
+        Song newSong = songsTableView.getItems().get(index);
+        program.mediaPlayer = new MediaPlayer(newSong.getSong());
+        songTitleLabel.setText(newSong.getTitle());
+        songInterpreterLabel.setText(newSong.getInterpreter());
+        setUpMediaplayer();
+        if (isPlaying) {
+            fadeInAudio();
+        }
     }
 
     private void setButtonBehaviour(Button button) {

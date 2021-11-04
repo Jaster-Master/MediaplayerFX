@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+<DialogPane maxHeight="300.0" maxWidth="400.0" minHeight="300.0" minWidth="400.0" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jastermaster.AddSongDialogController">
+   <buttonTypes>
+      <ButtonType fx:constant="FINISH" />
+      <ButtonType fx:constant="CANCEL" />
+   </buttonTypes>
+   <content>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0">
+         <children>
+            <Label text="Path:" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <HBox AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <TextField fx:id="pathField" />
+                  <Button fx:id="openPathButton" mnemonicParsing="false" text="Open" />
+               </children>
+            </HBox>
+            <Label text="Title:" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="40.0" />
+            <TextField fx:id="titleField" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="40.0" />
+            <Label text="Interpreter:" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="80.0" />
+            <TextField fx:id="interpreterField" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="80.0" />
+            <Label text="Album:" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="120.0" />
+            <TextField fx:id="albumField" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="120.0" />
+         </children>
+      </AnchorPane>
+   </content>
+</DialogPane>

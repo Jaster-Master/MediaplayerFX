@@ -1,9 +1,11 @@
 package com.jastermaster;
 
+import javafx.scene.control.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Playlist {
+public class Playlist extends Label {
     private String title;
     private List<Song> songs;
     private String createdOn;

@@ -148,6 +148,7 @@ public class MainController implements Initializable {
             row.setOnMouseClicked(mouseEvent -> {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
                     songIndex.set(songsTableView.getSelectionModel().getSelectedIndex());
+                    program.mediaPlayer.seek(Duration.ZERO);
                     program.mediaPlayer.play();
                 }
             });

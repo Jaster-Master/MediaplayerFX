@@ -1,36 +1,25 @@
 package com.jastermaster;
 
-import com.jfoenix.controls.JFXSlider;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
+import com.jfoenix.controls.*;
+import javafx.animation.*;
+import javafx.application.*;
+import javafx.beans.property.*;
+import javafx.collections.*;
+import javafx.fxml.*;
+import javafx.geometry.*;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.TableHeaderRow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.stage.FileChooser;
-import javafx.util.Duration;
-import javafx.util.StringConverter;
+import javafx.scene.control.skin.*;
+import javafx.scene.image.*;
+import javafx.scene.input.*;
+import javafx.scene.media.*;
+import javafx.stage.*;
+import javafx.util.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.*;
+import java.net.*;
+import java.text.*;
 import java.util.*;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 public class MainController implements Initializable {
 
@@ -73,11 +62,17 @@ public class MainController implements Initializable {
         setUpSortComboBox();
         setUpPlaylistListView();
 
-        Song glamour = new Song(new Media(new File("C:\\Users\\zecki\\Desktop\\Youtube Jaster\\Musik\\Pokemon\\XY\\Route 15 - Pokémon X Y.mp3").toURI().toString()));
-        glamour.setTitle("XY Route 15");
-        glamour.setInterpreter("Junichi Masuda");
-        glamour.setAlbum("Pokemon");
-        playlistListView.getItems().get(0).addSong(glamour);
+        File file = new File("C:\\Users\\Julian\\Desktop\\Projects\\Java\\Test\\FXMediaPlayer");
+        for (File listFile : file.listFiles()) {
+            if (listFile.getName().contains(".mp3") || listFile.getName().contains(".wav")) {
+                Song newSong = new Song();
+                if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
+                newSong.setTitle(listFile.getName());
+                newSong.setInterpreter("-");
+                newSong.setAlbum("-");
+                playlistListView.getItems().get(0).addSong(newSong);
+            }
+        }
     }
 
     private void setUpPlaylistListView() {
@@ -322,13 +317,17 @@ public class MainController implements Initializable {
         KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), 0);
         KeyFrame duration = new KeyFrame(Duration.millis(200), volume);
         Timeline timeline = new Timeline(duration);
-        timeline.setOnFinished(actionEvent1 -> program.mediaPlayer.pause()); // TODO: too late, mediaplayer paused
-        timeline.play();
+        timeline.setOnFinished(actionEvent1 -> program.mediaPlayer.pause());
+        timeline.play(); // TODO
     }
 
     private void fadeInAudio() {
         program.mediaPlayer.play();
-        KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), lastVolume / 100);
+        double currentVolume = lastVolume;
+        if (program.mediaPlayer.getVolume() == 0) {
+            currentVolume = 0;
+        }
+        KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), currentVolume / 100);
         KeyFrame duration = new KeyFrame(Duration.millis(200), volume);
         Timeline timeline = new Timeline(duration);
         timeline.play();

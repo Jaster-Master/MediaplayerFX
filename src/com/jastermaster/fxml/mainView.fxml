@@ -35,7 +35,7 @@
                         </Label>
                     </children>
                 </VBox>
-            <ListView fx:id="playlistListView" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="200.0" />
+            <ListView fx:id="playlistListView" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="200.0" />
             </children>
         </AnchorPane>
         <AnchorPane maxHeight="200.0" minHeight="200.0" prefHeight="200.0" style="-fx-background-color: LIGHTGRAY;" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

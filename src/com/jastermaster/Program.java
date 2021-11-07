@@ -25,8 +25,8 @@ public class Program extends Application {
         primaryStage.setTitle("MediaplayerFX");
         primaryStage.setMinWidth(1280);
         primaryStage.setMinHeight(720);
-        primaryStage.show();
         primaryStage.setMaximized(true);
+        primaryStage.show();
     }
 
     public MediaPlayer mediaPlayer;

@@ -1,25 +1,39 @@
 package com.jastermaster;
 
-import com.jfoenix.controls.*;
-import javafx.animation.*;
-import javafx.application.*;
-import javafx.beans.property.*;
-import javafx.collections.*;
-import javafx.fxml.*;
-import javafx.geometry.*;
+import com.jfoenix.controls.JFXSlider;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.*;
-import javafx.scene.image.*;
-import javafx.scene.input.*;
-import javafx.scene.media.*;
-import javafx.stage.*;
-import javafx.util.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.FileChooser;
+import javafx.stage.WindowEvent;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
 
-import java.io.*;
-import java.net.*;
-import java.text.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 public class MainController implements Initializable {
 
@@ -42,7 +56,6 @@ public class MainController implements Initializable {
     private final Program program;
     private int songIndex;
     private Playlist currentPlaylist;
-    private ContextMenu playlistContextMenu;
     private double lastVolume;
     private PlayingType playingType = PlayingType.NORMAL;
     private boolean randomPlaying;
@@ -62,38 +75,62 @@ public class MainController implements Initializable {
         setUpSortComboBox();
         setUpPlaylistListView();
 
-        File file = new File("C:\\Users\\Julian\\Desktop\\Projects\\Java\\Test\\FXMediaPlayer");
-        for (File listFile : file.listFiles()) {
-            if (listFile.getName().contains(".mp3") || listFile.getName().contains(".wav")) {
-                Song newSong = new Song();
-                if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
-                newSong.setTitle(listFile.getName());
-                newSong.setInterpreter("-");
-                newSong.setAlbum("-");
-                playlistListView.getItems().get(0).addSong(newSong);
+        try {
+            File file = new File("C:\\Users\\Julian\\Desktop\\Projects\\Java\\Test\\FXMediaPlayer");
+            for (File listFile : file.listFiles()) {
+                if (listFile.getName().contains(".mp3") || listFile.getName().contains(".wav")) {
+                    Song newSong = new Song();
+                    if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
+                    newSong.setTitle(listFile.getName());
+                    newSong.setInterpreter("-");
+                    newSong.setAlbum("-");
+                    playlistListView.getItems().get(0).addSong(newSong);
+                }
             }
+        } catch (Exception e) {
+        }
+        try {
+            File file2 = new File("C:\\Users\\zecki\\Desktop\\Coding\\Tests\\FXMediaPlayer");
+            for (File listFile : file2.listFiles()) {
+                if (listFile.getName().contains(".mp3") || listFile.getName().contains(".wav")) {
+                    Song newSong = new Song();
+                    if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
+                    newSong.setTitle(listFile.getName());
+                    newSong.setInterpreter("-");
+                    newSong.setAlbum("-");
+                    playlistListView.getItems().get(0).addSong(newSong);
+                }
+            }
+        } catch (Exception e) {
         }
     }
 
     private void setUpPlaylistListView() {
-        playlistListView.getItems().add(new Playlist("First"));
-        MenuItem addSongMenu = new MenuItem("Add Song");
-        addSongMenu.setOnAction(actionEvent -> openSongDialog());
-        MenuItem addSongsMenu = new MenuItem("Add Songs");
-        addSongsMenu.setOnAction(actionEvent -> openSongs());
-        playlistContextMenu = new ContextMenu(addSongMenu, addSongsMenu);
         playlistListView.setCellFactory(playlistListView -> {
             ListCell<Playlist> cell = new ListCell<>();
             cell.setOnMouseClicked(mouseEvent -> {
                 currentPlaylist = playlistListView.getSelectionModel().getSelectedItem();
-                if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                    playlistContextMenu.show(cell, mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                }
+                if (currentPlaylist == null) return;
                 songsTableView.getItems().clear();
                 songsTableView.getItems().addAll(currentPlaylist.getSongs());
             });
+            MenuItem addSongMenu = new MenuItem("Add Song");
+            addSongMenu.setOnAction(actionEvent -> openSongDialog());
+            MenuItem addSongsMenu = new MenuItem("Add Songs");
+            addSongsMenu.setOnAction(actionEvent -> openSongs());
+            final ContextMenu playlistContextMenu = new ContextMenu(addSongMenu, addSongsMenu);
+            cell.emptyProperty().addListener((observableValue, oldValue, newValue) -> {
+                if (newValue) {
+                    cell.setContextMenu(null);
+                    cell.textProperty().unbind();
+                } else {
+                    cell.setContextMenu(playlistContextMenu);
+                    cell.textProperty().bind(cell.getItem().textProperty());
+                }
+            });
             return cell;
         });
+        playlistListView.getItems().add(new Playlist("First"));
     }
 
     private void setUpSortComboBox() {
@@ -144,12 +181,15 @@ public class MainController implements Initializable {
     }
 
     private void setUpKeyCodes() {
-        Platform.runLater(() -> program.primaryStage.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
-            if (keyEvent.isControlDown()) return;
-            if (keyEvent.getCode().equals(KeyCode.SPACE)) {
-                playButton.fire();
-            }
-        }));
+        Platform.runLater(() -> {
+            program.primaryStage.setOnCloseRequest(this::openCloseDialog);
+            program.primaryStage.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+                if (keyEvent.isControlDown()) return;
+                if (keyEvent.getCode().equals(KeyCode.SPACE)) {
+                    playButton.fire();
+                }
+            });
+        });
     }
 
     private void setUpSongsTableView() {
@@ -159,7 +199,7 @@ public class MainController implements Initializable {
             row.setOnMouseClicked(mouseEvent -> {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
                     setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
-                    fadeInAudio();
+                    program.mediaPlayer.play();
                 }
             });
             return row;
@@ -270,7 +310,6 @@ public class MainController implements Initializable {
 
     private void setUpMediaplayer() {
         program.mediaPlayer.setOnEndOfMedia(() -> {
-            fadeOutAudio();
             if (randomPlaying) {
                 setUpNewSong(new Random().nextInt(0, songsTableView.getItems().size()));
             } else if (songIndex + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.LOOP)) {
@@ -283,7 +322,7 @@ public class MainController implements Initializable {
                 program.mediaPlayer.seek(Duration.ZERO);
             } else if (playingType.equals(PlayingType.LOOP_SONG)) {
                 program.mediaPlayer.seek(Duration.ZERO);
-                fadeInAudio();
+                program.mediaPlayer.play();
             } else {
                 setUpNewSong(songIndex + 1);
             }
@@ -311,26 +350,34 @@ public class MainController implements Initializable {
             }
         });
         program.mediaPlayer.setVolume(lastVolume / 100);
-    }
-
-    private void fadeOutAudio() {
-        KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), 0);
-        KeyFrame duration = new KeyFrame(Duration.millis(200), volume);
-        Timeline timeline = new Timeline(duration);
-        timeline.setOnFinished(actionEvent1 -> program.mediaPlayer.pause());
-        timeline.play(); // TODO
+        program.mediaPlayer.setOnPlaying(this::fadeInAudio);
     }
 
     private void fadeInAudio() {
-        program.mediaPlayer.play();
         double currentVolume = lastVolume;
-        if (program.mediaPlayer.getVolume() == 0) {
+        if (volumeSlider.getValue() == 0.0) {
             currentVolume = 0;
         }
         KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), currentVolume / 100);
-        KeyFrame duration = new KeyFrame(Duration.millis(200), volume);
+        KeyFrame duration = new KeyFrame(Duration.millis(300), volume);
         Timeline timeline = new Timeline(duration);
         timeline.play();
+    }
+
+    private void fadeOutAudio() {
+        // https://stackoverflow.com/questions/37886664/javafx-mediaplayer-fade-out-currently-playing-audio
+        KeyValue volume = new KeyValue(program.mediaPlayer.volumeProperty(), 0);
+        KeyFrame duration = new KeyFrame(Duration.millis(300), volume);
+        Timeline timeline = new Timeline(duration);
+        timeline.play();
+        new Thread(() -> {
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Platform.runLater(() -> program.mediaPlayer.pause());
+        }).start();
     }
 
     private void setUpButtons() {
@@ -367,7 +414,7 @@ public class MainController implements Initializable {
             if (program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                 fadeOutAudio();
             } else {
-                fadeInAudio();
+                program.mediaPlayer.play();
             }
         });
         nextSongButton.setOnAction(actionEvent -> {
@@ -403,7 +450,6 @@ public class MainController implements Initializable {
         boolean isPlaying = false;
         if (program.mediaPlayer != null) {
             isPlaying = program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
-            fadeOutAudio();
             program.mediaPlayer.stop();
         }
         Song newSong = songsTableView.getItems().get(index);
@@ -412,7 +458,7 @@ public class MainController implements Initializable {
         songInterpreterLabel.setText(newSong.getInterpreter());
         setUpMediaplayer();
         if (isPlaying) {
-            fadeInAudio();
+            program.mediaPlayer.play();
         }
     }
 
@@ -468,5 +514,32 @@ public class MainController implements Initializable {
             songsTableView.getItems().add(newSong);
             currentPlaylist.addSong(newSong);
         }
+    }
+
+    private void openCloseDialog(WindowEvent windowEvent) {
+        Dialog<ButtonType> closeDialog = new Dialog<>();
+        closeDialog.initOwner(program.primaryStage);
+        Label closeLabel = new Label("Close?");
+        HBox closeHBox = new HBox(closeLabel);
+        closeHBox.setAlignment(Pos.CENTER);
+        DialogPane closeDialogPane = new DialogPane();
+        closeDialogPane.setMinWidth(100);
+        closeDialogPane.setMinHeight(50);
+        closeDialogPane.getButtonTypes().add(ButtonType.YES);
+        closeDialogPane.getButtonTypes().add(ButtonType.NO);
+        closeDialogPane.setContent(new AnchorPane(closeHBox));
+        closeDialog.setDialogPane(closeDialogPane);
+        AnchorPane.setTopAnchor(closeHBox, 0.0);
+        AnchorPane.setRightAnchor(closeHBox, 0.0);
+        AnchorPane.setLeftAnchor(closeHBox, 0.0);
+        AnchorPane.setBottomAnchor(closeHBox, 0.0);
+        Util.centerWindow(closeDialog.getDialogPane().getScene().getWindow());
+        Optional<ButtonType> result = closeDialog.showAndWait();
+        result.ifPresent(buttonType -> {
+            if (buttonType.equals(ButtonType.YES)) {
+                Main.closeApplication();
+            }
+            windowEvent.consume();
+        });
     }
 }

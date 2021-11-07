@@ -1,8 +1,9 @@
 package com.jastermaster;
 
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Playlist extends Label {
     private String title;
@@ -10,13 +11,14 @@ public class Playlist extends Label {
     private String createdOn;
 
     public Playlist() {
+        super();
         songs = new ArrayList<>();
     }
 
     public Playlist(String title) {
+        super(title);
         songs = new ArrayList<>();
         this.title = title;
-        setText(title);
     }
 
     public void addSong(Song song) {
@@ -33,6 +35,7 @@ public class Playlist extends Label {
 
     public void setTitle(String title) {
         this.title = title;
+        setText(title);
     }
 
     public List<Song> getSongs() {

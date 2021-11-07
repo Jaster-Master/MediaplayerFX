@@ -1,17 +1,25 @@
 package com.jastermaster;
 
-import javafx.fxml.*;
-import javafx.scene.control.*;
-import javafx.scene.media.*;
-import javafx.stage.*;
-import javafx.util.*;
-import org.jaudiotagger.audio.*;
-import org.jaudiotagger.audio.exceptions.*;
-import org.jaudiotagger.tag.*;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
+import javafx.scene.media.Media;
+import javafx.stage.FileChooser;
+import javafx.util.Callback;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagException;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class AddSongDialogController implements Initializable {
     @FXML
@@ -61,13 +69,17 @@ public class AddSongDialogController implements Initializable {
 
     public Callback<ButtonType, Song> getCallback() {
         return buttonType -> {
-            Song newSong = new Song();
-            File audioFile = new File(pathField.getText());
-            if (audioFile.exists()) newSong.setSong(new Media(audioFile.toURI().toString()));
-            if (titleField.getText() != null) newSong.setTitle(titleField.getText());
-            if (interpreterField.getText() != null) newSong.setInterpreter(interpreterField.getText());
-            if (albumField.getText() != null) newSong.setAlbum(albumField.getText());
-            return newSong;
+            if (!buttonType.equals(ButtonType.APPLY)) {
+                return null;
+            } else {
+                Song newSong = new Song();
+                File audioFile = new File(pathField.getText());
+                if (audioFile.exists()) newSong.setSong(new Media(audioFile.toURI().toString()));
+                if (titleField.getText() != null) newSong.setTitle(titleField.getText());
+                if (interpreterField.getText() != null) newSong.setInterpreter(interpreterField.getText());
+                if (albumField.getText() != null) newSong.setAlbum(albumField.getText());
+                return newSong;
+            }
         };
     }
 }

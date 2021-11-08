@@ -187,6 +187,7 @@ public class MainController implements Initializable {
                 if (keyEvent.isControlDown()) return;
                 if (keyEvent.getCode().equals(KeyCode.SPACE)) {
                     playButton.fire();
+                    keyEvent.consume();
                 }
             });
         });

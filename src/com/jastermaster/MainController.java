@@ -177,9 +177,11 @@ public class MainController implements Initializable {
             tableViewListBackup.addAll(songsTableView.getItems());
             songsTableView.setItems(FXCollections.observableArrayList(tableViewListBackup));
             songsTableView.getItems().removeIf(nextSong -> {
-                boolean removeSong = !Pattern.compile(Pattern.quote(newValue), Pattern.CASE_INSENSITIVE).matcher(nextSong.getTitle()).find();
-                boolean removeAlbum = !Pattern.compile(Pattern.quote(newValue), Pattern.CASE_INSENSITIVE).matcher(nextSong.getAlbum()).find();
-                return removeSong && removeAlbum;
+                String input = newValue.trim();
+                boolean removeSong = !Pattern.compile(Pattern.quote(input), Pattern.CASE_INSENSITIVE).matcher(nextSong.getTitle()).find();
+                boolean removeAlbum = !Pattern.compile(Pattern.quote(input), Pattern.CASE_INSENSITIVE).matcher(nextSong.getAlbum()).find();
+                boolean removeInterpreter = !Pattern.compile(Pattern.quote(input), Pattern.CASE_INSENSITIVE).matcher(nextSong.getInterpreter()).find();
+                return removeSong && removeAlbum && removeInterpreter;
             });
         });
     }

@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.skin.TableHeaderRow;
 import javafx.scene.image.Image;
@@ -20,8 +21,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
@@ -205,8 +209,13 @@ public class MainController implements Initializable {
             });
             return row;
         });
+        songsTableView.widthProperty().addListener((src, o, n) -> Platform.runLater(() -> {
+            if (o != null && o.intValue() > 0) return;
+            for (Node node : songsTableView.lookupAll(".column-header > .label")) {
+                if (node instanceof Label) ((Label) node).setAlignment(Pos.CENTER_LEFT);
+            }
+        }));
         for (TableColumn<Song, ?> column : songsTableView.getColumns()) {
-            column.setStyle("-fx-alignment: CENTER");
             column.setSortable(false);
             column.setReorderable(false);
         }
@@ -217,37 +226,31 @@ public class MainController implements Initializable {
         });
         songsTableView.getColumns().get(0).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.setAlignment(Pos.CENTER);
             label.setText(String.valueOf(songsTableView.getItems().indexOf(cellData.getValue()) + 1));
             return new ReadOnlyObjectWrapper(label);
         });
         songsTableView.getColumns().get(1).setCellValueFactory(cellData -> {
-            Label label = new Label();
-            label.setAlignment(Pos.CENTER);
-            label.textProperty().bind(cellData.getValue().titleProperty());
-            return new ReadOnlyObjectWrapper(label);
+            Label title = new Label();
+            Label interpreter = new Label();
+            title.setFont(Font.font("System", FontWeight.BOLD, 12));
+            title.setStyle("-fx-font-weight: bold");
+            title.textProperty().bind(cellData.getValue().titleProperty());
+            interpreter.textProperty().bind(cellData.getValue().interpreterProperty());
+            VBox titleInterpreterBox = new VBox(title, interpreter);
+            return new ReadOnlyObjectWrapper(titleInterpreterBox);
         });
         songsTableView.getColumns().get(2).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.setAlignment(Pos.CENTER);
-            label.textProperty().bind(cellData.getValue().interpreterProperty());
+            label.textProperty().bind(cellData.getValue().albumProperty());
             return new ReadOnlyObjectWrapper(label);
         });
         songsTableView.getColumns().get(3).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.setAlignment(Pos.CENTER);
-            label.textProperty().bind(cellData.getValue().albumProperty());
+            label.textProperty().bind(cellData.getValue().addedOnProperty());
             return new ReadOnlyObjectWrapper(label);
         });
         songsTableView.getColumns().get(4).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.setAlignment(Pos.CENTER);
-            label.textProperty().bind(cellData.getValue().addedOnProperty());
-            return new ReadOnlyObjectWrapper(label);
-        });
-        songsTableView.getColumns().get(5).setCellValueFactory(cellData -> {
-            Label label = new Label();
-            label.setAlignment(Pos.CENTER);
             label.textProperty().bind(cellData.getValue().timeProperty());
             return new ReadOnlyObjectWrapper(label);
         });
@@ -485,16 +488,19 @@ public class MainController implements Initializable {
     private void openSongDialog() {
         Dialog<Song> addSongDialog = new Dialog<>();
         addSongDialog.initOwner(program.primaryStage);
-        Util.centerWindow(addSongDialog.getDialogPane().getScene().getWindow());
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("fxml/addSongDialog.fxml"));
         loader.setControllerFactory(callback -> new AddSongDialogController(program));
+        DialogPane addSongDialogPane = null;
         try {
-            addSongDialog.setDialogPane(loader.load());
+            addSongDialogPane = loader.load();
+            addSongDialog.setDialogPane(addSongDialogPane);
         } catch (IOException e) {
             e.printStackTrace();
         }
         addSongDialog.setTitle("Add Song");
         addSongDialog.setResultConverter(((AddSongDialogController) loader.getController()).getCallback());
+        Util.centerWindow(addSongDialogPane.getScene().getWindow());
+        addSongDialogPane.getScene().getStylesheets().add(program.cssPath);
         Optional<Song> result = addSongDialog.showAndWait();
         result.ifPresent(song -> {
             songsTableView.getItems().add(song);
@@ -534,7 +540,8 @@ public class MainController implements Initializable {
         AnchorPane.setRightAnchor(closeHBox, 0.0);
         AnchorPane.setLeftAnchor(closeHBox, 0.0);
         AnchorPane.setBottomAnchor(closeHBox, 0.0);
-        Util.centerWindow(closeDialog.getDialogPane().getScene().getWindow());
+        Util.centerWindow(closeDialogPane.getScene().getWindow());
+        closeDialogPane.getScene().getStylesheets().add(program.cssPath);
         Optional<ButtonType> result = closeDialog.showAndWait();
         result.ifPresent(buttonType -> {
             if (buttonType.equals(ButtonType.YES)) {

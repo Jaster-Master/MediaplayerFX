@@ -26,10 +26,12 @@ public class Program extends Application {
         primaryStage.setMinWidth(1280);
         primaryStage.setMinHeight(720);
         primaryStage.setMaximized(true);
+        primaryStage.getScene().getStylesheets().add(cssPath);
         primaryStage.show();
     }
 
     public MediaPlayer mediaPlayer;
     public MainController mainCon;
     public Stage primaryStage;
+    public String cssPath = "com/jastermaster/css/light.css";
 }

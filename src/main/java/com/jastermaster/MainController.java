@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 public class MainController implements Initializable {
 
     @FXML
-    public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton;
+    public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton, addPlaylistButton;
     @FXML
     public ImageView playlistPictureImageView, speakerImageView, songPictureImageView;
     @FXML
@@ -56,7 +56,7 @@ public class MainController implements Initializable {
     @FXML
     public TextField searchInPlaylistField;
     @FXML
-    public ComboBox<String> sortComboBox;
+    public ComboBox<String> sortSongsComboBox, sortPlaylistsComboBox;
     private final Program program;
     private int songIndex;
     private Playlist currentPlaylist;
@@ -76,47 +76,20 @@ public class MainController implements Initializable {
         setUpSongsTableView();
         setUpKeyCodes();
         setUpSearchInPlaylistField();
-        setUpSortComboBox();
+        setUpSortSongsComboBox();
+        setUpSortPlaylistsComboBox();
         setUpPlaylistListView();
-
-        try {
-            File file = new File("C:\\Users\\Julian\\Desktop\\Projects\\Java\\Test\\FXMediaPlayer");
-            for (File listFile : file.listFiles()) {
-                if (listFile.getName().contains(".mp3") || listFile.getName().contains(".wav")) {
-                    Song newSong = new Song();
-                    if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
-                    newSong.setTitle(listFile.getName());
-                    newSong.setInterpreter("-");
-                    newSong.setAlbum("-");
-                    playlistListView.getItems().get(0).addSong(newSong);
-                }
-            }
-        } catch (Exception e) {
-        }
-        try {
-            File file2 = new File("C:\\Users\\zecki\\Desktop\\Coding\\Tests\\FXMediaPlayer");
-            for (File listFile : file2.listFiles()) {
-                if (listFile.getName().contains(".mp3") || listFile.getName().contains(".wav")) {
-                    Song newSong = new Song();
-                    if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
-                    newSong.setTitle(listFile.getName());
-                    newSong.setInterpreter("-");
-                    newSong.setAlbum("-");
-                    playlistListView.getItems().get(0).addSong(newSong);
-                }
-            }
-        } catch (Exception e) {
-        }
     }
 
     private void setUpPlaylistListView() {
+        addPlaylistButton.setOnAction(actionEvent -> createNewPlaylist());
         playlistListView.setCellFactory(playlistListView -> {
             ListCell<Playlist> cell = new ListCell<>();
             cell.setOnMouseClicked(mouseEvent -> {
-                currentPlaylist = playlistListView.getSelectionModel().getSelectedItem();
-                if (currentPlaylist == null) return;
+                if (playlistListView.getSelectionModel().getSelectedItem() == null) return;
+                if (currentPlaylist == null) currentPlaylist = playlistListView.getSelectionModel().getSelectedItem();
                 songsTableView.getItems().clear();
-                songsTableView.getItems().addAll(currentPlaylist.getSongs());
+                songsTableView.getItems().addAll(playlistListView.getSelectionModel().getSelectedItem().getSongs());
             });
             MenuItem addSongMenu = new MenuItem("Add Song");
             addSongMenu.setOnAction(actionEvent -> openSongDialog());
@@ -134,34 +107,58 @@ public class MainController implements Initializable {
             });
             return cell;
         });
-        playlistListView.getItems().add(new Playlist("First"));
     }
 
-    private void setUpSortComboBox() {
-        sortComboBox.getItems().addAll("Custom", "Title", "Interpreter", "Album", "AddedOn", "Time");
-        sortComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
+    private void setUpSortSongsComboBox() {
+        sortSongsComboBox.getItems().addAll("Custom", "Title", "Interpreter", "Album", "AddedOn", "Time");
+        sortSongsComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null) return;
             switch (newValue.intValue()) {
                 case 1 -> songsTableView.setSortPolicy(songTableView -> {
-                    songsTableView.getItems().sort(Comparator.comparing(Song::getTitle));
+                    currentPlaylist.getSongs().sort(Comparator.comparing(Song::getTitle));
                     return true;
                 });
                 case 2 -> songsTableView.setSortPolicy(songTableView -> {
-                    songsTableView.getItems().sort(Comparator.comparing(Song::getInterpreter));
+                    currentPlaylist.getSongs().sort(Comparator.comparing(Song::getInterpreter));
                     return true;
                 });
                 case 3 -> songsTableView.setSortPolicy(songTableView -> {
-                    songsTableView.getItems().sort(Comparator.comparing(Song::getAlbum));
+                    currentPlaylist.getSongs().sort(Comparator.comparing(Song::getAlbum));
                     return true;
                 });
                 case 4 -> songsTableView.setSortPolicy(songTableView -> {
-                    songsTableView.getItems().sort(Comparator.comparing(Song::getAddedOn));
+                    currentPlaylist.getSongs().sort(Comparator.comparing(Song::getAddedOn));
                     return true;
                 });
                 case 5 -> songsTableView.setSortPolicy(songTableView -> {
-                    songsTableView.getItems().sort(Comparator.comparing(Song::getTime));
+                    currentPlaylist.getSongs().sort(Comparator.comparing(Song::getTime));
                     return true;
                 });
+            }
+        });
+    }
+
+    private void setUpSortPlaylistsComboBox() {
+        // TODO: no sorting
+        sortPlaylistsComboBox.getItems().addAll("Custom", "Name", "Song Count", "Time", "CreatedOn");
+        sortPlaylistsComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (newValue == null) return;
+            switch (newValue.intValue()) {
+                case 1 -> playlistListView.getItems().sort(Comparator.comparing(Playlist::getTitle));
+                case 2 -> playlistListView.getItems().sort(Comparator.comparingInt(o -> o.getSongs().size()));
+                case 3 -> playlistListView.getItems().sort((o1, o2) -> {
+                    double o1Seconds = 0.0;
+                    for (Song song : o1.getSongs()) {
+                        o1Seconds += song.getSong().getDuration().toSeconds();
+                    }
+
+                    double o2Seconds = 0.0;
+                    for (Song song : o2.getSongs()) {
+                        o2Seconds += song.getSong().getDuration().toSeconds();
+                    }
+                    return Double.compare(o1Seconds, o2Seconds);
+                });
+                case 4 -> playlistListView.getItems().sort(Comparator.comparingDouble(o -> Util.getMillisFromDateString(o.getCreatedOn())));
             }
         });
     }
@@ -205,6 +202,9 @@ public class MainController implements Initializable {
             TableRow<Song> row = new TableRow<>();
             row.setOnMouseClicked(mouseEvent -> {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
+                    if (!currentPlaylist.getSongs().contains(songsTableView.getSelectionModel().getSelectedItem())) {
+                        currentPlaylist = playlistListView.getSelectionModel().getSelectedItem();
+                    }
                     setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
                     program.mediaPlayer.play();
                 }
@@ -228,8 +228,10 @@ public class MainController implements Initializable {
         });
         songsTableView.getColumns().get(0).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.setText(String.valueOf(songsTableView.getItems().indexOf(cellData.getValue()) + 1));
-            return new ReadOnlyObjectWrapper(label);
+            label.setText(String.valueOf(currentPlaylist.getSongs().indexOf(cellData.getValue()) + 1));
+            HBox hBox = new HBox(label);
+            hBox.setAlignment(Pos.CENTER_LEFT);
+            return new ReadOnlyObjectWrapper(hBox);
         });
         songsTableView.getColumns().get(1).setCellValueFactory(cellData -> {
             Label title = new Label();
@@ -238,22 +240,29 @@ public class MainController implements Initializable {
             title.textProperty().bind(cellData.getValue().titleProperty());
             interpreter.textProperty().bind(cellData.getValue().interpreterProperty());
             VBox titleInterpreterBox = new VBox(title, interpreter);
+            titleInterpreterBox.setAlignment(Pos.CENTER_LEFT);
             return new ReadOnlyObjectWrapper(titleInterpreterBox);
         });
         songsTableView.getColumns().get(2).setCellValueFactory(cellData -> {
             Label label = new Label();
             label.textProperty().bind(cellData.getValue().albumProperty());
-            return new ReadOnlyObjectWrapper(label);
+            HBox hBox = new HBox(label);
+            hBox.setAlignment(Pos.CENTER_LEFT);
+            return new ReadOnlyObjectWrapper(hBox);
         });
         songsTableView.getColumns().get(3).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.textProperty().bind(cellData.getValue().addedOnProperty());
-            return new ReadOnlyObjectWrapper(label);
+            label.textProperty().bind(cellData.getValue().timeProperty());
+            HBox hBox = new HBox(label);
+            hBox.setAlignment(Pos.CENTER_LEFT);
+            return new ReadOnlyObjectWrapper(hBox);
         });
         songsTableView.getColumns().get(4).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.textProperty().bind(cellData.getValue().timeProperty());
-            return new ReadOnlyObjectWrapper(label);
+            label.textProperty().bind(cellData.getValue().addedOnProperty());
+            HBox hBox = new HBox(label);
+            hBox.setAlignment(Pos.CENTER_LEFT);
+            return new ReadOnlyObjectWrapper(hBox);
         });
     }
 
@@ -266,15 +275,15 @@ public class MainController implements Initializable {
                 lastVolume = volumeSlider.getValue();
             }
             if (newValue.doubleValue() == 0.0) {
-                if ((currentUrl = Main.getResourceURL("images/sound-off.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/sound-off.png")) != null) {
                     speakerImageView.setImage(new Image(currentUrl.toString()));
                 }
             } else if (newValue.doubleValue() > 50.0) {
-                if ((currentUrl = Main.getResourceURL("images/sound-medium.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/sound-medium.png")) != null) {
                     speakerImageView.setImage(new Image(currentUrl.toString()));
                 }
             } else {
-                if ((currentUrl = Main.getResourceURL("images/sound-medium.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/sound-medium.png")) != null) {
                     speakerImageView.setImage(new Image(currentUrl.toString()));
                 }
             }
@@ -316,15 +325,12 @@ public class MainController implements Initializable {
     private void setUpMediaplayer() {
         program.mediaPlayer.setOnEndOfMedia(() -> {
             if (randomPlaying) {
-                setUpNewSong(new Random().nextInt(0, songsTableView.getItems().size()));
-            } else if (songIndex + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.LOOP)) {
+                setUpNewSong(new Random().nextInt(0, currentPlaylist.getSongs().size()));
+            } else if (songIndex + 1 >= currentPlaylist.getSongs().size() && playingType.equals(PlayingType.LOOP)) {
                 setUpNewSong(0);
-            } else if (songIndex + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.NORMAL)) {
-                URL currentUrl;
-                if ((currentUrl = Main.getResourceURL("images/play-round.png")) != null) {
-                    ((ImageView) playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
-                }
+            } else if (songIndex + 1 >= currentPlaylist.getSongs().size() && playingType.equals(PlayingType.NORMAL)) {
                 program.mediaPlayer.seek(Duration.ZERO);
+                program.mediaPlayer.stop();
             } else if (playingType.equals(PlayingType.LOOP_SONG)) {
                 program.mediaPlayer.seek(Duration.ZERO);
                 program.mediaPlayer.play();
@@ -345,11 +351,11 @@ public class MainController implements Initializable {
         program.mediaPlayer.statusProperty().addListener((observableValue, oldValue, newValue) -> {
             URL currentUrl;
             if (newValue.equals(MediaPlayer.Status.PLAYING)) {
-                if ((currentUrl = Main.getResourceURL("images/pause-round.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/pause-round.png")) != null) {
                     ((ImageView) playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             } else {
-                if ((currentUrl = Main.getResourceURL("images/play-round.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/play-round.png")) != null) {
                     ((ImageView) playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             }
@@ -396,11 +402,11 @@ public class MainController implements Initializable {
             randomPlaying = !randomPlaying;
             URL currentUrl;
             if (randomPlaying) {
-                if ((currentUrl = Main.getResourceURL("images/random-arrow_green.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/random-arrow_green.png")) != null) {
                     ((ImageView) randomPlayButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             } else {
-                if ((currentUrl = Main.getResourceURL("images/random-arrow.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/random-arrow.png")) != null) {
                     ((ImageView) randomPlayButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             }
@@ -409,7 +415,7 @@ public class MainController implements Initializable {
             if (program.mediaPlayer.getCurrentTime().toSeconds() >= 5) {
                 program.mediaPlayer.seek(Duration.ZERO);
             } else if (songIndex - 1 <= -1) {
-                setUpNewSong(songsTableView.getItems().size() - 1);
+                setUpNewSong(currentPlaylist.getSongs().size() - 1);
             } else {
                 setUpNewSong(songIndex - 1);
             }
@@ -423,7 +429,7 @@ public class MainController implements Initializable {
             }
         });
         nextSongButton.setOnAction(actionEvent -> {
-            if (songIndex + 1 >= songsTableView.getItems().size()) {
+            if (songIndex + 1 >= currentPlaylist.getSongs().size()) {
                 setUpNewSong(0);
             } else {
                 setUpNewSong(songIndex + 1);
@@ -433,17 +439,17 @@ public class MainController implements Initializable {
             URL currentUrl;
             if (playingType.equals(PlayingType.NORMAL)) {
                 playingType = PlayingType.LOOP;
-                if ((currentUrl = Main.getResourceURL("images/circle-arrow_green.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/circle-arrow_green.png")) != null) {
                     ((ImageView) loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             } else if (playingType.equals(PlayingType.LOOP)) {
                 playingType = PlayingType.LOOP_SONG;
-                if ((currentUrl = Main.getResourceURL("images/circle-arrow_loop.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/circle-arrow_loop.png")) != null) {
                     ((ImageView) loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             } else if (playingType.equals(PlayingType.LOOP_SONG)) {
                 playingType = PlayingType.NORMAL;
-                if ((currentUrl = Main.getResourceURL("images/circle-arrow.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("/images/circle-arrow.png")) != null) {
                     ((ImageView) loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             }
@@ -457,7 +463,7 @@ public class MainController implements Initializable {
             isPlaying = program.mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
             program.mediaPlayer.stop();
         }
-        Song newSong = songsTableView.getItems().get(index);
+        Song newSong = currentPlaylist.getSongs().get(index);
         program.mediaPlayer = new MediaPlayer(newSong.getSong());
         songTitleLabel.setText(newSong.getTitle());
         songInterpreterLabel.setText(newSong.getInterpreter());
@@ -504,7 +510,6 @@ public class MainController implements Initializable {
         addSongDialogPane.getScene().getStylesheets().add(program.cssPath);
         Optional<Song> result = addSongDialog.showAndWait();
         result.ifPresent(song -> {
-            songsTableView.getItems().add(song);
             currentPlaylist.addSong(song);
         });
     }
@@ -519,7 +524,6 @@ public class MainController implements Initializable {
             Song newSong = new Song();
             newSong.setSong(new Media(chosenFile.toURI().toString()));
             newSong.setTitle(chosenFile.getName().split("\\.")[0]);
-            songsTableView.getItems().add(newSong);
             currentPlaylist.addSong(newSong);
         }
     }
@@ -549,6 +553,49 @@ public class MainController implements Initializable {
                 Main.closeApplication();
             }
             windowEvent.consume();
+        });
+    }
+
+    private void createNewPlaylist() {
+        Dialog<ButtonType> createPlaylistDialog = new Dialog<>();
+        createPlaylistDialog.initOwner(program.primaryStage);
+        Label createPlaylistLabel = new Label("Type in the name of the Playlist!");
+        HBox createPlaylistHBox = new HBox(createPlaylistLabel);
+        createPlaylistHBox.setAlignment(Pos.CENTER);
+        TextField createPlaylistField = new TextField();
+        createPlaylistField.setPromptText("Playlist-Name");
+        VBox createPlaylistVBox = new VBox(createPlaylistHBox, createPlaylistField);
+        createPlaylistVBox.setAlignment(Pos.CENTER);
+        createPlaylistVBox.setSpacing(10.0);
+        DialogPane createPlaylistDialogPane = new DialogPane();
+        createPlaylistDialogPane.setMinWidth(100);
+        createPlaylistDialogPane.setMinHeight(50);
+        createPlaylistDialogPane.getButtonTypes().add(ButtonType.FINISH);
+        createPlaylistDialogPane.getButtonTypes().add(ButtonType.CANCEL);
+        createPlaylistDialogPane.setContent(new AnchorPane(createPlaylistVBox));
+        createPlaylistDialog.setDialogPane(createPlaylistDialogPane);
+        AnchorPane.setTopAnchor(createPlaylistVBox, 0.0);
+        AnchorPane.setRightAnchor(createPlaylistVBox, 0.0);
+        AnchorPane.setLeftAnchor(createPlaylistVBox, 0.0);
+        AnchorPane.setBottomAnchor(createPlaylistVBox, 0.0);
+        Util.centerWindow(createPlaylistDialogPane.getScene().getWindow());
+        createPlaylistDialogPane.getScene().getStylesheets().add(program.cssPath);
+        createPlaylistDialogPane.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                ((Button) createPlaylistDialogPane.lookupButton(ButtonType.FINISH)).fire();
+            }
+        });
+        Optional<ButtonType> result = createPlaylistDialog.showAndWait();
+        result.ifPresent(buttonType -> {
+            if (buttonType.equals(ButtonType.FINISH)) {
+                Playlist newPlaylist = new Playlist();
+                if (createPlaylistField.getText() != null && !createPlaylistField.getText().isEmpty()) {
+                    newPlaylist.setTitle(createPlaylistField.getText());
+                } else {
+                    newPlaylist.setTitle("Unnamed");
+                }
+                playlistListView.getItems().add(newPlaylist);
+            }
         });
     }
 }

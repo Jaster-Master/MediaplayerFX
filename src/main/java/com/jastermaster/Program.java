@@ -17,6 +17,7 @@ public class Program extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        Main.runningProgram = this;
         primaryStage = stage;
         FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/mainView.fxml"));
         loader.setControllerFactory(callback -> new MainController(this));

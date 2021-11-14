@@ -6,6 +6,8 @@ import java.net.URL;
 
 public class Main {
 
+    public static Program runningProgram;
+
     public static void startApplication(String[] params) {
         Program program = new Program();
         program.startProgram(params);

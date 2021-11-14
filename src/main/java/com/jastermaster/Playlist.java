@@ -3,6 +3,7 @@ package com.jastermaster;
 import javafx.scene.control.Label;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Playlist extends Label {
@@ -13,12 +14,14 @@ public class Playlist extends Label {
     public Playlist() {
         super();
         songs = new ArrayList<>();
+        setCreatedOn(new Date());
     }
 
     public Playlist(String title) {
         super(title);
         songs = new ArrayList<>();
         this.title = title;
+        setCreatedOn(new Date());
     }
 
     public void addSong(Song song) {
@@ -50,7 +53,7 @@ public class Playlist extends Label {
         return createdOn;
     }
 
-    public void setCreatedOn(String createdOn) {
-        this.createdOn = createdOn;
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = Util.getTimeFromDate(createdOn);
     }
 }

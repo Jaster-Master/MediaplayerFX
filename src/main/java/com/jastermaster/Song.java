@@ -1,9 +1,10 @@
 package com.jastermaster;
 
-import javafx.beans.property.*;
-import javafx.scene.media.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
-import java.util.*;
+import java.util.Date;
 
 public class Song implements Comparable<Song> {
     private Media song;
@@ -83,10 +84,6 @@ public class Song implements Comparable<Song> {
 
     public SimpleStringProperty addedOnProperty() {
         return addedOn;
-    }
-
-    public void setAddedOn(String addedOn) {
-        this.addedOn.set(addedOn);
     }
 
     public void setAddedOn(Date addedOn) {

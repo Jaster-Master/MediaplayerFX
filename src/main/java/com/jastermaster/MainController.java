@@ -235,7 +235,6 @@ public class MainController implements Initializable {
             Label title = new Label();
             Label interpreter = new Label();
             title.setFont(Font.font("System", FontWeight.BOLD, 12));
-            title.setStyle("-fx-font-weight: bold");
             title.textProperty().bind(cellData.getValue().titleProperty());
             interpreter.textProperty().bind(cellData.getValue().interpreterProperty());
             VBox titleInterpreterBox = new VBox(title, interpreter);
@@ -267,15 +266,15 @@ public class MainController implements Initializable {
                 lastVolume = volumeSlider.getValue();
             }
             if (newValue.doubleValue() == 0.0) {
-                if ((currentUrl = Main.class.getResource("images/sound-off.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/sound-off.png")) != null) {
                     speakerImageView.setImage(new Image(currentUrl.toString()));
                 }
             } else if (newValue.doubleValue() > 50.0) {
-                if ((currentUrl = Main.class.getResource("images/sound-medium.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/sound-medium.png")) != null) {
                     speakerImageView.setImage(new Image(currentUrl.toString()));
                 }
             } else {
-                if ((currentUrl = Main.class.getResource("images/sound-medium.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/sound-medium.png")) != null) {
                     speakerImageView.setImage(new Image(currentUrl.toString()));
                 }
             }
@@ -322,7 +321,7 @@ public class MainController implements Initializable {
                 setUpNewSong(0);
             } else if (songIndex + 1 >= songsTableView.getItems().size() && playingType.equals(PlayingType.NORMAL)) {
                 URL currentUrl;
-                if ((currentUrl = Main.class.getResource("images/play-round.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/play-round.png")) != null) {
                     ((ImageView) playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
                 program.mediaPlayer.seek(Duration.ZERO);
@@ -346,11 +345,11 @@ public class MainController implements Initializable {
         program.mediaPlayer.statusProperty().addListener((observableValue, oldValue, newValue) -> {
             URL currentUrl;
             if (newValue.equals(MediaPlayer.Status.PLAYING)) {
-                if ((currentUrl = Main.class.getResource("images/pause-round.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/pause-round.png")) != null) {
                     ((ImageView) playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             } else {
-                if ((currentUrl = Main.class.getResource("images/play-round.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/play-round.png")) != null) {
                     ((ImageView) playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             }
@@ -397,11 +396,11 @@ public class MainController implements Initializable {
             randomPlaying = !randomPlaying;
             URL currentUrl;
             if (randomPlaying) {
-                if ((currentUrl = Main.class.getResource("images/random-arrow_green.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/random-arrow_green.png")) != null) {
                     ((ImageView) randomPlayButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             } else {
-                if ((currentUrl = Main.class.getResource("images/random-arrow.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/random-arrow.png")) != null) {
                     ((ImageView) randomPlayButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             }
@@ -434,17 +433,17 @@ public class MainController implements Initializable {
             URL currentUrl;
             if (playingType.equals(PlayingType.NORMAL)) {
                 playingType = PlayingType.LOOP;
-                if ((currentUrl = Main.class.getResource("images/circle-arrow_green.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/circle-arrow_green.png")) != null) {
                     ((ImageView) loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             } else if (playingType.equals(PlayingType.LOOP)) {
                 playingType = PlayingType.LOOP_SONG;
-                if ((currentUrl = Main.class.getResource("images/circle-arrow_loop.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/circle-arrow_loop.png")) != null) {
                     ((ImageView) loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             } else if (playingType.equals(PlayingType.LOOP_SONG)) {
                 playingType = PlayingType.NORMAL;
-                if ((currentUrl = Main.class.getResource("images/circle-arrow.png")) != null) {
+                if ((currentUrl = Main.getResourceURL("images/circle-arrow.png")) != null) {
                     ((ImageView) loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
             }
@@ -490,7 +489,7 @@ public class MainController implements Initializable {
     private void openSongDialog() {
         Dialog<Song> addSongDialog = new Dialog<>();
         addSongDialog.initOwner(program.primaryStage);
-        FXMLLoader loader = new FXMLLoader(Main.class.getResource("fxml/addSongDialog.fxml"));
+        FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/addSongDialog.fxml"));
         loader.setControllerFactory(callback -> new AddSongDialogController(program));
         DialogPane addSongDialogPane = null;
         try {

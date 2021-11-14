@@ -5,8 +5,9 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
 import java.util.Date;
+import java.util.Objects;
 
-public class Song implements Comparable<Song> {
+public class Song {
     private Media song;
     private SimpleStringProperty title;
     private SimpleStringProperty interpreter;
@@ -103,7 +104,15 @@ public class Song implements Comparable<Song> {
     }
 
     @Override
-    public int compareTo(Song o) {
-        return Double.compare(Util.getMillisFromDateString(this.getAddedOn()), Util.getMillisFromDateString(o.getAddedOn()));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Song song1 = (Song) o;
+        return Objects.equals(song, song1.song) && Objects.equals(title, song1.title) && Objects.equals(interpreter, song1.interpreter) && Objects.equals(album, song1.album) && Objects.equals(addedOn, song1.addedOn) && Objects.equals(time, song1.time);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(song, title, interpreter, album, addedOn, time);
     }
 }

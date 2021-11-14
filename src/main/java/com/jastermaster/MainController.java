@@ -52,7 +52,7 @@ public class MainController implements Initializable {
     @FXML
     public TableView<Song> songsTableView;
     @FXML
-    public ListView<Playlist> playlistListView;
+    public TableView<Playlist> playlistTableView;
     @FXML
     public TextField searchInPlaylistField;
     @FXML
@@ -78,34 +78,34 @@ public class MainController implements Initializable {
         setUpSearchInPlaylistField();
         setUpSortSongsComboBox();
         setUpSortPlaylistsComboBox();
-        setUpPlaylistListView();
+        setUpPlaylistTableView();
+
+        songTitleLabel.textProperty().addListener((observableValue, oldValue, newValue) -> {
+            // TODO:
+            // Ellipsis = Ende vom gekürzten Text
+            songTitleLabel.setEllipsisString("");
+        });
     }
 
-    private void setUpPlaylistListView() {
+    private void setUpPlaylistTableView() {
         addPlaylistButton.setOnAction(actionEvent -> createNewPlaylist());
-        playlistListView.setCellFactory(playlistListView -> {
-            ListCell<Playlist> cell = new ListCell<>();
-            cell.setOnMouseClicked(mouseEvent -> {
-                if (playlistListView.getSelectionModel().getSelectedItem() == null) return;
-                if (currentPlaylist == null) currentPlaylist = playlistListView.getSelectionModel().getSelectedItem();
-                songsTableView.getItems().clear();
-                songsTableView.getItems().addAll(playlistListView.getSelectionModel().getSelectedItem().getSongs());
-            });
+        playlistTableView.setPlaceholder(new Label("No Playlists"));
+        playlistTableView.setRowFactory(playlistListView -> {
+            TableRow<Playlist> row = new TableRow<>();
             MenuItem addSongMenu = new MenuItem("Add Song");
             addSongMenu.setOnAction(actionEvent -> openSongDialog());
             MenuItem addSongsMenu = new MenuItem("Add Songs");
             addSongsMenu.setOnAction(actionEvent -> openSongs());
-            final ContextMenu playlistContextMenu = new ContextMenu(addSongMenu, addSongsMenu);
-            cell.emptyProperty().addListener((observableValue, oldValue, newValue) -> {
-                if (newValue) {
-                    cell.setContextMenu(null);
-                    cell.textProperty().unbind();
-                } else {
-                    cell.setContextMenu(playlistContextMenu);
-                    cell.textProperty().bind(cell.getItem().textProperty());
-                }
-            });
-            return cell;
+            ContextMenu playlistContextMenu = new ContextMenu(addSongMenu, addSongsMenu);
+            row.setContextMenu(playlistContextMenu);
+            return row;
+        });
+        playlistTableView.getColumns().get(0).setCellValueFactory(cellData -> new ReadOnlyObjectWrapper(cellData.getValue()));
+        playlistTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (newValue == null) return;
+            if (currentPlaylist == null) currentPlaylist = newValue;
+            songsTableView.getItems().clear();
+            songsTableView.getItems().addAll(newValue.getSongs());
         });
     }
 
@@ -114,24 +114,34 @@ public class MainController implements Initializable {
         sortSongsComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null) return;
             switch (newValue.intValue()) {
-                case 1 -> songsTableView.setSortPolicy(songTableView -> {
-                    currentPlaylist.getSongs().sort(Comparator.comparing(Song::getTitle));
+                case 0 -> songsTableView.setSortPolicy(songTableView -> {
+                    currentPlaylist.getSongs().sort(Comparator.comparingInt(o -> 0));
+                    songsTableView.setItems(FXCollections.observableList(currentPlaylist.getSongs()));
                     return true;
                 });
-                case 2 -> songsTableView.setSortPolicy(songTableView -> {
+                case 1 -> songsTableView.setSortPolicy(songTableView -> {
+                    currentPlaylist.getSongs().sort(Comparator.comparing(Song::getTitle));
+                    songsTableView.setItems(FXCollections.observableList(currentPlaylist.getSongs()));
+                    return true;
+                });
+                case 2 -> songsTableView.setSortPolicy(songsTableView -> {
                     currentPlaylist.getSongs().sort(Comparator.comparing(Song::getInterpreter));
+                    songsTableView.setItems(FXCollections.observableList(currentPlaylist.getSongs()));
                     return true;
                 });
                 case 3 -> songsTableView.setSortPolicy(songTableView -> {
                     currentPlaylist.getSongs().sort(Comparator.comparing(Song::getAlbum));
+                    songsTableView.setItems(FXCollections.observableList(currentPlaylist.getSongs()));
                     return true;
                 });
                 case 4 -> songsTableView.setSortPolicy(songTableView -> {
                     currentPlaylist.getSongs().sort(Comparator.comparing(Song::getAddedOn));
+                    songsTableView.setItems(FXCollections.observableList(currentPlaylist.getSongs()));
                     return true;
                 });
                 case 5 -> songsTableView.setSortPolicy(songTableView -> {
                     currentPlaylist.getSongs().sort(Comparator.comparing(Song::getTime));
+                    songsTableView.setItems(FXCollections.observableList(currentPlaylist.getSongs()));
                     return true;
                 });
             }
@@ -139,27 +149,43 @@ public class MainController implements Initializable {
     }
 
     private void setUpSortPlaylistsComboBox() {
-        // TODO: no sorting
         sortPlaylistsComboBox.getItems().addAll("Custom", "Name", "Song Count", "Time", "CreatedOn");
         sortPlaylistsComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null) return;
             switch (newValue.intValue()) {
-                case 1 -> playlistListView.getItems().sort(Comparator.comparing(Playlist::getTitle));
-                case 2 -> playlistListView.getItems().sort(Comparator.comparingInt(o -> o.getSongs().size()));
-                case 3 -> playlistListView.getItems().sort((o1, o2) -> {
-                    double o1Seconds = 0.0;
-                    for (Song song : o1.getSongs()) {
-                        o1Seconds += song.getSong().getDuration().toSeconds();
-                    }
-
-                    double o2Seconds = 0.0;
-                    for (Song song : o2.getSongs()) {
-                        o2Seconds += song.getSong().getDuration().toSeconds();
-                    }
-                    return Double.compare(o1Seconds, o2Seconds);
+                case 0 -> playlistTableView.setSortPolicy(playlistTableView -> {
+                    playlistTableView.getItems().sort(Comparator.comparingInt(o -> 0));
+                    return true;
                 });
-                case 4 -> playlistListView.getItems().sort(Comparator.comparingDouble(o -> Util.getMillisFromDateString(o.getCreatedOn())));
+                case 1 -> playlistTableView.setSortPolicy(playlistTableView -> {
+                    playlistTableView.getItems().sort(Comparator.comparing(Playlist::getTitle));
+                    return true;
+                });
+                case 2 -> playlistTableView.setSortPolicy(playlistTableView -> {
+                    playlistTableView.getItems().sort(Comparator.comparingInt(o -> o.getSongs().size()));
+                    return true;
+                });
+                case 3 -> playlistTableView.setSortPolicy(playlistTableView -> {
+                    playlistTableView.getItems().sort((o1, o2) -> {
+                        double o1Seconds = 0.0;
+                        for (Song song : o1.getSongs()) {
+                            o1Seconds += song.getSong().getDuration().toSeconds();
+                        }
+
+                        double o2Seconds = 0.0;
+                        for (Song song : o2.getSongs()) {
+                            o2Seconds += song.getSong().getDuration().toSeconds();
+                        }
+                        return Double.compare(o1Seconds, o2Seconds);
+                    });
+                    return true;
+                });
+                case 4 -> playlistTableView.setSortPolicy(playlistTableView -> {
+                    playlistTableView.getItems().sort(Comparator.comparingDouble(o -> Util.getMillisFromDateString(o.getCreatedOn())));
+                    return true;
+                });
             }
+            playlistTableView.sort();
         });
     }
 
@@ -202,8 +228,8 @@ public class MainController implements Initializable {
             TableRow<Song> row = new TableRow<>();
             row.setOnMouseClicked(mouseEvent -> {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
-                    if (!currentPlaylist.getSongs().contains(songsTableView.getSelectionModel().getSelectedItem())) {
-                        currentPlaylist = playlistListView.getSelectionModel().getSelectedItem();
+                    if (!playlistTableView.getSelectionModel().getSelectedItem().getTitle().equals(currentPlaylist.getTitle())) {
+                        currentPlaylist = playlistTableView.getSelectionModel().getSelectedItem();
                     }
                     setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
                     program.mediaPlayer.play();
@@ -228,7 +254,7 @@ public class MainController implements Initializable {
         });
         songsTableView.getColumns().get(0).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.setText(String.valueOf(currentPlaylist.getSongs().indexOf(cellData.getValue()) + 1));
+            label.setText(String.valueOf(songsTableView.getItems().indexOf(cellData.getValue()) + 1));
             HBox hBox = new HBox(label);
             hBox.setAlignment(Pos.CENTER_LEFT);
             return new ReadOnlyObjectWrapper(hBox);
@@ -526,6 +552,9 @@ public class MainController implements Initializable {
             newSong.setTitle(chosenFile.getName().split("\\.")[0]);
             currentPlaylist.addSong(newSong);
         }
+        if (playlistTableView.getSelectionModel().getSelectedItem().getTitle().equals(currentPlaylist.getTitle())) {
+            songsTableView.setItems(FXCollections.observableList(currentPlaylist.getSongs()));
+        }
     }
 
     private void openCloseDialog(WindowEvent windowEvent) {
@@ -594,7 +623,7 @@ public class MainController implements Initializable {
                 } else {
                     newPlaylist.setTitle("Unnamed");
                 }
-                playlistListView.getItems().add(newPlaylist);
+                playlistTableView.getItems().add(newPlaylist);
             }
         });
     }

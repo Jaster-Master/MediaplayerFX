@@ -11,17 +11,20 @@ public class Tester {
     public void testAddPlaylistAndSongs() throws InterruptedException {
         new Thread(() -> Main.startApplication(null)).start();
         Thread.sleep(2000);
-        Main.runningProgram.mainCon.playlistListView.getItems().add(new Playlist("Test"));
+        Main.runningProgram.mainCon.playlistTableView.getItems().add(new Playlist("Test"));
+        Main.runningProgram.mainCon.playlistTableView.getItems().add(new Playlist("meem"));
+        Main.runningProgram.mainCon.playlistTableView.getItems().add(new Playlist("sans"));
+        Main.runningProgram.mainCon.playlistTableView.getItems().add(new Playlist("asgore"));
         try {
             File file = new File("C:\\Users\\Julian\\Desktop\\Projects\\Java\\Test\\FXMediaPlayer");
             for (File listFile : file.listFiles()) {
                 if (listFile.getName().contains(".mp3") || listFile.getName().contains(".wav")) {
                     Song newSong = new Song();
                     if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
-                    newSong.setTitle(listFile.getName());
+                    newSong.setTitle(listFile.getName() + " long text to trigger the max length of the label");
                     newSong.setInterpreter("-");
                     newSong.setAlbum("-");
-                    Main.runningProgram.mainCon.playlistListView.getItems().get(0).addSong(newSong);
+                    Main.runningProgram.mainCon.playlistTableView.getItems().get(0).addSong(newSong);
                 }
             }
         } catch (Exception e) {
@@ -32,10 +35,10 @@ public class Tester {
                 if (listFile.getName().contains(".mp3") || listFile.getName().contains(".wav")) {
                     Song newSong = new Song();
                     if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
-                    newSong.setTitle(listFile.getName());
+                    newSong.setTitle(listFile.getName() + " long text to trigger the max length of the label");
                     newSong.setInterpreter("-");
                     newSong.setAlbum("-");
-                    Main.runningProgram.mainCon.playlistListView.getItems().get(0).addSong(newSong);
+                    Main.runningProgram.mainCon.playlistTableView.getItems().get(0).addSong(newSong);
                 }
             }
         } catch (Exception e) {

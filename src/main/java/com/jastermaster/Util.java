@@ -4,8 +4,7 @@ import javafx.geometry.*;
 import javafx.stage.*;
 
 import java.text.*;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 public class Util {
     public static String getTimeFromDouble(double millis) {
@@ -18,17 +17,16 @@ public class Util {
         return timeFormat.format(date);
     }
 
-    public static double getMillisFromDateString(String date) {
+    public static long getLongFromDateString(String date) {
         SimpleDateFormat timeFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         try {
             return timeFormat.parse(date).getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            return -1;
         }
-        return -1;
     }
 
-    public static void centerWindow(Window window){
+    public static void centerWindow(Window window) {
         window.addEventHandler(WindowEvent.WINDOW_SHOWN, windowEvent -> {
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             Window currentWindow = ((Window) windowEvent.getSource());

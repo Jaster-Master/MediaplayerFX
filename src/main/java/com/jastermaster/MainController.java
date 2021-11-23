@@ -1,43 +1,29 @@
 package com.jastermaster;
 
-import com.jfoenix.controls.JFXSlider;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
+import com.jfoenix.controls.*;
+import javafx.animation.*;
+import javafx.application.*;
+import javafx.beans.property.*;
+import javafx.collections.*;
+import javafx.concurrent.*;
+import javafx.fxml.*;
+import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.TableHeaderRow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.stage.FileChooser;
-import javafx.stage.WindowEvent;
-import javafx.util.Duration;
-import javafx.util.StringConverter;
+import javafx.scene.control.skin.*;
+import javafx.scene.image.*;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
+import javafx.scene.media.*;
+import javafx.scene.text.*;
+import javafx.stage.*;
+import javafx.util.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.*;
+import java.net.*;
+import java.text.*;
 import java.util.*;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 public class MainController implements Initializable {
 
@@ -64,6 +50,8 @@ public class MainController implements Initializable {
     private PlayingType playingType = PlayingType.NORMAL;
     private boolean randomPlaying;
 
+    private int titleLabelIndex;
+
     public MainController(Program program) {
         this.program = program;
     }
@@ -82,8 +70,38 @@ public class MainController implements Initializable {
 
         songTitleLabel.textProperty().addListener((observableValue, oldValue, newValue) -> {
             // TODO:
-            // Ellipsis = Ende vom gekürzten Text
             songTitleLabel.setEllipsisString("");
+            if (newValue.length() > 24) {
+                Task<String> slideLabelTask = new Task<>() {
+                    @Override
+                    protected String call() throws Exception {
+                        String title = currentPlaylist.getSongs().get(songIndex).getTitle();
+                        while (songTitleLabel.textProperty().get().length() > 24) {
+                            StringBuilder newText = new StringBuilder();
+                            if (titleLabelIndex >= title.length()) titleLabelIndex = 0;
+                            for (int i = titleLabelIndex; i < titleLabelIndex + 24; i++) {
+                                try {
+                                    newText.append(songTitleLabel.getText().toCharArray()[i]);
+                                } catch (IndexOutOfBoundsException e) {
+                                    break;
+                                }
+                            }
+                            titleLabelIndex++;
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            set(newText.toString());
+                        }
+                        return null;
+                    }
+                };
+                slideLabelTask.valueProperty().addListener((observableValue1, oldValue1, newValue1) -> {
+                    songTitleLabel.setText(newValue1);
+                });
+                new Thread(slideLabelTask).start();
+            }
         });
     }
 
@@ -181,7 +199,7 @@ public class MainController implements Initializable {
                     return true;
                 });
                 case 4 -> playlistTableView.setSortPolicy(playlistTableView -> {
-                    playlistTableView.getItems().sort(Comparator.comparingDouble(o -> Util.getMillisFromDateString(o.getCreatedOn())));
+                    playlistTableView.getItems().sort(Comparator.comparingDouble(o -> Util.getLongFromDateString(o.getCreatedOn())));
                     return true;
                 });
             }
@@ -315,6 +333,7 @@ public class MainController implements Initializable {
             }
         });
         speakerImageView.setOnMouseClicked(mouseEvent -> {
+            if (!mouseEvent.getButton().equals(MouseButton.PRIMARY)) return;
             if (volumeSlider.getValue() == 0.0) {
                 volumeSlider.setValue(lastVolume);
             } else {
@@ -325,6 +344,7 @@ public class MainController implements Initializable {
     }
 
     private void setUpTimeSlider() {
+        timeSlider.setDisable(true);
         timeSlider.setLabelFormatter(new StringConverter<>() {
             @Override
             public String toString(Double aDouble) {
@@ -483,6 +503,7 @@ public class MainController implements Initializable {
     }
 
     private void setUpNewSong(int index) {
+        timeSlider.setDisable(false);
         songIndex = index;
         boolean isPlaying = false;
         if (program.mediaPlayer != null) {

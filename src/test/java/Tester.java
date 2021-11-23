@@ -1,16 +1,14 @@
-import com.jastermaster.Main;
-import com.jastermaster.Playlist;
-import com.jastermaster.Song;
-import javafx.scene.media.Media;
-import org.junit.Test;
+import com.jastermaster.*;
+import javafx.scene.media.*;
+import org.junit.*;
 
-import java.io.File;
+import java.io.*;
 
 public class Tester {
     @Test
     public void testAddPlaylistAndSongs() throws InterruptedException {
         new Thread(() -> Main.startApplication(null)).start();
-        Thread.sleep(2000);
+        Thread.sleep(4000);
         Main.runningProgram.mainCon.playlistTableView.getItems().add(new Playlist("Test"));
         Main.runningProgram.mainCon.playlistTableView.getItems().add(new Playlist("meem"));
         Main.runningProgram.mainCon.playlistTableView.getItems().add(new Playlist("sans"));

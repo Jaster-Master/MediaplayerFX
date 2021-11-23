@@ -1,11 +1,11 @@
 package com.jastermaster;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import javafx.beans.property.*;
+import javafx.scene.media.*;
 
-import java.util.Date;
-import java.util.Objects;
+import java.time.*;
+import java.time.temporal.*;
+import java.util.*;
 
 public class Song {
     private Media song;
@@ -17,6 +17,7 @@ public class Song {
 
     public Song() {
         initializeProperties();
+        setAddedOn(new Date());
     }
 
     public Song(Media song) {
@@ -33,6 +34,15 @@ public class Song {
         album = new SimpleStringProperty("-");
         addedOn = new SimpleStringProperty("-");
         time = new SimpleStringProperty("-");
+        addedOn.addListener((observableValue, oldValue, newValue) -> {
+            long newDateLong = Util.getLongFromDateString(newValue);
+            if (newDateLong == -1) return;
+            Instant today = new Date().toInstant().truncatedTo(ChronoUnit.DAYS);
+            Instant newDate = new Date().toInstant().truncatedTo(ChronoUnit.DAYS);
+            if (today.equals(newDate)) {
+                addedOn.set("Today");
+            }
+        });
     }
 
     public Media getSong() {
@@ -41,6 +51,7 @@ public class Song {
 
     public void setSong(Media song) {
         this.song = song;
+        new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getTimeFromDouble(song.getDuration().toMillis())));
     }
 
     public String getTitle() {

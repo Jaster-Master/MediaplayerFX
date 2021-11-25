@@ -6,4 +6,5 @@ module MediaplayerFX {
     requires com.jfoenix;
 
     exports com.jastermaster;
+    exports com.jastermaster.controller;
 }

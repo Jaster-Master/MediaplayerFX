@@ -1,5 +1,7 @@
-package com.jastermaster;
+package com.jastermaster.controller;
 
+import com.jastermaster.Program;
+import com.jastermaster.Song;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;

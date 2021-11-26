@@ -1,18 +1,21 @@
 package com.jastermaster;
 
-import javafx.beans.property.*;
-import javafx.scene.media.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
-import java.time.*;
-import java.time.temporal.*;
-import java.util.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Objects;
 
-public class Song {
+public class Song implements Comparable<Song> {
     private Media song;
     private SimpleStringProperty title;
     private SimpleStringProperty interpreter;
     private SimpleStringProperty album;
     private SimpleStringProperty addedOn;
+    private long addedOnLong;
     private SimpleStringProperty time;
 
     public Song() {
@@ -98,8 +101,13 @@ public class Song {
         return addedOn;
     }
 
+    public long getAddedOnLong() {
+        return addedOnLong;
+    }
+
     public void setAddedOn(Date addedOn) {
         this.addedOn.set(Util.getTimeFromDate(addedOn));
+        this.addedOnLong = addedOn.getTime();
     }
 
     public String getTime() {
@@ -125,5 +133,10 @@ public class Song {
     @Override
     public int hashCode() {
         return Objects.hash(song, title, interpreter, album, addedOn, time);
+    }
+
+    @Override
+    public int compareTo(Song o) {
+        return 0;
     }
 }

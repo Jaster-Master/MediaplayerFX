@@ -3,6 +3,7 @@ package com.jastermaster;
 import javafx.scene.control.Label;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -10,6 +11,8 @@ public class Playlist extends Label {
     private String title;
     private List<Song> songs;
     private String createdOn;
+    private Comparator<Song> comparator;
+    private int comparatorIndex;
 
     public Playlist() {
         super();
@@ -55,5 +58,18 @@ public class Playlist extends Label {
 
     public void setCreatedOn(Date createdOn) {
         this.createdOn = Util.getTimeFromDate(createdOn);
+    }
+
+    public Comparator<Song> getComparator() {
+        return comparator;
+    }
+
+    public void setComparator(Comparator<Song> comparator, int comparatorIndex) {
+        this.comparator = comparator;
+        this.comparatorIndex = comparatorIndex;
+    }
+
+    public int getComparatorIndex() {
+        return comparatorIndex;
     }
 }

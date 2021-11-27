@@ -1,8 +1,10 @@
-import com.jastermaster.*;
-import javafx.scene.media.*;
-import org.junit.*;
+import com.jastermaster.Main;
+import com.jastermaster.Playlist;
+import com.jastermaster.Song;
+import javafx.scene.media.Media;
+import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
 
 public class Tester {
     @Test
@@ -20,7 +22,7 @@ public class Tester {
                     Song newSong = new Song();
                     if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
                     newSong.setTitle(listFile.getName() + " long text to trigger the max length of the label");
-                    newSong.setInterpreter("-");
+                    newSong.setInterpreter(listFile.getName() + " long text to trigger the max length of the label");
                     newSong.setAlbum("-");
                     Main.runningProgram.mainCon.playlistTableView.getItems().get(0).addSong(newSong);
                 }
@@ -34,7 +36,7 @@ public class Tester {
                     Song newSong = new Song();
                     if (listFile.exists()) newSong.setSong(new Media(listFile.toURI().toString()));
                     newSong.setTitle(listFile.getName() + " long text to trigger the max length of the label");
-                    newSong.setInterpreter("-");
+                    newSong.setInterpreter(listFile.getName() + " long text to trigger the max length of the label");
                     newSong.setAlbum("-");
                     Main.runningProgram.mainCon.playlistTableView.getItems().get(0).addSong(newSong);
                 }

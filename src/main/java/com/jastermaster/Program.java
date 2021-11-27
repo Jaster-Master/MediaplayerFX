@@ -4,7 +4,6 @@ import com.jastermaster.controller.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
 public class Program extends Application {
@@ -29,11 +28,13 @@ public class Program extends Application {
         primaryStage.setMinHeight(720);
         primaryStage.setMaximized(true);
         primaryStage.getScene().getStylesheets().add(cssPath);
+        mediaPlayer = new MediaplayerFX(this);
         primaryStage.show();
     }
 
-    public MediaPlayer mediaPlayer;
+    public MediaplayerFX mediaPlayer;
     public MainController mainCon;
     public Stage primaryStage;
     public String cssPath = Main.getResourceString("/css/light.css");
+    public DialogOpener dialogOpener;
 }

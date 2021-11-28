@@ -1,27 +1,25 @@
 package com.jastermaster;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
+import javafx.animation.*;
+import javafx.application.*;
+import javafx.beans.property.*;
+import javafx.scene.image.*;
+import javafx.scene.media.*;
+import javafx.util.*;
 
-import java.net.URL;
-import java.util.Random;
+import java.net.*;
+import java.util.*;
 
 public class MediaplayerFX {
-    private MediaPlayer mediaPlayer;
     private final Program program;
+    private MediaPlayer mediaPlayer;
 
-    private double lastVolume = 50.0;
-    private boolean randomPlaying = false;
-    private PlayingType playingType = PlayingType.NORMAL;
+    private Playlist playingPlaylist;
     private int songIndex;
-    private boolean isReady = false;
+    private double lastVolume;
+    private boolean randomPlaying;
+    private PlayingType playingType = PlayingType.NORMAL;
+    private boolean isReady;
     private final SimpleBooleanProperty isPlaying = new SimpleBooleanProperty();
 
     public MediaplayerFX(Program program) {
@@ -31,10 +29,10 @@ public class MediaplayerFX {
     private void setUpEvents() {
         mediaPlayer.setOnEndOfMedia(() -> {
             if (randomPlaying) {
-                program.mainCon.setUpNewSong(new Random().nextInt(0, program.mainCon.playingPlaylist.getSongs().size()));
-            } else if (songIndex + 1 >= program.mainCon.playingPlaylist.getSongs().size() && playingType.equals(PlayingType.LOOP)) {
+                program.mainCon.setUpNewSong(new Random().nextInt(0, playingPlaylist.getSongs().size()));
+            } else if (songIndex + 1 >= playingPlaylist.getSongs().size() && playingType.equals(PlayingType.LOOP)) {
                 program.mainCon.setUpNewSong(0);
-            } else if (songIndex + 1 >= program.mainCon.playingPlaylist.getSongs().size() && playingType.equals(PlayingType.NORMAL)) {
+            } else if (songIndex + 1 >= playingPlaylist.getSongs().size() && playingType.equals(PlayingType.NORMAL)) {
                 mediaPlayer.seek(Duration.ZERO);
                 mediaPlayer.stop();
             } else if (playingType.equals(PlayingType.LOOP_SONG)) {
@@ -66,7 +64,7 @@ public class MediaplayerFX {
                 }
             }
         });
-        mediaPlayer.setVolume(lastVolume / 100);
+        mediaPlayer.setVolume(lastVolume);
         mediaPlayer.setOnPlaying(this::fadeInAudio);
     }
 
@@ -103,21 +101,6 @@ public class MediaplayerFX {
         mediaPlayer.seek(time);
     }
 
-    public MediaPlayer.Status getStatus() {
-        if (!isReady) return null;
-        return mediaPlayer.getStatus();
-    }
-
-    public Duration getCurrentTime() {
-        if (!isReady) return null;
-        return mediaPlayer.getCurrentTime();
-    }
-
-    public void setVolume(double volume) {
-        if (!isReady) return;
-        mediaPlayer.setVolume(volume);
-    }
-
     private void fadeInAudio() {
         double currentVolume = lastVolume;
         if (program.mainCon.volumeSlider.getValue() == 0.0) {
@@ -145,11 +128,23 @@ public class MediaplayerFX {
         }).start();
     }
 
+    public Duration getCurrentTime() {
+        if (!isReady) return null;
+        return mediaPlayer.getCurrentTime();
+    }
+
+    public void setVolume(double volume) {
+        if (!isReady) return;
+        if (volume > 1.0) volume = volume / 100;
+        mediaPlayer.setVolume(volume);
+    }
+
     public double getLastVolume() {
         return lastVolume;
     }
 
     public void setLastVolume(double lastVolume) {
+        if (lastVolume > 1.0) lastVolume = lastVolume / 100;
         this.lastVolume = lastVolume;
     }
 
@@ -175,5 +170,17 @@ public class MediaplayerFX {
 
     public void setSongIndex(int songIndex) {
         this.songIndex = songIndex;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying.get();
+    }
+
+    public Playlist getPlayingPlaylist() {
+        return playingPlaylist;
+    }
+
+    public void setPlayingPlaylist(Playlist playingPlaylist) {
+        this.playingPlaylist = playingPlaylist;
     }
 }

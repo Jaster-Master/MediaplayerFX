@@ -1,27 +1,15 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.Program;
-import com.jastermaster.Song;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
-import javafx.scene.media.Media;
-import javafx.stage.FileChooser;
-import javafx.util.Callback;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
+import com.jastermaster.*;
+import javafx.fxml.*;
+import javafx.scene.control.*;
+import javafx.scene.media.*;
+import javafx.stage.*;
+import javafx.util.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 public class AddSongDialogController implements Initializable {
     @FXML
@@ -59,14 +47,8 @@ public class AddSongDialogController implements Initializable {
 
     private void setFields(File file) {
         pathField.setText(file.getAbsolutePath());
-        try {
-            AudioFile audioOfChosenFile = AudioFileIO.read(file);
-            Tag audioTag = audioOfChosenFile.getTag();
-            titleField.setText(file.getName().split("\\.")[0]);
-            // TODO: read audio attributes
-        } catch (CannotReadException | IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
-            e.printStackTrace();
-        }
+        titleField.setText(file.getName().split("\\.")[0]);
+        // TODO: read audio attributes
     }
 
     public Callback<ButtonType, Song> getCallback() {

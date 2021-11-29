@@ -4,9 +4,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Objects;
 
 public class Song implements Comparable<Song> {
@@ -15,20 +14,12 @@ public class Song implements Comparable<Song> {
     private SimpleStringProperty interpreter;
     private SimpleStringProperty album;
     private SimpleStringProperty addedOn;
-    private long addedOnLong;
+    private LocalDate addedOnDate;
     private SimpleStringProperty time;
 
     public Song() {
         initializeProperties();
-        setAddedOn(new Date());
-    }
-
-    public Song(Media song) {
-        initializeProperties();
-
-        this.song = song;
-        setAddedOn(new Date());
-        new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getTimeFromDouble(song.getDuration().toMillis())));
+        setAddedOn(LocalDate.now());
     }
 
     private void initializeProperties() {
@@ -37,24 +28,31 @@ public class Song implements Comparable<Song> {
         album = new SimpleStringProperty("-");
         addedOn = new SimpleStringProperty("-");
         time = new SimpleStringProperty("-");
-        addedOn.addListener((observableValue, oldValue, newValue) -> {
-            long newDateLong = Util.getLongFromDateString(newValue);
-            if (newDateLong == -1) return;
-            Instant today = new Date().toInstant().truncatedTo(ChronoUnit.DAYS);
-            Instant newDate = new Date().toInstant().truncatedTo(ChronoUnit.DAYS);
-            if (today.equals(newDate)) {
-                addedOn.set("Today");
-            }
-        });
     }
 
-    public Media getSong() {
-        return song;
+    public void setAddedOn(LocalDate addedOn) {
+        this.addedOnDate = addedOn;
+        if (LocalDate.now().isEqual(addedOnDate)) {
+            this.addedOn.set("Today");
+        } else if (LocalDate.now().minusDays(1).isEqual(addedOnDate)) {
+            this.addedOn.set("Yesterday");
+        } else {
+            long days = ChronoUnit.DAYS.between(addedOnDate, LocalDate.now());
+            if (days > 30) {
+                this.addedOn.set(Util.getStringFromDate(addedOnDate));
+            } else {
+                this.addedOn.set(days + " days ago");
+            }
+        }
     }
 
     public void setSong(Media song) {
         this.song = song;
-        new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getTimeFromDouble(song.getDuration().toMillis())));
+        new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
+    }
+
+    public Media getSong() {
+        return song;
     }
 
     public String getTitle() {
@@ -93,21 +91,12 @@ public class Song implements Comparable<Song> {
         this.album.set(album);
     }
 
-    public String getAddedOn() {
-        return addedOn.get();
-    }
-
     public SimpleStringProperty addedOnProperty() {
         return addedOn;
     }
 
-    public long getAddedOnLong() {
-        return addedOnLong;
-    }
-
-    public void setAddedOn(Date addedOn) {
-        this.addedOn.set(Util.getTimeFromDate(addedOn));
-        this.addedOnLong = addedOn.getTime();
+    public LocalDate getAddedOn() {
+        return addedOnDate;
     }
 
     public String getTime() {
@@ -116,10 +105,6 @@ public class Song implements Comparable<Song> {
 
     public SimpleStringProperty timeProperty() {
         return time;
-    }
-
-    public void setTime(String time) {
-        this.time.set(time);
     }
 
     @Override

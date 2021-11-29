@@ -2,29 +2,29 @@ package com.jastermaster;
 
 import javafx.scene.control.Label;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 public class Playlist extends Label {
     private String title;
     private List<Song> songs;
-    private String createdOn;
+    private LocalDate createdOn;
     private Comparator<Song> comparator;
     private int comparatorIndex;
 
     public Playlist() {
         super();
         songs = new ArrayList<>();
-        setCreatedOn(new Date());
+        setCreatedOn(LocalDate.now());
     }
 
     public Playlist(String title) {
         super(title);
         songs = new ArrayList<>();
         this.title = title;
-        setCreatedOn(new Date());
+        setCreatedOn(LocalDate.now());
     }
 
     public void addSong(Song song) {
@@ -52,12 +52,12 @@ public class Playlist extends Label {
         this.songs = songs;
     }
 
-    public String getCreatedOn() {
+    public LocalDate getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = Util.getTimeFromDate(createdOn);
+    public void setCreatedOn(LocalDate createdOn) {
+        this.createdOn = createdOn;
     }
 
     public Comparator<Song> getComparator() {

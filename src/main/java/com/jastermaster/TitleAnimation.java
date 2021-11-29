@@ -41,11 +41,11 @@ public class TitleAnimation {
         }
     }
 
-    // TODO: Zeit an Länge des Labels anpassen
+    // TODO: Speed an Länge des Labels anpassen
     private void setUpScrollPanes() {
         songTitle.widthProperty().addListener((observableValue, oldValue, newValue) -> {
-            KeyValue volume = new KeyValue(program.mainCon.songTitleScrollPane.hvalueProperty(), 1.0);
-            KeyFrame duration = new KeyFrame(Duration.seconds(10), volume);
+            KeyValue hValue = new KeyValue(program.mainCon.songTitleScrollPane.hvalueProperty(), 1.0);
+            KeyFrame duration = new KeyFrame(Duration.seconds(0), hValue);
             songTitleSliderAnimation = new Timeline(duration);
             songTitleSliderAnimation.setOnFinished(actionEvent -> {
                 songTitleEndPause = new PauseTransition(Duration.seconds(1));
@@ -66,8 +66,8 @@ public class TitleAnimation {
             }
         });
         songInterpreter.widthProperty().addListener((observableValue, oldValue, newValue) -> {
-            KeyValue volume = new KeyValue(program.mainCon.songInterpreterScrollPane.hvalueProperty(), 1.0);
-            KeyFrame duration = new KeyFrame(Duration.seconds(10), volume);
+            KeyValue hValue = new KeyValue(program.mainCon.songInterpreterScrollPane.hvalueProperty(), 1.0);
+            KeyFrame duration = new KeyFrame(Duration.seconds(0), hValue);
             songInterpreterSliderAnimation = new Timeline(duration);
             songInterpreterSliderAnimation.setOnFinished(actionEvent -> {
                 songInterpreterEndPause = new PauseTransition(Duration.seconds(1));

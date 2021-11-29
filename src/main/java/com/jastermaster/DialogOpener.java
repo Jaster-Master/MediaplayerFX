@@ -1,16 +1,22 @@
 package com.jastermaster;
 
-import com.jastermaster.controller.*;
-import javafx.fxml.*;
-import javafx.geometry.*;
+import com.jastermaster.controller.AddSongDialogController;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.media.*;
-import javafx.stage.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.stage.FileChooser;
+import javafx.stage.WindowEvent;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class DialogOpener {
     private final Program program;

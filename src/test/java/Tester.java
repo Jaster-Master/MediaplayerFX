@@ -43,7 +43,7 @@ public class Tester {
             }
         } catch (Exception e) {
         }
-        Main.runningProgram.mainCon.volumeSlider.setValue(10.0);
+        Main.runningProgram.mainCon.volumeSlider.setValue(0.0);
         while (Main.runningProgram.primaryStage.isShowing()) ;
     }
 }

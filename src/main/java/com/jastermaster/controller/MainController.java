@@ -1,24 +1,35 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.*;
-import com.jfoenix.controls.*;
-import javafx.application.*;
-import javafx.beans.property.*;
-import javafx.collections.*;
-import javafx.fxml.*;
-import javafx.geometry.*;
-import javafx.scene.*;
+import com.jfoenix.controls.JFXSlider;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.*;
-import javafx.scene.image.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.text.*;
-import javafx.util.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
 
-import java.net.*;
-import java.util.*;
-import java.util.regex.*;
+import java.net.URL;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class MainController implements Initializable {
 
@@ -187,7 +198,7 @@ public class MainController implements Initializable {
                 case 1 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()), newValue.intValue());
                 case 2 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator((o1, o2) -> o1.getInterpreter().compareToIgnoreCase(o2.getInterpreter()), newValue.intValue());
                 case 3 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator((o1, o2) -> o1.getAlbum().compareToIgnoreCase(o2.getAlbum()), newValue.intValue());
-                case 4 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator(Comparator.comparing(Song::getAddedOnLong), newValue.intValue());
+                case 4 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator(Comparator.comparing(Song::getAddedOn), newValue.intValue());
                 case 5 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator(Comparator.comparing(Song::getTime), newValue.intValue());
             }
             songsTableView.sort();
@@ -237,7 +248,7 @@ public class MainController implements Initializable {
                     return true;
                 });
                 case 4 -> playlistTableView.setSortPolicy(playlistTableView -> {
-                    playlistTableView.getItems().sort(Comparator.comparingDouble(o -> Util.getLongFromDateString(o.getCreatedOn())));
+                    playlistTableView.getItems().sort(Comparator.comparing(Playlist::getCreatedOn));
                     return true;
                 });
             }
@@ -322,12 +333,12 @@ public class MainController implements Initializable {
         timeSlider.setLabelFormatter(new StringConverter<>() {
             @Override
             public String toString(Double aDouble) {
-                return Util.getTimeFromDouble(aDouble * 1000);
+                return Util.getStringFromMillis(aDouble * 1000);
             }
 
             @Override
             public Double fromString(String s) {
-                return Util.getLongFromDateString(s) / 1000.0;
+                return (double) Util.getTimeFromString(s).getNano();
             }
         });
         timeSlider.setOnMouseReleased(mouseEvent -> program.mediaPlayer.seek(Duration.seconds(timeSlider.getValue())));

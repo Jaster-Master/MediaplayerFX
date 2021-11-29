@@ -1,14 +1,17 @@
 package com.jastermaster;
 
-import javafx.animation.*;
-import javafx.application.*;
-import javafx.beans.property.*;
-import javafx.scene.image.*;
-import javafx.scene.media.*;
-import javafx.util.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
-import java.net.*;
-import java.util.*;
+import java.net.URL;
+import java.util.Random;
 
 public class MediaplayerFX {
     private final Program program;
@@ -44,10 +47,10 @@ public class MediaplayerFX {
         });
         mediaPlayer.setOnReady(() -> {
             program.mainCon.timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
-            program.mainCon.timeLabel.setText(Util.getTimeFromDouble(mediaPlayer.getTotalDuration().toMillis()));
+            program.mainCon.timeLabel.setText(Util.getStringFromMillis(mediaPlayer.getTotalDuration().toMillis()));
         });
         mediaPlayer.currentTimeProperty().addListener((observableValue, oldValue, newValue) -> {
-            program.mainCon.currentTimeLabel.setText(Util.getTimeFromDouble(newValue.toMillis()));
+            program.mainCon.currentTimeLabel.setText(Util.getStringFromMillis(newValue.toMillis()));
             if (!program.mainCon.timeSlider.isPressed()) {
                 program.mainCon.timeSlider.setValue(newValue.toSeconds());
             }
@@ -106,7 +109,7 @@ public class MediaplayerFX {
         if (program.mainCon.volumeSlider.getValue() == 0.0) {
             currentVolume = 0;
         }
-        KeyValue volume = new KeyValue(mediaPlayer.volumeProperty(), currentVolume / 100);
+        KeyValue volume = new KeyValue(mediaPlayer.volumeProperty(), currentVolume);
         KeyFrame duration = new KeyFrame(Duration.millis(300), volume);
         Timeline timeline = new Timeline(duration);
         timeline.play();

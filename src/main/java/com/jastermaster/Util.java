@@ -1,30 +1,33 @@
 package com.jastermaster;
 
-import javafx.geometry.*;
-import javafx.stage.*;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 
-import java.text.*;
-import java.util.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class Util {
-    public static String getTimeFromDouble(double millis) {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        return timeFormat.format(new Date((long) millis));
+    public static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("mm:ss");
+
+    public static String getStringFromMillis(double millis) {
+        LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli((long) millis), ZoneId.systemDefault());
+        return date.format(timeFormatter);
     }
 
-    public static String getTimeFromDate(Date date) {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        return timeFormat.format(date);
+    public static String getStringFromDate(LocalDate date) {
+        return date.format(dateFormatter);
     }
 
-    public static long getLongFromDateString(String date) {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        try {
-            return timeFormat.parse(date).getTime();
-        } catch (ParseException e) {
-            return -1;
-        }
+    public static LocalDateTime getTimeFromString(String date) {
+        return LocalDateTime.from(timeFormatter.parse(date));
     }
+
 
     public static void centerWindow(Window window) {
         window.addEventHandler(WindowEvent.WINDOW_SHOWN, windowEvent -> {

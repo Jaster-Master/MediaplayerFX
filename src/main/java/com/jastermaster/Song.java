@@ -5,6 +5,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
@@ -16,6 +17,8 @@ public class Song implements Comparable<Song> {
     private SimpleStringProperty addedOn;
     private LocalDate addedOnDate;
     private SimpleStringProperty time;
+    private SimpleStringProperty playedOn;
+    private LocalDateTime playedOnTime;
 
     public Song() {
         initializeProperties();
@@ -28,6 +31,38 @@ public class Song implements Comparable<Song> {
         album = new SimpleStringProperty("-");
         addedOn = new SimpleStringProperty("-");
         time = new SimpleStringProperty("-");
+        playedOn = new SimpleStringProperty("-");
+    }
+
+    public void setPlayedOn(LocalDateTime playedOn) {
+        this.playedOnTime = playedOn;
+        long lastTime = ChronoUnit.SECONDS.between(playedOnTime, LocalDateTime.now());
+        if (lastTime > 60) {
+            lastTime = ChronoUnit.MINUTES.between(playedOnTime, LocalDateTime.now());
+            if (lastTime > 60) {
+                lastTime = ChronoUnit.HOURS.between(playedOnTime, LocalDateTime.now());
+                if (lastTime > 24) {
+                    lastTime = ChronoUnit.DAYS.between(playedOnTime, LocalDateTime.now());
+                    if (lastTime > 30) {
+                        lastTime = ChronoUnit.MONTHS.between(playedOnTime, LocalDateTime.now());
+                        if (lastTime > 12) {
+                            lastTime = ChronoUnit.YEARS.between(playedOnTime, LocalDateTime.now());
+                            this.playedOn.set(lastTime + " years ago");
+                            return;
+                        }
+                        this.playedOn.set(lastTime + " months ago");
+                        return;
+                    }
+                    this.playedOn.set(lastTime + " days ago");
+                    return;
+                }
+                this.playedOn.set(lastTime + " hours ago");
+                return;
+            }
+            this.playedOn.set(lastTime + " minutes ago");
+            return;
+        }
+        this.playedOn.set(lastTime + " seconds ago");
     }
 
     public void setAddedOn(LocalDate addedOn) {
@@ -105,6 +140,14 @@ public class Song implements Comparable<Song> {
 
     public SimpleStringProperty timeProperty() {
         return time;
+    }
+
+    public LocalDateTime getPlayedOn() {
+        return playedOnTime;
+    }
+
+    public SimpleStringProperty playedOnProperty() {
+        return playedOn;
     }
 
     @Override

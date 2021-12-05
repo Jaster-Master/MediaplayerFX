@@ -25,6 +25,7 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.ResourceBundle;
@@ -34,7 +35,7 @@ import java.util.regex.Pattern;
 public class MainController implements Initializable {
 
     @FXML
-    public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton, addPlaylistButton;
+    public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton, addPlaylistButton, lastPlayedSongsButton;
     @FXML
     public ImageView playlistPictureImageView, speakerImageView, songPictureImageView;
     @FXML
@@ -51,11 +52,18 @@ public class MainController implements Initializable {
     public ComboBox<String> sortSongsComboBox, sortPlaylistsComboBox;
     @FXML
     public ScrollPane songTitleScrollPane, songInterpreterScrollPane;
+    @FXML
+    public ToggleButton upDownSortSongsToggle;
+    @FXML
+    public ToggleButton upDownSortPlaylistsToggle;
 
     private final Program program;
     private ContextMenu songContextMenu;
     private ContextMenu playlistContextMenu;
     private TitleAnimation titleAnimation;
+
+    private Playlist lastPlayedSongs;
+    private Playlist selectedPlaylist;
 
     public MainController(Program program) {
         this.program = program;
@@ -73,6 +81,8 @@ public class MainController implements Initializable {
         setUpPlaylistsSorting();
         setUpPlaylistTableView();
         setUpClasses();
+        lastPlayedSongs = new Playlist();
+        lastPlayedSongs.setComparator(Comparator.comparing(Song::getPlayedOn), 6);
     }
 
     private void setUpClasses() {
@@ -89,8 +99,9 @@ public class MainController implements Initializable {
             TableRow<Song> row = new TableRow<>();
             row.setOnMouseClicked(mouseEvent -> {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
-                    if (!playlistTableView.getSelectionModel().getSelectedItem().equals(program.mediaPlayer.getPlayingPlaylist())) {
-                        program.mediaPlayer.setPlayingPlaylist(playlistTableView.getSelectionModel().getSelectedItem());
+                    if (!selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
+                        selectedPlaylist.setPlayedOn(LocalDateTime.now());
+                        program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
                     }
                     setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
                     program.mediaPlayer.play();
@@ -139,7 +150,12 @@ public class MainController implements Initializable {
         });
         songsTableView.getColumns().get(4).setCellValueFactory(cellData -> {
             Label label = new Label();
-            label.textProperty().bind(cellData.getValue().addedOnProperty());
+            label.textProperty().unbind();
+            if (selectedPlaylist.equals(lastPlayedSongs)) {
+                label.textProperty().bind(cellData.getValue().playedOnProperty());
+            } else {
+                label.textProperty().bind(cellData.getValue().addedOnProperty());
+            }
             HBox hBox = new HBox(label);
             hBox.setAlignment(Pos.CENTER_LEFT);
             return new ReadOnlyObjectWrapper(hBox);
@@ -174,19 +190,39 @@ public class MainController implements Initializable {
         playlistTableView.getColumns().get(0).setCellValueFactory(cellData -> new ReadOnlyObjectWrapper(cellData.getValue()));
         playlistTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null) return;
-            playlistTitleLabel.setText(newValue.getTitle());
-            songsTableView.getItems().clear();
-            songsTableView.getItems().addAll(newValue.getSongs());
-            sortSongsComboBox.getSelectionModel().select(newValue.getComparatorIndex());
-            songsTableView.sort();
+            selectPlaylist(newValue);
+        });
+
+        lastPlayedSongsButton.setOnAction(actionEvent -> {
+            playlistTableView.getSelectionModel().clearSelection();
+            selectPlaylist(lastPlayedSongs);
         });
     }
 
+    private void selectPlaylist(Playlist playlist) {
+        selectedPlaylist = playlist;
+        if (playlist.equals(lastPlayedSongs)) {
+            songsTableView.getColumns().get(4).setText("PlayedOn");
+        } else {
+            songsTableView.getColumns().get(4).setText("AddedOn");
+        }
+        playlistTitleLabel.setText(playlist.getTitle());
+        songsTableView.getItems().clear();
+        songsTableView.getItems().addAll(playlist.getSongs());
+        sortSongsComboBox.getSelectionModel().select(playlist.getComparatorIndex());
+        songsTableView.refresh();
+        songsTableView.sort();
+    }
+
     private void setUpSongsSorting() {
-        sortSongsComboBox.getItems().addAll("Custom", "Title", "Interpreter", "Album", "AddedOn", "Time");
+        sortSongsComboBox.getItems().addAll("Custom", "Title", "Interpreter", "Album", "AddedOn", "Time", "PlayedOn");
         songsTableView.setSortPolicy(songsTableView -> {
             try {
-                songsTableView.getItems().sort(playlistTableView.getSelectionModel().getSelectedItem().getComparator());
+                if (upDownSortSongsToggle.isSelected()) {
+                    songsTableView.getItems().sort(selectedPlaylist.getComparator().reversed());
+                } else {
+                    songsTableView.getItems().sort(selectedPlaylist.getComparator());
+                }
             } catch (NullPointerException e) {
                 return false;
             }
@@ -195,45 +231,64 @@ public class MainController implements Initializable {
         sortSongsComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null) return;
             switch (newValue.intValue()) {
-                case 1 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()), newValue.intValue());
-                case 2 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator((o1, o2) -> o1.getInterpreter().compareToIgnoreCase(o2.getInterpreter()), newValue.intValue());
-                case 3 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator((o1, o2) -> o1.getAlbum().compareToIgnoreCase(o2.getAlbum()), newValue.intValue());
-                case 4 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator(Comparator.comparing(Song::getAddedOn), newValue.intValue());
-                case 5 -> playlistTableView.getSelectionModel().getSelectedItem().setComparator(Comparator.comparing(Song::getTime), newValue.intValue());
+                case 1 -> selectedPlaylist.setComparator((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()), newValue.intValue());
+                case 2 -> selectedPlaylist.setComparator((o1, o2) -> o1.getInterpreter().compareToIgnoreCase(o2.getInterpreter()), newValue.intValue());
+                case 3 -> selectedPlaylist.setComparator((o1, o2) -> o1.getAlbum().compareToIgnoreCase(o2.getAlbum()), newValue.intValue());
+                case 4 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getAddedOn), newValue.intValue());
+                case 5 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getTime), newValue.intValue());
+                case 6 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getPlayedOn), newValue.intValue());
             }
             songsTableView.sort();
         });
-        /*Platform.runLater(() -> {
-            TableHeaderRow tableHeaderRow = (TableHeaderRow) songsTableView.lookup("TableHeaderRow");
-            tableHeaderRow.setOnMouseClicked(mouseEvent -> {
-                if (songsTableView.getColumns().get(0).getSortType().equals(TableColumn.SortType.ASCENDING)) {
-                    songsTableView.getColumns().forEach(c -> c.setSortType(TableColumn.SortType.DESCENDING));
-                } else {
-                    songsTableView.getColumns().forEach(c -> c.setSortType(TableColumn.SortType.ASCENDING));
+        upDownSortSongsToggle.setOnAction(actionEvent -> {
+            URL currentUrl;
+            if (upDownSortSongsToggle.isSelected()) {
+                if ((currentUrl = Main.getResourceURL("/images/triangle-top-arrow.png")) != null) {
+                    ((ImageView) upDownSortSongsToggle.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
-            });
-        });*/
+            } else {
+                if ((currentUrl = Main.getResourceURL("/images/triangle-bottom-arrow.png")) != null) {
+                    ((ImageView) upDownSortSongsToggle.getGraphic()).setImage(new Image(currentUrl.toString()));
+                }
+            }
+            songsTableView.sort();
+        });
     }
 
     private void setUpPlaylistsSorting() {
-        sortPlaylistsComboBox.getItems().addAll("Custom", "Name", "Song Count", "Time", "CreatedOn");
+        sortPlaylistsComboBox.getItems().addAll("Custom", "Name", "Song Count", "Time", "CreatedOn", "PlayedOn");
         sortPlaylistsComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null) return;
             switch (newValue.intValue()) {
                 case 0 -> playlistTableView.setSortPolicy(playlistTableView -> {
-                    playlistTableView.getItems().sort(Comparator.comparingInt(o -> 0));
+                    Comparator<Playlist> newComparator = Comparator.comparingInt(o -> 0);
+                    if (upDownSortPlaylistsToggle.isSelected()) {
+                        playlistTableView.getItems().sort(newComparator.reversed());
+                    } else {
+                        playlistTableView.getItems().sort(newComparator);
+                    }
                     return true;
                 });
                 case 1 -> playlistTableView.setSortPolicy(playlistTableView -> {
-                    playlistTableView.getItems().sort(Comparator.comparing(Playlist::getTitle));
+                    Comparator<Playlist> newComparator = Comparator.comparing(Playlist::getTitle);
+                    if (upDownSortPlaylistsToggle.isSelected()) {
+                        playlistTableView.getItems().sort(newComparator.reversed());
+                    } else {
+                        playlistTableView.getItems().sort(newComparator);
+                    }
                     return true;
                 });
                 case 2 -> playlistTableView.setSortPolicy(playlistTableView -> {
-                    playlistTableView.getItems().sort(Comparator.comparingInt(o -> o.getSongs().size()));
+                    Comparator<Playlist> newComparator = Comparator.comparingInt(o -> o.getSongs().size());
+                    if (upDownSortPlaylistsToggle.isSelected()) {
+                        playlistTableView.getItems().sort(newComparator.reversed());
+                    } else {
+                        playlistTableView.getItems().sort(newComparator);
+                    }
                     return true;
                 });
                 case 3 -> playlistTableView.setSortPolicy(playlistTableView -> {
-                    playlistTableView.getItems().sort((o1, o2) -> {
+                    Comparator<Playlist> newComparator = (o1, o2) -> {
                         double o1Seconds = 0.0;
                         for (Song song : o1.getSongs()) {
                             o1Seconds += song.getSong().getDuration().toSeconds();
@@ -244,26 +299,48 @@ public class MainController implements Initializable {
                             o2Seconds += song.getSong().getDuration().toSeconds();
                         }
                         return Double.compare(o1Seconds, o2Seconds);
-                    });
+                    };
+                    if (upDownSortPlaylistsToggle.isSelected()) {
+                        playlistTableView.getItems().sort(newComparator.reversed());
+                    } else {
+                        playlistTableView.getItems().sort(newComparator);
+                    }
                     return true;
                 });
                 case 4 -> playlistTableView.setSortPolicy(playlistTableView -> {
-                    playlistTableView.getItems().sort(Comparator.comparing(Playlist::getCreatedOn));
+                    Comparator<Playlist> newComparator = Comparator.comparing(Playlist::getCreatedOn);
+                    if (upDownSortPlaylistsToggle.isSelected()) {
+                        playlistTableView.getItems().sort(newComparator.reversed());
+                    } else {
+                        playlistTableView.getItems().sort(newComparator);
+                    }
+                    return true;
+                });
+                case 5 -> playlistTableView.setSortPolicy(playlistTableView -> {
+                    Comparator<Playlist> newComparator = Comparator.comparing(Playlist::getPlayedOn);
+                    if (upDownSortPlaylistsToggle.isSelected()) {
+                        playlistTableView.getItems().sort(newComparator.reversed());
+                    } else {
+                        playlistTableView.getItems().sort(newComparator);
+                    }
                     return true;
                 });
             }
             playlistTableView.sort();
         });
-        /*Platform.runLater(() -> {
-            TableHeaderRow tableHeaderRow = (TableHeaderRow) playlistTableView.lookup("TableHeaderRow");
-            tableHeaderRow.setOnMouseClicked(mouseEvent -> {
-                if (playlistTableView.getColumns().get(0).getSortType().equals(TableColumn.SortType.ASCENDING)) {
-                    playlistTableView.getColumns().forEach(c -> c.setSortType(TableColumn.SortType.DESCENDING));
-                } else {
-                    playlistTableView.getColumns().forEach(c -> c.setSortType(TableColumn.SortType.ASCENDING));
+        upDownSortPlaylistsToggle.setOnAction(actionEvent -> {
+            URL currentUrl;
+            if (upDownSortPlaylistsToggle.isSelected()) {
+                if ((currentUrl = Main.getResourceURL("/images/triangle-top-arrow.png")) != null) {
+                    ((ImageView) upDownSortPlaylistsToggle.getGraphic()).setImage(new Image(currentUrl.toString()));
                 }
-            });
-        });*/
+            } else {
+                if ((currentUrl = Main.getResourceURL("/images/triangle-bottom-arrow.png")) != null) {
+                    ((ImageView) upDownSortPlaylistsToggle.getGraphic()).setImage(new Image(currentUrl.toString()));
+                }
+            }
+            playlistTableView.sort();
+        });
     }
 
     private void setUpSearchInPlaylistField() {
@@ -426,6 +503,8 @@ public class MainController implements Initializable {
         if (isPlaying) {
             program.mediaPlayer.play();
         }
+        newSong.setPlayedOn(LocalDateTime.now());
+        lastPlayedSongs.addSong(newSong);
     }
 
     private void setButtonBehaviour(Button button) {

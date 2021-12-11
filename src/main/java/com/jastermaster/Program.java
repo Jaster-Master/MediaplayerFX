@@ -18,6 +18,7 @@ public class Program extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Main.runningProgram = this;
+        mediaPlayer = new MediaplayerFX(this);
         primaryStage = stage;
         FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/mainView.fxml"));
         loader.setControllerFactory(callback -> new MainController(this));
@@ -28,7 +29,6 @@ public class Program extends Application {
         primaryStage.setMinHeight(720);
         primaryStage.setMaximized(true);
         primaryStage.getScene().getStylesheets().add(cssPath);
-        mediaPlayer = new MediaplayerFX(this);
         primaryStage.show();
     }
 

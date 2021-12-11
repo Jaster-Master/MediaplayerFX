@@ -394,6 +394,17 @@ public class MainController implements Initializable {
                 }
             }
         });
+        volumeSlider.setLabelFormatter(new StringConverter<>() {
+            @Override
+            public String toString(Double aDouble) {
+                return String.valueOf(Math.round(aDouble * 100));
+            }
+
+            @Override
+            public Double fromString(String s) {
+                return (double) Math.round(Double.parseDouble(s) / 100);
+            }
+        });
         speakerImageView.setOnMouseClicked(mouseEvent -> {
             if (!mouseEvent.getButton().equals(MouseButton.PRIMARY)) return;
             if (volumeSlider.getValue() == 0.0) {
@@ -402,7 +413,7 @@ public class MainController implements Initializable {
                 volumeSlider.setValue(0.0);
             }
         });
-        volumeSlider.setValue(50.0);
+        volumeSlider.setValue(0.5);
     }
 
     private void setUpTimeSlider() {

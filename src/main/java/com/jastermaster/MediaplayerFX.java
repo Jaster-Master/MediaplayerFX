@@ -138,7 +138,6 @@ public class MediaplayerFX {
 
     public void setVolume(double volume) {
         if (!isReady) return;
-        if (volume > 1.0) volume = volume / 100;
         mediaPlayer.setVolume(volume);
     }
 
@@ -147,7 +146,6 @@ public class MediaplayerFX {
     }
 
     public void setLastVolume(double lastVolume) {
-        if (lastVolume > 1.0) lastVolume = lastVolume / 100;
         this.lastVolume = lastVolume;
     }
 

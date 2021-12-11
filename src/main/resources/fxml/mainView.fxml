@@ -249,7 +249,7 @@
                                         <Image url="@../images/sound-medium.png" />
                                     </image>
                                 </ImageView>
-                                <JFXSlider fx:id="volumeSlider" />
+                                <JFXSlider fx:id="volumeSlider" max="1.0" />
                             </children>
                         </HBox>
                     </children>

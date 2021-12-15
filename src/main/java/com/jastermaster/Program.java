@@ -1,17 +1,14 @@
 package com.jastermaster;
 
-import com.jastermaster.controller.MainController;
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import com.jastermaster.controller.*;
+import javafx.application.*;
+import javafx.fxml.*;
+import javafx.scene.*;
+import javafx.stage.*;
 
 public class Program extends Application {
 
-    private String[] params;
-
     public void startProgram(String[] params) {
-        this.params = params;
         launch(params);
     }
 

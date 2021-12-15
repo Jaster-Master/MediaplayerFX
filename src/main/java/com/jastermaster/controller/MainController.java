@@ -1,41 +1,31 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.*;
-import com.jfoenix.controls.JFXSlider;
-import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
+import com.jfoenix.controls.*;
+import javafx.application.*;
+import javafx.beans.property.*;
+import javafx.collections.*;
+import javafx.fxml.*;
+import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.TableHeaderRow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
+import javafx.scene.control.skin.*;
+import javafx.scene.image.*;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
+import javafx.util.*;
 
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.net.*;
+import java.time.*;
+import java.util.*;
+import java.util.regex.*;
 
 public class MainController implements Initializable {
 
     @FXML
-    public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton, addPlaylistButton, lastPlayedSongsButton;
+    public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton, addPlaylistButton, lastPlayedSongsButton, settingsButton;
     @FXML
     public ImageView playlistPictureImageView, speakerImageView, songPictureImageView;
     @FXML
@@ -81,6 +71,7 @@ public class MainController implements Initializable {
         setUpPlaylistsSorting();
         setUpPlaylistTableView();
         setUpClasses();
+        setUpSettings();
         lastPlayedSongs = new Playlist();
         lastPlayedSongs.setComparator(Comparator.comparing(Song::getPlayedOn), 6);
     }
@@ -231,9 +222,9 @@ public class MainController implements Initializable {
         sortSongsComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null) return;
             switch (newValue.intValue()) {
-                case 1 -> selectedPlaylist.setComparator((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()), newValue.intValue());
-                case 2 -> selectedPlaylist.setComparator((o1, o2) -> o1.getInterpreter().compareToIgnoreCase(o2.getInterpreter()), newValue.intValue());
-                case 3 -> selectedPlaylist.setComparator((o1, o2) -> o1.getAlbum().compareToIgnoreCase(o2.getAlbum()), newValue.intValue());
+                case 1 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getTitle, String.CASE_INSENSITIVE_ORDER), newValue.intValue());
+                case 2 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getInterpreter, String.CASE_INSENSITIVE_ORDER), newValue.intValue());
+                case 3 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getAlbum, String.CASE_INSENSITIVE_ORDER), newValue.intValue());
                 case 4 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getAddedOn), newValue.intValue());
                 case 5 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getTime), newValue.intValue());
                 case 6 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getPlayedOn), newValue.intValue());
@@ -262,6 +253,7 @@ public class MainController implements Initializable {
             switch (newValue.intValue()) {
                 case 0 -> playlistTableView.setSortPolicy(playlistTableView -> {
                     Comparator<Playlist> newComparator = Comparator.comparingInt(o -> 0);
+                    if (newComparator == null) return false;
                     if (upDownSortPlaylistsToggle.isSelected()) {
                         playlistTableView.getItems().sort(newComparator.reversed());
                     } else {
@@ -270,7 +262,8 @@ public class MainController implements Initializable {
                     return true;
                 });
                 case 1 -> playlistTableView.setSortPolicy(playlistTableView -> {
-                    Comparator<Playlist> newComparator = Comparator.comparing(Playlist::getTitle);
+                    Comparator<Playlist> newComparator = Comparator.comparing(Playlist::getTitle, String.CASE_INSENSITIVE_ORDER);
+                    if (newComparator == null) return false;
                     if (upDownSortPlaylistsToggle.isSelected()) {
                         playlistTableView.getItems().sort(newComparator.reversed());
                     } else {
@@ -280,6 +273,7 @@ public class MainController implements Initializable {
                 });
                 case 2 -> playlistTableView.setSortPolicy(playlistTableView -> {
                     Comparator<Playlist> newComparator = Comparator.comparingInt(o -> o.getSongs().size());
+                    if (newComparator == null) return false;
                     if (upDownSortPlaylistsToggle.isSelected()) {
                         playlistTableView.getItems().sort(newComparator.reversed());
                     } else {
@@ -309,6 +303,7 @@ public class MainController implements Initializable {
                 });
                 case 4 -> playlistTableView.setSortPolicy(playlistTableView -> {
                     Comparator<Playlist> newComparator = Comparator.comparing(Playlist::getCreatedOn);
+                    if (newComparator == null) return false;
                     if (upDownSortPlaylistsToggle.isSelected()) {
                         playlistTableView.getItems().sort(newComparator.reversed());
                     } else {
@@ -318,6 +313,7 @@ public class MainController implements Initializable {
                 });
                 case 5 -> playlistTableView.setSortPolicy(playlistTableView -> {
                     Comparator<Playlist> newComparator = Comparator.comparing(Playlist::getPlayedOn);
+                    if (newComparator == null) return false;
                     if (upDownSortPlaylistsToggle.isSelected()) {
                         playlistTableView.getItems().sort(newComparator.reversed());
                     } else {
@@ -534,6 +530,13 @@ public class MainController implements Initializable {
         button.setOnMouseReleased(mouseEvent -> {
             ((ImageView) button.getGraphic()).setFitHeight(45);
             ((ImageView) button.getGraphic()).setFitWidth(45);
+        });
+    }
+
+    private void setUpSettings() {
+        setButtonBehaviour(settingsButton);
+        settingsButton.setOnAction(actionEvent -> {
+            program.dialogOpener.openSettings();
         });
     }
 }

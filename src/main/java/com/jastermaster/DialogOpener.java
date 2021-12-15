@@ -1,22 +1,16 @@
 package com.jastermaster;
 
-import com.jastermaster.controller.AddSongDialogController;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
+import com.jastermaster.controller.*;
+import javafx.fxml.*;
+import javafx.geometry.*;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.stage.FileChooser;
-import javafx.stage.WindowEvent;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
+import javafx.scene.media.*;
+import javafx.stage.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
 
 public class DialogOpener {
     private final Program program;
@@ -103,6 +97,24 @@ public class DialogOpener {
             }
         });
         return newPlaylist;
+    }
+
+    public void openSettings() {
+        Dialog<Song> settingsDialog = new Dialog<>();
+        settingsDialog.initOwner(program.primaryStage);
+        FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/settingsDialog.fxml"));
+        loader.setControllerFactory(callback -> new SettingsController(program));
+        DialogPane settingsDialogPane = null;
+        try {
+            settingsDialogPane = loader.load();
+            settingsDialog.setDialogPane(settingsDialogPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        settingsDialog.setTitle("Settings");
+        Util.centerWindow(settingsDialogPane.getScene().getWindow());
+        settingsDialogPane.getScene().getStylesheets().add(program.cssPath);
+        settingsDialog.showAndWait();
     }
 
     public void openCloseDialog(WindowEvent windowEvent) {

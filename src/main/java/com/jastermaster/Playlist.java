@@ -1,16 +1,13 @@
 package com.jastermaster;
 
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.time.*;
+import java.util.*;
 
 public class Playlist extends Label {
     private String title;
-    private List<Song> songs;
+    private final List<Song> songs;
     private LocalDate createdOn;
     private LocalDateTime playedOn;
     private Comparator<Song> comparator;

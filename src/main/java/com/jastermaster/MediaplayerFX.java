@@ -1,17 +1,14 @@
 package com.jastermaster;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
+import javafx.animation.*;
+import javafx.application.*;
+import javafx.beans.property.*;
+import javafx.scene.image.*;
+import javafx.scene.media.*;
+import javafx.util.*;
 
-import java.net.URL;
-import java.util.Random;
+import java.net.*;
+import java.util.*;
 
 public class MediaplayerFX {
     private final Program program;
@@ -27,9 +24,10 @@ public class MediaplayerFX {
 
     public MediaplayerFX(Program program) {
         this.program = program;
+        addListeners();
     }
 
-    private void setUpEvents() {
+    private void setUpMediaplayer() {
         mediaPlayer.setOnEndOfMedia(() -> {
             if (randomPlaying) {
                 program.mainCon.setUpNewSong(new Random().nextInt(0, playingPlaylist.getSongs().size()));
@@ -55,6 +53,11 @@ public class MediaplayerFX {
                 program.mainCon.timeSlider.setValue(newValue.toSeconds());
             }
         });
+        mediaPlayer.setVolume(lastVolume);
+        mediaPlayer.setOnPlaying(this::fadeInAudio);
+    }
+
+    private void addListeners() {
         isPlaying.addListener((observableValue, oldValue, newValue) -> {
             URL currentUrl;
             if (newValue) {
@@ -67,13 +70,11 @@ public class MediaplayerFX {
                 }
             }
         });
-        mediaPlayer.setVolume(lastVolume);
-        mediaPlayer.setOnPlaying(this::fadeInAudio);
     }
 
     public void setSong(Song song) {
         mediaPlayer = new MediaPlayer(song.getSong());
-        setUpEvents();
+        setUpMediaplayer();
         isReady = true;
     }
 

@@ -46,8 +46,13 @@ public class AddSongDialogController implements Initializable {
     }
 
     private void setFields(File file) {
+        Media newSong = new Media(file.toURI().toString());
         pathField.setText(file.getAbsolutePath());
-        titleField.setText(file.getName().split("\\.")[0]);
+        if (newSong.getMetadata().get("title") != null) {
+            titleField.setText((String) newSong.getMetadata().get("title"));
+        } else {
+            titleField.setText(file.getName().split("\\.")[0]);
+        }
         // TODO: read audio attributes
     }
 

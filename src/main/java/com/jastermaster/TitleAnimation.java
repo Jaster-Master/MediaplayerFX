@@ -1,11 +1,8 @@
 package com.jastermaster;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
-import javafx.scene.control.Label;
-import javafx.util.Duration;
+import javafx.animation.*;
+import javafx.scene.control.*;
+import javafx.util.*;
 
 public class TitleAnimation {
     private final Label songTitle;
@@ -41,11 +38,11 @@ public class TitleAnimation {
         }
     }
 
-    // TODO: Speed an Länge des Labels anpassen
+    // TODO: Speed an Länge des Labels anpassen / No Catch
     private void setUpScrollPanes() {
         songTitle.widthProperty().addListener((observableValue, oldValue, newValue) -> {
             KeyValue hValue = new KeyValue(program.mainCon.songTitleScrollPane.hvalueProperty(), 1.0);
-            KeyFrame duration = new KeyFrame(Duration.seconds(0), hValue);
+            KeyFrame duration = new KeyFrame(Duration.seconds(10), hValue);
             songTitleSliderAnimation = new Timeline(duration);
             songTitleSliderAnimation.setOnFinished(actionEvent -> {
                 songTitleEndPause = new PauseTransition(Duration.seconds(1));
@@ -67,7 +64,7 @@ public class TitleAnimation {
         });
         songInterpreter.widthProperty().addListener((observableValue, oldValue, newValue) -> {
             KeyValue hValue = new KeyValue(program.mainCon.songInterpreterScrollPane.hvalueProperty(), 1.0);
-            KeyFrame duration = new KeyFrame(Duration.seconds(0), hValue);
+            KeyFrame duration = new KeyFrame(Duration.seconds(10), hValue);
             songInterpreterSliderAnimation = new Timeline(duration);
             songInterpreterSliderAnimation.setOnFinished(actionEvent -> {
                 songInterpreterEndPause = new PauseTransition(Duration.seconds(1));

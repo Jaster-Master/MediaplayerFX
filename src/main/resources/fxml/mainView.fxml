@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -160,24 +159,16 @@
                                 </ImageView>
                                 <VBox alignment="CENTER_LEFT">
                                     <children>
-                                        <ScrollPane fx:id="songTitleScrollPane" hbarPolicy="NEVER" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" style="-fx-background-color: rgba(0,0,0,0);" vbarPolicy="NEVER">
-                                            <content>
-                                                <Label fx:id="songTitleLabel" text="Title">
-                                                    <font>
-                                                        <Font name="System Bold" size="20.0" />
-                                                    </font>
-                                                </Label>
-                                            </content>
-                                        </ScrollPane>
-                                        <ScrollPane fx:id="songInterpreterScrollPane" hbarPolicy="NEVER" maxHeight="20.0" minHeight="20.0" prefHeight="20.0" style="-fx-background-color: rgba(0,0,0,0);" vbarPolicy="NEVER">
-                                            <content>
-                                                <Label fx:id="songInterpreterLabel" text="Interpreter">
-                                                    <font>
-                                                        <Font name="System Bold" size="14.0" />
-                                                    </font>
-                                                </Label>
-                                            </content>
-                                        </ScrollPane>
+                                          <Label fx:id="songTitleLabel" text="Title">
+                                              <font>
+                                                  <Font name="System Bold" size="20.0" />
+                                              </font>
+                                          </Label>
+                                          <Label fx:id="songInterpreterLabel" text="Interpreter">
+                                              <font>
+                                                  <Font name="System Bold" size="14.0" />
+                                              </font>
+                                          </Label>
                                     </children>
                                 </VBox>
                             </children>

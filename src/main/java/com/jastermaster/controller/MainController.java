@@ -1,26 +1,36 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.*;
-import com.jfoenix.controls.*;
-import javafx.application.*;
-import javafx.beans.property.*;
-import javafx.collections.*;
-import javafx.fxml.*;
-import javafx.geometry.*;
-import javafx.scene.*;
+import com.jfoenix.controls.JFXSlider;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.*;
-import javafx.scene.image.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.text.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
-import javafx.util.*;
+import javafx.util.StringConverter;
 
-import java.net.*;
-import java.time.*;
-import java.util.*;
-import java.util.regex.*;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class MainController implements Initializable {
 
@@ -50,7 +60,6 @@ public class MainController implements Initializable {
     private final Program program;
     private ContextMenu songContextMenu;
     private ContextMenu playlistContextMenu;
-    private TitleAnimation titleAnimation;
 
     private Playlist lastPlayedSongs;
     private Playlist selectedPlaylist;
@@ -80,7 +89,6 @@ public class MainController implements Initializable {
         ContextMenuFactory contextMenuFactory = new ContextMenuFactory(program);
         songContextMenu = contextMenuFactory.getSongContextMenu();
         playlistContextMenu = contextMenuFactory.getPlaylistContextMenu();
-        titleAnimation = new TitleAnimation(program, songTitleLabel, songInterpreterLabel);
         program.dialogOpener = new DialogOpener(program);
     }
 
@@ -504,9 +512,10 @@ public class MainController implements Initializable {
         }
         Song newSong = program.mediaPlayer.getPlayingPlaylist().getSongs().get(index);
         program.mediaPlayer.setSong(newSong);
-        titleAnimation.resetAnimations();
         songTitleLabel.setText(newSong.getTitle());
         songInterpreterLabel.setText(newSong.getInterpreter());
+        songTitleLabel.setTooltip(new Tooltip(songTitleLabel.getText()));
+        songInterpreterLabel.setTooltip(new Tooltip(songInterpreterLabel.getText()));
         if (isPlaying) {
             program.mediaPlayer.play();
         }

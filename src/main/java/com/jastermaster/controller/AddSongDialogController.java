@@ -1,15 +1,19 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.*;
-import javafx.fxml.*;
-import javafx.scene.control.*;
-import javafx.scene.media.*;
-import javafx.stage.*;
-import javafx.util.*;
+import com.jastermaster.Program;
+import com.jastermaster.Song;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
+import javafx.scene.media.Media;
+import javafx.stage.FileChooser;
+import javafx.util.Callback;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.File;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class AddSongDialogController implements Initializable {
     @FXML
@@ -51,7 +55,7 @@ public class AddSongDialogController implements Initializable {
         if (newSong.getMetadata().get("title") != null) {
             titleField.setText((String) newSong.getMetadata().get("title"));
         } else {
-            titleField.setText(file.getName().split("\\.")[0]);
+            titleField.setText(file.getName().substring(0, file.getName().length() - 4));
         }
         // TODO: read audio attributes
     }

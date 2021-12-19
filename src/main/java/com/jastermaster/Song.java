@@ -83,6 +83,7 @@ public class Song implements Comparable<Song> {
 
     public void setSong(Media song) {
         this.song = song;
+        // TODO: Too slow?
         new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
     }
 
@@ -155,12 +156,12 @@ public class Song implements Comparable<Song> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Song song1 = (Song) o;
-        return Objects.equals(song, song1.song) && Objects.equals(title, song1.title) && Objects.equals(interpreter, song1.interpreter) && Objects.equals(album, song1.album) && Objects.equals(addedOn, song1.addedOn) && Objects.equals(time, song1.time);
+        return Objects.equals(title.get(), song1.title.get()) && Objects.equals(interpreter.get(), song1.interpreter.get()) && Objects.equals(album.get(), song1.album.get()) && Objects.equals(time.get(), song1.time.get());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(song, title, interpreter, album, addedOn, time);
+        return Objects.hash(title.get(), interpreter.get(), album.get(), time.get());
     }
 
     @Override

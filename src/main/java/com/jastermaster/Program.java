@@ -1,10 +1,10 @@
 package com.jastermaster;
 
-import com.jastermaster.controller.*;
-import javafx.application.*;
-import javafx.fxml.*;
-import javafx.scene.*;
-import javafx.stage.*;
+import com.jastermaster.controller.MainController;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 public class Program extends Application {
 
@@ -20,7 +20,6 @@ public class Program extends Application {
         FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/mainView.fxml"));
         loader.setControllerFactory(callback -> new MainController(this));
         primaryStage.setScene(new Scene(loader.load()));
-        mainCon = loader.getController();
         primaryStage.setTitle("MediaplayerFX");
         primaryStage.setMinWidth(1280);
         primaryStage.setMinHeight(720);

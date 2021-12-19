@@ -1,9 +1,13 @@
 package com.jastermaster;
 
-import javafx.scene.control.*;
+import javafx.collections.FXCollections;
+import javafx.scene.control.Label;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class Playlist extends Label {
     private String title;
@@ -12,22 +16,31 @@ public class Playlist extends Label {
     private LocalDateTime playedOn;
     private Comparator<Song> comparator;
     private int comparatorIndex;
+    private final Program program;
 
-    public Playlist() {
+    public Playlist(Program program) {
         super();
+        this.program = program;
         songs = new ArrayList<>();
         setCreatedOn(LocalDate.now());
     }
 
-    public Playlist(String title) {
+    public Playlist(Program program, String title) {
         super(title);
+        this.program = program;
         songs = new ArrayList<>();
         this.title = title;
         setCreatedOn(LocalDate.now());
     }
 
     public void addSong(Song song) {
+        if (songs.contains(song)) {
+            if (!program.dialogOpener.openDuplicateWarningDialog()) return;
+        }
         songs.add(song);
+        if (program.mainCon.isSelectedPlaylist(this)) {
+            program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
+        }
     }
 
     public void removeSong(Song song) {

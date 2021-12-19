@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXSlider;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -21,15 +22,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class MainController implements Initializable {
@@ -51,8 +50,6 @@ public class MainController implements Initializable {
     @FXML
     public ComboBox<String> sortSongsComboBox, sortPlaylistsComboBox;
     @FXML
-    public ScrollPane songTitleScrollPane, songInterpreterScrollPane;
-    @FXML
     public ToggleButton upDownSortSongsToggle;
     @FXML
     public ToggleButton upDownSortPlaylistsToggle;
@@ -70,6 +67,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        program.mainCon = this;
         setUpButtons();
         setUpTimeSlider();
         setUpVolumeObjects();
@@ -81,14 +79,16 @@ public class MainController implements Initializable {
         setUpPlaylistTableView();
         setUpClasses();
         setUpSettings();
-        lastPlayedSongs = new Playlist();
+        lastPlayedSongs = new Playlist(program);
         lastPlayedSongs.setComparator(Comparator.comparing(Song::getPlayedOn), 6);
     }
 
     private void setUpClasses() {
-        ContextMenuFactory contextMenuFactory = new ContextMenuFactory(program);
-        songContextMenu = contextMenuFactory.getSongContextMenu();
-        playlistContextMenu = contextMenuFactory.getPlaylistContextMenu();
+        Platform.runLater(() -> {
+            ContextMenuFactory contextMenuFactory = new ContextMenuFactory(program);
+            songContextMenu = contextMenuFactory.getSongContextMenu();
+            playlistContextMenu = contextMenuFactory.getPlaylistContextMenu();
+        });
         program.dialogOpener = new DialogOpener(program);
     }
 
@@ -112,16 +112,26 @@ public class MainController implements Initializable {
         });
         songsTableView.widthProperty().addListener((src, o, n) -> Platform.runLater(() -> {
             if (o != null && o.intValue() > 0) return;
-            for (Node node : songsTableView.lookupAll(".column-header > .label")) {
-                if (node instanceof Label) ((Label) node).setAlignment(Pos.CENTER_LEFT);
+            List<Node> headerLabels = songsTableView.lookupAll(".column-header > .label").stream().toList();
+            ((Label) headerLabels.get(0)).setAlignment(Pos.CENTER);
+            for (int i = 1; i < headerLabels.size(); i++) {
+                ((Label) headerLabels.get(i)).setAlignment(Pos.CENTER_LEFT);
             }
         }));
-        songsTableView.getColumns().get(0).setCellValueFactory(cellData -> {
-            Label label = new Label();
-            label.setText(String.valueOf(songsTableView.getItems().indexOf(cellData.getValue()) + 1));
-            HBox hBox = new HBox(label);
-            hBox.setAlignment(Pos.CENTER_LEFT);
-            return new ReadOnlyObjectWrapper(hBox);
+        TableColumn<Song, Song> numberColumn = (TableColumn<Song, Song>) songsTableView.getColumns().get(0);
+        numberColumn.setCellFactory(new Callback<>() {
+            @Override
+            public TableCell<Song, Song> call(TableColumn<Song, Song> songStringTableColumn) {
+                return new TableCell<>() {
+                    @Override
+                    protected void updateItem(Song item, boolean empty) {
+                        if (!empty) {
+                            this.setAlignment(Pos.CENTER);
+                            this.setText(String.valueOf(this.getTableRow().getIndex() + 1));
+                        }
+                    }
+                };
+            }
         });
         songsTableView.getColumns().get(1).setCellValueFactory(cellData -> {
             Label title = new Label();
@@ -215,6 +225,13 @@ public class MainController implements Initializable {
 
     private void setUpSongsSorting() {
         sortSongsComboBox.getItems().addAll("Custom", "Title", "Interpreter", "Album", "AddedOn", "Time", "PlayedOn");
+        songsTableView.setOnSort(tableViewSortEvent -> tableViewSortEvent.getSource().refresh());
+        songsTableView.getItems().addListener((ListChangeListener<Song>) change -> {
+            change.next();
+            if (change.getAddedSize() > 0) {
+                songsTableView.sort();
+            }
+        });
         songsTableView.setSortPolicy(songsTableView -> {
             try {
                 if (upDownSortSongsToggle.isSelected()) {
@@ -547,5 +564,9 @@ public class MainController implements Initializable {
         settingsButton.setOnAction(actionEvent -> {
             program.dialogOpener.openSettings();
         });
+    }
+
+    public boolean isSelectedPlaylist(Playlist playlist) {
+        return playlist.equals(selectedPlaylist);
     }
 }

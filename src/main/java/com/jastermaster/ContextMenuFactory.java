@@ -1,7 +1,7 @@
 package com.jastermaster;
 
-import javafx.collections.FXCollections;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;
 
@@ -15,12 +15,22 @@ public class ContextMenuFactory {
     }
 
     public ContextMenu getSongContextMenu() {
+        ContextMenu contextMenu = new ContextMenu();
         MenuItem removeMenu = new MenuItem("Remove");
         removeMenu.setOnAction(actionEvent -> {
             program.mainCon.playlistTableView.getSelectionModel().getSelectedItem().removeSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
             program.mainCon.songsTableView.getItems().remove(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
         });
-        return new ContextMenu(removeMenu);
+        Menu addToPlaylistMenu = new Menu("Add to Playlist:");
+        for (Playlist item : program.mainCon.playlistTableView.getItems()) {
+            MenuItem currentPlaylist = new MenuItem(item.getTitle());
+            currentPlaylist.setOnAction(actionEvent -> {
+                item.addSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
+            });
+            addToPlaylistMenu.getItems().add(currentPlaylist);
+        }
+        contextMenu.getItems().addAll(addToPlaylistMenu, removeMenu);
+        return contextMenu;
     }
 
     public ContextMenu getPlaylistContextMenu() {
@@ -30,10 +40,6 @@ public class ContextMenuFactory {
             TableRow<Playlist> clickedRow = (TableRow<Playlist>) selectedMenuItem.getParentPopup().getOwnerNode();
             Song newSong = program.dialogOpener.addNewSong();
             clickedRow.getItem().addSong(newSong);
-            if (clickedRow.getItem().equals(program.mainCon.playlistTableView.getSelectionModel().getSelectedItem())) {
-                program.mainCon.songsTableView.setItems(FXCollections.observableList(clickedRow.getItem().getSongs()));
-                program.mainCon.songsTableView.sort();
-            }
         });
         MenuItem addSongsMenu = new MenuItem("Add Songs");
         addSongsMenu.setOnAction(actionEvent -> {
@@ -42,10 +48,6 @@ public class ContextMenuFactory {
             List<Song> newSongs = program.dialogOpener.addNewSongs();
             for (Song newSong : newSongs) {
                 clickedRow.getItem().addSong(newSong);
-            }
-            if (clickedRow.getItem().equals(program.mainCon.playlistTableView.getSelectionModel().getSelectedItem())) {
-                program.mainCon.songsTableView.setItems(FXCollections.observableList(clickedRow.getItem().getSongs()));
-                program.mainCon.songsTableView.sort();
             }
         });
         MenuItem removeMenu = new MenuItem("Remove");

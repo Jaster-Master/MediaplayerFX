@@ -72,7 +72,7 @@
                                 <Image url="@../images/UpdatedLogoBrighter.png" />
                             </image>
                         </ImageView>
-                        <Label fx:id="playlistTitleLabel" text="Title">
+                        <Label fx:id="playlistTitleLabel" text="-">
                             <font>
                                 <Font name="System Bold" size="20.0" />
                             </font>
@@ -126,7 +126,7 @@
                 </GridPane>
                 <TableView fx:id="songsTableView" layoutY="60.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
                     <columns>
-                        <TableColumn maxWidth="100.0" minWidth="100.0" prefWidth="100.0" reorderable="false" sortable="false" text="Number" />
+                        <TableColumn maxWidth="40.0" minWidth="40.0" prefWidth="40.0" reorderable="false" sortable="false" text="#" />
                         <TableColumn prefWidth="75.0" reorderable="false" sortable="false" text="Title" />
                         <TableColumn prefWidth="75.0" reorderable="false" sortable="false" text="Album" />
                         <TableColumn prefWidth="75.0" reorderable="false" sortable="false" text="Time" />
@@ -159,12 +159,12 @@
                                 </ImageView>
                                 <VBox alignment="CENTER_LEFT">
                                     <children>
-                                          <Label fx:id="songTitleLabel" text="Title">
+                                          <Label fx:id="songTitleLabel" text="-">
                                               <font>
                                                   <Font name="System Bold" size="20.0" />
                                               </font>
                                           </Label>
-                                          <Label fx:id="songInterpreterLabel" text="Interpreter">
+                                          <Label fx:id="songInterpreterLabel" text="-">
                                               <font>
                                                   <Font name="System Bold" size="14.0" />
                                               </font>

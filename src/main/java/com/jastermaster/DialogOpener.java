@@ -1,24 +1,16 @@
 package com.jastermaster;
 
-import com.jastermaster.controller.AddSongDialogController;
-import com.jastermaster.controller.DuplicateWarningDialogController;
-import com.jastermaster.controller.SettingsController;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
+import com.jastermaster.controller.*;
+import javafx.fxml.*;
+import javafx.geometry.*;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.stage.FileChooser;
-import javafx.stage.WindowEvent;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
+import javafx.scene.media.*;
+import javafx.stage.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
 
 public class DialogOpener {
     private final Program program;
@@ -57,7 +49,23 @@ public class DialogOpener {
         for (File chosenFile : chosenFiles) {
             Song newSong = new Song();
             newSong.setSong(new Media(chosenFile.toURI().toString()));
-            newSong.setTitle(chosenFile.getName().substring(0, chosenFile.getName().length() - 4));
+            new MediaPlayer(newSong.getSong()).setOnReady(() -> {
+                if (newSong.getSong().getMetadata().get("title") != null) {
+                    newSong.setTitle((String) newSong.getSong().getMetadata().get("title"));
+                } else {
+                    newSong.setTitle(chosenFile.getName().substring(0, chosenFile.getName().length() - 4));
+                }
+                if (newSong.getSong().getMetadata().get("artist") != null) {
+                    newSong.setInterpreter((String) newSong.getSong().getMetadata().get("artist"));
+                } else {
+                    newSong.setInterpreter("-");
+                }
+                if (newSong.getSong().getMetadata().get("album") != null) {
+                    newSong.setAlbum((String) newSong.getSong().getMetadata().get("album"));
+                } else {
+                    newSong.setAlbum("-");
+                }
+            });
             songs.add(newSong);
         }
         return songs;

@@ -1,19 +1,15 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.Program;
-import com.jastermaster.Song;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
-import javafx.scene.media.Media;
-import javafx.stage.FileChooser;
-import javafx.util.Callback;
+import com.jastermaster.*;
+import javafx.fxml.*;
+import javafx.scene.control.*;
+import javafx.scene.media.*;
+import javafx.stage.*;
+import javafx.util.*;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 public class AddSongDialogController implements Initializable {
     @FXML
@@ -52,17 +48,28 @@ public class AddSongDialogController implements Initializable {
     private void setFields(File file) {
         Media newSong = new Media(file.toURI().toString());
         pathField.setText(file.getAbsolutePath());
-        if (newSong.getMetadata().get("title") != null) {
-            titleField.setText((String) newSong.getMetadata().get("title"));
-        } else {
-            titleField.setText(file.getName().substring(0, file.getName().length() - 4));
-        }
-        // TODO: read audio attributes
+        new MediaPlayer(newSong).setOnReady(() -> {
+            if (newSong.getMetadata().get("title") != null) {
+                titleField.setText((String) newSong.getMetadata().get("title"));
+            } else {
+                titleField.setText(file.getName().substring(0, file.getName().length() - 4));
+            }
+            if (newSong.getMetadata().get("artist") != null) {
+                interpreterField.setText((String) newSong.getMetadata().get("artist"));
+            } else {
+                interpreterField.setText("-");
+            }
+            if (newSong.getMetadata().get("album") != null) {
+                albumField.setText((String) newSong.getMetadata().get("album"));
+            } else {
+                albumField.setText("-");
+            }
+        });
     }
 
     public Callback<ButtonType, Song> getCallback() {
         return buttonType -> {
-            if (!buttonType.equals(ButtonType.APPLY)) {
+            if (!buttonType.equals(ButtonType.FINISH)) {
                 return null;
             } else {
                 Song newSong = new Song();

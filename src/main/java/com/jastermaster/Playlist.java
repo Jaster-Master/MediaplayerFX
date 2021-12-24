@@ -1,13 +1,10 @@
 package com.jastermaster;
 
-import javafx.collections.FXCollections;
-import javafx.scene.control.Label;
+import javafx.collections.*;
+import javafx.scene.control.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.time.*;
+import java.util.*;
 
 public class Playlist extends Label {
     private String title;
@@ -36,6 +33,16 @@ public class Playlist extends Label {
     public void addSong(Song song) {
         if (songs.contains(song)) {
             if (!program.dialogOpener.openDuplicateWarningDialog()) return;
+        }
+        songs.add(song);
+        if (program.mainCon.isSelectedPlaylist(this)) {
+            program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
+        }
+    }
+
+    public void setSong(Song song) {
+        if (songs.contains(song)) {
+            return;
         }
         songs.add(song);
         if (program.mainCon.isSelectedPlaylist(this)) {

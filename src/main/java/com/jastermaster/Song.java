@@ -1,13 +1,11 @@
 package com.jastermaster;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import javafx.beans.property.*;
+import javafx.scene.media.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
+import java.time.*;
+import java.time.temporal.*;
+import java.util.*;
 
 public class Song implements Comparable<Song> {
     private Media song;
@@ -34,8 +32,7 @@ public class Song implements Comparable<Song> {
         playedOn = new SimpleStringProperty("-");
     }
 
-    public void setPlayedOn(LocalDateTime playedOn) {
-        this.playedOnTime = playedOn;
+    public void updatePlayedOn() {
         long lastTime = ChronoUnit.SECONDS.between(playedOnTime, LocalDateTime.now());
         if (lastTime > 60) {
             lastTime = ChronoUnit.MINUTES.between(playedOnTime, LocalDateTime.now());
@@ -63,6 +60,11 @@ public class Song implements Comparable<Song> {
             return;
         }
         this.playedOn.set(lastTime + " seconds ago");
+    }
+
+    public void setPlayedOn(LocalDateTime playedOn) {
+        this.playedOnTime = playedOn;
+        updatePlayedOn();
     }
 
     public void setAddedOn(LocalDate addedOn) {

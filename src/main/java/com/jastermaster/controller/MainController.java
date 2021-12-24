@@ -1,35 +1,26 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.*;
-import com.jfoenix.controls.JFXSlider;
-import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
+import com.jfoenix.controls.*;
+import javafx.application.*;
+import javafx.beans.property.*;
+import javafx.collections.*;
+import javafx.fxml.*;
+import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.TableHeaderRow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.util.Callback;
+import javafx.scene.control.skin.*;
+import javafx.scene.image.*;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
+import javafx.util.*;
 
-import java.net.URL;
-import java.time.LocalDateTime;
+import java.net.*;
+import java.time.*;
 import java.util.*;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 public class MainController implements Initializable {
 
@@ -212,6 +203,9 @@ public class MainController implements Initializable {
         selectedPlaylist = playlist;
         if (playlist.equals(lastPlayedSongs)) {
             songsTableView.getColumns().get(4).setText("PlayedOn");
+            for (Song song : lastPlayedSongs.getSongs()) {
+                song.updatePlayedOn();
+            }
         } else {
             songsTableView.getColumns().get(4).setText("AddedOn");
         }
@@ -537,7 +531,7 @@ public class MainController implements Initializable {
             program.mediaPlayer.play();
         }
         newSong.setPlayedOn(LocalDateTime.now());
-        lastPlayedSongs.addSong(newSong);
+        lastPlayedSongs.setSong(newSong);
     }
 
     private void setButtonBehaviour(Button button) {

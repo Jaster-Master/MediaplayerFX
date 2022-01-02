@@ -1,0 +1,17 @@
+.root {
+    -fx-text-fill: DARKGRAY;
+    -fx-background-color: #C0E6BA;
+}
+
+.button, .menu-button, .combo-box, .color-picker, .spinner .increment-arrow-button, .spinner .decrement-arrow-button, .check-box .box, .radio-button .radio{
+    -fx-text-fill: BLACK;
+    -fx-background-color: #EAF9E7;
+}
+
+.button:hover, .menu-button:hover, .combo-box:hover, .color-picker:hover, .spinner .increment-arrow-button:hover, .spinner .decrement-arrow-button:hover, .check-box .box:hover, .radio-button .radio:hover{
+    -fx-background-color: #4CA771;
+}
+
+.button:pressed, .menu-button:pressed, .combo-box:pressed, .color-picker:pressed, .spinner .increment-arrow-button:pressed, .spinner .decrement-arrow-button:pressed, .check-box .box:pressed, .radio-button .radio:pressed{
+    -fx-background-color: #C0E6BA;
+}

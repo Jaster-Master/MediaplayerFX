@@ -1,26 +1,35 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.*;
-import com.jfoenix.controls.*;
-import javafx.application.*;
-import javafx.beans.property.*;
-import javafx.collections.*;
-import javafx.fxml.*;
-import javafx.geometry.*;
-import javafx.scene.*;
+import com.jfoenix.controls.JFXSlider;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.*;
-import javafx.scene.image.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.text.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.util.*;
+import javafx.util.StringConverter;
 
-import java.net.*;
-import java.time.*;
+import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 public class MainController implements Initializable {
 
@@ -117,9 +126,40 @@ public class MainController implements Initializable {
                     @Override
                     protected void updateItem(Song item, boolean empty) {
                         if (!empty) {
+                            TableRow<Song> row = this.getTableRow();
+                            row.setOnMouseEntered(mouseEvent -> {
+                                this.setText(null);
+                                this.setGraphic(getPlayButton());
+                            });
+                            row.setOnMouseExited(mouseEvent -> {
+                                this.setGraphic(null);
+                                this.setText(String.valueOf(row.getIndex() + 1));
+                            });
                             this.setAlignment(Pos.CENTER);
-                            this.setText(String.valueOf(this.getTableRow().getIndex() + 1));
+                            this.setText(String.valueOf(row.getIndex() + 1));
                         }
+                    }
+
+                    private Button getPlayButton() {
+                        Button playSongButton = new Button();
+                        ImageView playSongImageView = new ImageView();
+                        playSongImageView.setFitHeight(20);
+                        playSongImageView.setFitWidth(20);
+                        playSongButton.setGraphic(playSongImageView);
+                        playSongButton.setStyle("-fx-background-color: TRANSPARENT;");
+                        URL currentUrl;
+                        if ((currentUrl = Main.getResourceURL("/images/play.png")) != null) {
+                            ((ImageView) playSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                        }
+                        playSongButton.setOnAction(actionEvent -> {
+                            if (!selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
+                                selectedPlaylist.setPlayedOn(LocalDateTime.now());
+                                program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
+                            }
+                            setUpNewSong(this.getIndex());
+                            program.mediaPlayer.play();
+                        });
+                        return playSongButton;
                     }
                 };
             }
@@ -536,20 +576,20 @@ public class MainController implements Initializable {
 
     private void setButtonBehaviour(Button button) {
         button.setOnMouseEntered(mouseEvent -> {
-            ((ImageView) button.getGraphic()).setFitHeight(45);
-            ((ImageView) button.getGraphic()).setFitWidth(45);
+            ((ImageView) button.getGraphic()).setFitHeight(button.getHeight() + 5);
+            ((ImageView) button.getGraphic()).setFitWidth(button.getWidth() + 5);
         });
         button.setOnMouseExited(mouseEvent -> {
-            ((ImageView) button.getGraphic()).setFitHeight(40);
-            ((ImageView) button.getGraphic()).setFitWidth(40);
+            ((ImageView) button.getGraphic()).setFitHeight(button.getHeight());
+            ((ImageView) button.getGraphic()).setFitWidth(button.getWidth());
         });
         button.setOnMousePressed(mouseEvent -> {
-            ((ImageView) button.getGraphic()).setFitHeight(40);
-            ((ImageView) button.getGraphic()).setFitWidth(40);
+            ((ImageView) button.getGraphic()).setFitHeight(button.getHeight());
+            ((ImageView) button.getGraphic()).setFitWidth(button.getWidth());
         });
         button.setOnMouseReleased(mouseEvent -> {
-            ((ImageView) button.getGraphic()).setFitHeight(45);
-            ((ImageView) button.getGraphic()).setFitWidth(45);
+            ((ImageView) button.getGraphic()).setFitHeight(button.getHeight() + 5);
+            ((ImageView) button.getGraphic()).setFitWidth(button.getWidth() + 5);
         });
     }
 

@@ -1,16 +1,26 @@
 package com.jastermaster;
 
-import com.jastermaster.controller.*;
-import javafx.fxml.*;
-import javafx.geometry.*;
+import com.jastermaster.controller.AddSongDialogController;
+import com.jastermaster.controller.DuplicateWarningDialogController;
+import com.jastermaster.controller.SettingsController;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.media.*;
-import javafx.stage.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.FileChooser;
+import javafx.stage.WindowEvent;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class DialogOpener {
     private final Program program;
@@ -34,7 +44,7 @@ public class DialogOpener {
         addSongDialog.setTitle("Add Song");
         addSongDialog.setResultConverter(((AddSongDialogController) loader.getController()).getCallback());
         Util.centerWindow(addSongDialogPane.getScene().getWindow());
-        addSongDialogPane.getScene().getStylesheets().add(program.cssPath);
+        setWindowStyle(addSongDialogPane.getScene());
         Optional<Song> result = addSongDialog.showAndWait();
         return result.orElse(null);
     }
@@ -94,7 +104,7 @@ public class DialogOpener {
         AnchorPane.setLeftAnchor(createPlaylistVBox, 0.0);
         AnchorPane.setBottomAnchor(createPlaylistVBox, 0.0);
         Util.centerWindow(createPlaylistDialogPane.getScene().getWindow());
-        createPlaylistDialogPane.getScene().getStylesheets().add(program.cssPath);
+        setWindowStyle(createPlaylistDialogPane.getScene());
         createPlaylistDialogPane.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 ((Button) createPlaylistDialogPane.lookupButton(ButtonType.FINISH)).fire();
@@ -128,7 +138,7 @@ public class DialogOpener {
         }
         settingsDialog.setTitle("Settings");
         Util.centerWindow(settingsDialogPane.getScene().getWindow());
-        settingsDialogPane.getScene().getStylesheets().add(program.cssPath);
+        setWindowStyle(settingsDialogPane.getScene());
         settingsDialog.showAndWait();
     }
 
@@ -150,7 +160,7 @@ public class DialogOpener {
         AnchorPane.setLeftAnchor(closeHBox, 0.0);
         AnchorPane.setBottomAnchor(closeHBox, 0.0);
         Util.centerWindow(closeDialogPane.getScene().getWindow());
-        closeDialogPane.getScene().getStylesheets().add(program.cssPath);
+        setWindowStyle(closeDialogPane.getScene());
         Optional<ButtonType> result = closeDialog.showAndWait();
         result.ifPresent(buttonType -> {
             if (buttonType.equals(ButtonType.YES)) {
@@ -177,8 +187,12 @@ public class DialogOpener {
         }
         duplicateWarningDialog.setTitle("Duplicate Warning");
         Util.centerWindow(duplicateWarningDialogPane.getScene().getWindow());
-        duplicateWarningDialogPane.getScene().getStylesheets().add(program.cssPath);
+        setWindowStyle(duplicateWarningDialogPane.getScene());
         Optional<ButtonType> result = duplicateWarningDialog.showAndWait();
         return result.map(buttonType -> buttonType.equals(ButtonType.YES)).orElse(false);
+    }
+
+    private void setWindowStyle(Scene scene) {
+        scene.getStylesheets().add(program.cssPath);
     }
 }

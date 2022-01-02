@@ -79,7 +79,7 @@
                         </Label>
                     </children>
                 </HBox>
-            <Button fx:id="settingsButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: WHITE;" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+            <Button fx:id="settingsButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: TRANSPARENT;" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
                <graphic>
                   <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -177,7 +177,7 @@
                             <children>
                                 <HBox alignment="CENTER" prefHeight="50.0" spacing="20.0">
                                     <children>
-                                        <Button fx:id="randomPlayButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: WHITE;">
+                                        <Button fx:id="randomPlayButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: TRANSPARENT;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                                     <image>
@@ -186,7 +186,7 @@
                                                 </ImageView>
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="lastSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: WHITE;">
+                                        <Button fx:id="lastSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: TRANSPARENT;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                                     <image>
@@ -195,7 +195,7 @@
                                                 </ImageView>
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="playButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: WHITE;">
+                                        <Button fx:id="playButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: TRANSPARENT;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                                     <image>
@@ -204,7 +204,7 @@
                                                 </ImageView>
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="nextSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: WHITE;">
+                                        <Button fx:id="nextSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: TRANSPARENT;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                                     <image>
@@ -213,7 +213,7 @@
                                                 </ImageView>
                                             </graphic>
                                         </Button>
-                                        <Button fx:id="loopSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: WHITE;">
+                                        <Button fx:id="loopSongButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: TRANSPARENT;">
                                             <graphic>
                                                 <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                                     <image>

@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 public class MainController implements Initializable {
 
     @FXML
-    public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton, addPlaylistButton, lastPlayedSongsButton, settingsButton;
+    public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton, addPlaylistButton, lastPlayedSongsButton, settingsButton, playPlaylistButton, playlistMenuButton;
     @FXML
     public ImageView playlistPictureImageView, speakerImageView, songPictureImageView;
     @FXML
@@ -59,7 +59,7 @@ public class MainController implements Initializable {
     private ContextMenu playlistContextMenu;
 
     private Playlist lastPlayedSongs;
-    private Playlist selectedPlaylist;
+    public Playlist selectedPlaylist;
 
     public MainController(Program program) {
         this.program = program;
@@ -125,19 +125,21 @@ public class MainController implements Initializable {
                 return new TableCell<>() {
                     @Override
                     protected void updateItem(Song item, boolean empty) {
-                        if (!empty) {
-                            TableRow<Song> row = this.getTableRow();
-                            row.setOnMouseEntered(mouseEvent -> {
-                                this.setText(null);
-                                this.setGraphic(getPlayButton());
-                            });
-                            row.setOnMouseExited(mouseEvent -> {
-                                this.setGraphic(null);
-                                this.setText(String.valueOf(row.getIndex() + 1));
-                            });
-                            this.setAlignment(Pos.CENTER);
-                            this.setText(String.valueOf(row.getIndex() + 1));
+                        if (empty) return;
+                        TableRow<Song> row = this.getTableRow();
+                        if (program.mediaPlayer.getSongIndex() == this.getIndex() && program.mediaPlayer.isReady()) {
+                            row.setStyle("-fx-background-color: #4CA771;");
                         }
+                        this.setText(String.valueOf(row.getIndex() + 1));
+                        row.setOnMouseEntered(mouseEvent -> {
+                            this.setText(null);
+                            this.setGraphic(getPlayButton());
+                        });
+                        row.setOnMouseExited(mouseEvent -> {
+                            this.setGraphic(null);
+                            this.setText(String.valueOf(row.getIndex() + 1));
+                        });
+                        this.setAlignment(Pos.CENTER);
                     }
 
                     private Button getPlayButton() {
@@ -241,6 +243,16 @@ public class MainController implements Initializable {
 
     private void selectPlaylist(Playlist playlist) {
         selectedPlaylist = playlist;
+        URL currentUrl;
+        if (!program.mainCon.selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
+            if ((currentUrl = Main.getResourceURL("/images/play-round.png")) != null) {
+                ((ImageView) program.mainCon.playPlaylistButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+            }
+        } else if (program.mediaPlayer.isPlaying()) {
+            if ((currentUrl = Main.getResourceURL("/images/pause-round.png")) != null) {
+                ((ImageView) program.mainCon.playPlaylistButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+            }
+        }
         if (playlist.equals(lastPlayedSongs)) {
             songsTableView.getColumns().get(4).setText("PlayedOn");
             for (Song song : lastPlayedSongs.getSongs()) {
@@ -489,11 +501,32 @@ public class MainController implements Initializable {
     }
 
     private void setUpButtons() {
+        setButtonBehaviour(playPlaylistButton);
+        setButtonBehaviour(playlistMenuButton);
         setButtonBehaviour(randomPlayButton);
         setButtonBehaviour(lastSongButton);
         setButtonBehaviour(playButton);
         setButtonBehaviour(nextSongButton);
         setButtonBehaviour(loopSongButton);
+        playPlaylistButton.setOnAction(actionEvent -> {
+            if (selectedPlaylist == null) return;
+            if (!selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist()) && selectedPlaylist.getSongs().size() > 0) {
+                selectedPlaylist.setPlayedOn(LocalDateTime.now());
+                program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
+                setUpNewSong(0);
+                program.mediaPlayer.play();
+            } else {
+                if (program.mediaPlayer.isPlaying()) {
+                    program.mediaPlayer.pause();
+                } else {
+                    program.mediaPlayer.play();
+                }
+            }
+        });
+        playlistMenuButton.setOnMouseClicked(mouseEvent -> {
+            if (selectedPlaylist == null) return;
+            playlistContextMenu.show(playlistMenuButton, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+        });
         randomPlayButton.setOnAction(actionEvent -> {
             program.mediaPlayer.setRandomPlaying(!program.mediaPlayer.isRandomPlaying());
             URL currentUrl;
@@ -572,6 +605,7 @@ public class MainController implements Initializable {
         }
         newSong.setPlayedOn(LocalDateTime.now());
         lastPlayedSongs.setSong(newSong);
+        songsTableView.refresh();
     }
 
     private void setButtonBehaviour(Button button) {
@@ -598,9 +632,5 @@ public class MainController implements Initializable {
         settingsButton.setOnAction(actionEvent -> {
             program.dialogOpener.openSettings();
         });
-    }
-
-    public boolean isSelectedPlaylist(Playlist playlist) {
-        return playlist.equals(selectedPlaylist);
     }
 }

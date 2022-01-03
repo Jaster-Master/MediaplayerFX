@@ -1,14 +1,17 @@
 package com.jastermaster;
 
-import javafx.animation.*;
-import javafx.application.*;
-import javafx.beans.property.*;
-import javafx.scene.image.*;
-import javafx.scene.media.*;
-import javafx.util.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
-import java.net.*;
-import java.util.*;
+import java.net.URL;
+import java.util.Random;
 
 public class MediaplayerFX {
     private final Program program;
@@ -63,10 +66,16 @@ public class MediaplayerFX {
             if (newValue) {
                 if ((currentUrl = Main.getResourceURL("/images/pause-round.png")) != null) {
                     ((ImageView) program.mainCon.playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                    if (program.mainCon.selectedPlaylist.equals(playingPlaylist)) {
+                        ((ImageView) program.mainCon.playPlaylistButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                    }
                 }
             } else {
                 if ((currentUrl = Main.getResourceURL("/images/play-round.png")) != null) {
                     ((ImageView) program.mainCon.playButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                    if (program.mainCon.selectedPlaylist.equals(playingPlaylist)) {
+                        ((ImageView) program.mainCon.playPlaylistButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                    }
                 }
             }
         });

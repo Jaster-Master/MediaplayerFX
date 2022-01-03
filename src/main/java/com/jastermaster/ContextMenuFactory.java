@@ -22,6 +22,7 @@ public class ContextMenuFactory {
             program.mainCon.songsTableView.getItems().remove(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
         });
         Menu addToPlaylistMenu = new Menu("Add to Playlist:");
+        // Add all playlists to menu
         for (Playlist item : program.mainCon.playlistTableView.getItems()) {
             MenuItem currentPlaylist = new MenuItem(item.getTitle());
             currentPlaylist.setOnAction(actionEvent -> {
@@ -50,12 +51,23 @@ public class ContextMenuFactory {
                 clickedRow.getItem().addSong(newSong);
             }
         });
+        Menu addToPlaylistMenu = new Menu("Add to Playlist:");
+        for (Playlist item : program.mainCon.playlistTableView.getItems()) {
+            MenuItem currentPlaylist = new MenuItem(item.getTitle());
+            currentPlaylist.setOnAction(actionEvent -> {
+                if (program.mainCon.selectedPlaylist == null) return;
+                for (Song song : program.mainCon.selectedPlaylist.getSongs()) {
+                    item.addSong(song);
+                }
+            });
+            addToPlaylistMenu.getItems().add(currentPlaylist);
+        }
         MenuItem removeMenu = new MenuItem("Remove");
         removeMenu.setOnAction(actionEvent -> {
             MenuItem selectedMenuItem = (MenuItem) actionEvent.getTarget();
             TableRow<Playlist> clickedRow = (TableRow<Playlist>) selectedMenuItem.getParentPopup().getOwnerNode();
             program.mainCon.playlistTableView.getItems().remove(clickedRow.getItem());
         });
-        return new ContextMenu(addSongMenu, addSongsMenu, removeMenu);
+        return new ContextMenu(addSongMenu, addSongsMenu, addToPlaylistMenu, removeMenu);
     }
 }

@@ -84,11 +84,12 @@ public class DialogOpener {
     public Playlist createNewPlaylist() {
         Dialog<ButtonType> createPlaylistDialog = new Dialog<>();
         createPlaylistDialog.initOwner(program.primaryStage);
-        Label createPlaylistLabel = new Label("Type in the name of the Playlist!");
+        createPlaylistDialog.setTitle(program.resourceBundle.getString("createPlaylistHeader"));
+        Label createPlaylistLabel = new Label(program.resourceBundle.getString("createPlaylistLabel"));
         HBox createPlaylistHBox = new HBox(createPlaylistLabel);
         createPlaylistHBox.setAlignment(Pos.CENTER);
         TextField createPlaylistField = new TextField();
-        createPlaylistField.setPromptText("Playlist-Name");
+        createPlaylistField.setPromptText(program.resourceBundle.getString("createPlaylistField"));
         VBox createPlaylistVBox = new VBox(createPlaylistHBox, createPlaylistField);
         createPlaylistVBox.setAlignment(Pos.CENTER);
         createPlaylistVBox.setSpacing(10.0);
@@ -117,7 +118,7 @@ public class DialogOpener {
                 if (createPlaylistField.getText() != null && !createPlaylistField.getText().isEmpty()) {
                     newPlaylist.setTitle(createPlaylistField.getText());
                 } else {
-                    newPlaylist.setTitle("Unnamed");
+                    newPlaylist.setTitle(program.resourceBundle.getString("defaultPlaylistName"));
                 }
             }
         });
@@ -125,10 +126,10 @@ public class DialogOpener {
     }
 
     public void openSettings() {
-        Dialog<Song> settingsDialog = new Dialog<>();
+        Dialog<ButtonType> settingsDialog = new Dialog<>();
         settingsDialog.initOwner(program.primaryStage);
         FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/settingsDialog.fxml"));
-        loader.setControllerFactory(callback -> new SettingsController(program));
+        loader.setControllerFactory(callback -> new SettingsController(program, settingsDialog));
         DialogPane settingsDialogPane = null;
         try {
             settingsDialogPane = loader.load();
@@ -136,7 +137,7 @@ public class DialogOpener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        settingsDialog.setTitle("Settings");
+        settingsDialog.setTitle(program.resourceBundle.getString("settingsLabel"));
         Util.centerWindow(settingsDialogPane.getScene().getWindow());
         setWindowStyle(settingsDialogPane.getScene());
         settingsDialog.showAndWait();
@@ -145,7 +146,7 @@ public class DialogOpener {
     public void openCloseDialog(WindowEvent windowEvent) {
         Dialog<ButtonType> closeDialog = new Dialog<>();
         closeDialog.initOwner(program.primaryStage);
-        Label closeLabel = new Label("Close?");
+        Label closeLabel = new Label(program.resourceBundle.getString("wantToCloseLabel"));
         HBox closeHBox = new HBox(closeLabel);
         closeHBox.setAlignment(Pos.CENTER);
         DialogPane closeDialogPane = new DialogPane();

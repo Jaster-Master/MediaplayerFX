@@ -57,7 +57,9 @@ public class MediaplayerFX {
             }
         });
         mediaPlayer.setVolume(lastVolume);
-        mediaPlayer.setOnPlaying(this::fadeInAudio);
+        mediaPlayer.setOnPlaying(() -> {
+            if (program.audioFade) this.fadeInAudio();
+        });
     }
 
     private void addListeners() {
@@ -99,7 +101,7 @@ public class MediaplayerFX {
 
     public void pause() {
         if (!isReady) return;
-        fadeOutAudio();
+        if (program.audioFade) fadeOutAudio();
         isPlaying.set(false);
     }
 

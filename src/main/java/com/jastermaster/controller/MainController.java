@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -153,6 +154,13 @@ public class MainController implements Initializable {
                         if ((currentUrl = Main.getResourceURL("/images/play.png")) != null) {
                             ((ImageView) playSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                         }
+                        EventHandler<MouseEvent> contextMenuFix = mouseEvent -> {
+                            if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                                songContextMenu.show(this.getTableRow(), mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                            }
+                        };
+                        playSongButton.setOnMouseClicked(contextMenuFix);
+                        playSongImageView.setOnMouseClicked(contextMenuFix);
                         playSongButton.setOnAction(actionEvent -> {
                             if (!selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
                                 selectedPlaylist.setPlayedOn(LocalDateTime.now());

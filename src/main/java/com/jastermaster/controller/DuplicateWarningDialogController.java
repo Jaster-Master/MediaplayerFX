@@ -1,12 +1,17 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.Program;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class DuplicateWarningDialogController implements Initializable {
+
+    @FXML
+    public Label duplicateSongWarningLabel;
 
     private final Program program;
 
@@ -16,6 +21,10 @@ public class DuplicateWarningDialogController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        setLanguage();
+    }
 
+    private void setLanguage() {
+        duplicateSongWarningLabel.setText(program.resourceBundle.getString("duplicateSongWarningLabel"));
     }
 }

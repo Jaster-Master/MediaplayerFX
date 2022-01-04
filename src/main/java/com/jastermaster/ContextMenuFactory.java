@@ -16,12 +16,12 @@ public class ContextMenuFactory {
 
     public ContextMenu getSongContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem removeMenu = new MenuItem("Remove");
+        MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
             program.mainCon.playlistTableView.getSelectionModel().getSelectedItem().removeSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
             program.mainCon.songsTableView.getItems().remove(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
         });
-        Menu addToPlaylistMenu = new Menu("Add to Playlist:");
+        Menu addToPlaylistMenu = new Menu(program.resourceBundle.getString("contextMenuAddToPlaylist"));
         // Add all playlists to menu
         for (Playlist item : program.mainCon.playlistTableView.getItems()) {
             MenuItem currentPlaylist = new MenuItem(item.getTitle());
@@ -35,14 +35,14 @@ public class ContextMenuFactory {
     }
 
     public ContextMenu getPlaylistContextMenu() {
-        MenuItem addSongMenu = new MenuItem("Add Song");
+        MenuItem addSongMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSong"));
         addSongMenu.setOnAction(actionEvent -> {
             MenuItem selectedMenuItem = (MenuItem) actionEvent.getTarget();
             TableRow<Playlist> clickedRow = (TableRow<Playlist>) selectedMenuItem.getParentPopup().getOwnerNode();
             Song newSong = program.dialogOpener.addNewSong();
             clickedRow.getItem().addSong(newSong);
         });
-        MenuItem addSongsMenu = new MenuItem("Add Songs");
+        MenuItem addSongsMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSongs"));
         addSongsMenu.setOnAction(actionEvent -> {
             MenuItem selectedMenuItem = (MenuItem) actionEvent.getTarget();
             TableRow<Playlist> clickedRow = (TableRow<Playlist>) selectedMenuItem.getParentPopup().getOwnerNode();
@@ -51,7 +51,7 @@ public class ContextMenuFactory {
                 clickedRow.getItem().addSong(newSong);
             }
         });
-        Menu addToPlaylistMenu = new Menu("Add to Playlist:");
+        Menu addToPlaylistMenu = new Menu(program.resourceBundle.getString("contextMenuAddToPlaylist"));
         for (Playlist item : program.mainCon.playlistTableView.getItems()) {
             MenuItem currentPlaylist = new MenuItem(item.getTitle());
             currentPlaylist.setOnAction(actionEvent -> {
@@ -62,7 +62,7 @@ public class ContextMenuFactory {
             });
             addToPlaylistMenu.getItems().add(currentPlaylist);
         }
-        MenuItem removeMenu = new MenuItem("Remove");
+        MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
             MenuItem selectedMenuItem = (MenuItem) actionEvent.getTarget();
             TableRow<Playlist> clickedRow = (TableRow<Playlist>) selectedMenuItem.getParentPopup().getOwnerNode();

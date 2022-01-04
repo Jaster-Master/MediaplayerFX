@@ -1,17 +1,26 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.*;
-import javafx.fxml.*;
-import javafx.scene.control.*;
-import javafx.scene.media.*;
-import javafx.stage.*;
-import javafx.util.*;
+import com.jastermaster.Program;
+import com.jastermaster.Song;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.FileChooser;
+import javafx.util.Callback;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.File;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class AddSongDialogController implements Initializable {
+
+    @FXML
+    public Label pathLabel, titleLabel, interpreterLabel, albumLabel;
     @FXML
     public TextField pathField, titleField, interpreterField, albumField;
     @FXML
@@ -24,6 +33,7 @@ public class AddSongDialogController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        setLanguage();
         setUpOpenPathButton();
         pathField.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null || newValue.isEmpty()) return;
@@ -32,6 +42,22 @@ public class AddSongDialogController implements Initializable {
                 setFields(file);
             }
         });
+    }
+
+    public Callback<ButtonType, Song> getCallback() {
+        return buttonType -> {
+            if (!buttonType.equals(ButtonType.FINISH)) {
+                return null;
+            } else {
+                Song newSong = new Song();
+                File audioFile = new File(pathField.getText());
+                if (audioFile.exists()) newSong.setSong(new Media(audioFile.toURI().toString()));
+                if (titleField.getText() != null) newSong.setTitle(titleField.getText());
+                if (interpreterField.getText() != null) newSong.setInterpreter(interpreterField.getText());
+                if (albumField.getText() != null) newSong.setAlbum(albumField.getText());
+                return newSong;
+            }
+        };
     }
 
     private void setUpOpenPathButton() {
@@ -67,19 +93,14 @@ public class AddSongDialogController implements Initializable {
         });
     }
 
-    public Callback<ButtonType, Song> getCallback() {
-        return buttonType -> {
-            if (!buttonType.equals(ButtonType.FINISH)) {
-                return null;
-            } else {
-                Song newSong = new Song();
-                File audioFile = new File(pathField.getText());
-                if (audioFile.exists()) newSong.setSong(new Media(audioFile.toURI().toString()));
-                if (titleField.getText() != null) newSong.setTitle(titleField.getText());
-                if (interpreterField.getText() != null) newSong.setInterpreter(interpreterField.getText());
-                if (albumField.getText() != null) newSong.setAlbum(albumField.getText());
-                return newSong;
-            }
-        };
+    private void setLanguage() {
+        pathLabel.setText(program.resourceBundle.getString("addSongPathLabel"));
+        openPathButton.setText(program.resourceBundle.getString("addSongOpenPathLabel"));
+        titleLabel.setText(program.resourceBundle.getString("addSongTitleLabel"));
+        titleField.setPromptText(program.resourceBundle.getString("titleLabel"));
+        interpreterLabel.setText(program.resourceBundle.getString("addSongInterpreterLabel"));
+        interpreterField.setPromptText(program.resourceBundle.getString("interpreterSortLabel"));
+        albumLabel.setText(program.resourceBundle.getString("addSongAlbumLabel"));
+        albumField.setPromptText(program.resourceBundle.getString("albumLabel"));
     }
 }

@@ -58,7 +58,11 @@ public class MediaplayerFX {
         });
         mediaPlayer.setVolume(lastVolume);
         mediaPlayer.setOnPlaying(() -> {
-            if (program.audioFade) this.fadeInAudio();
+            if (program.audioFade) {
+                this.fadeInAudio();
+            } else {
+                this.mediaPlayer.setVolume(program.mainCon.volumeSlider.getValue());
+            }
         });
     }
 
@@ -101,7 +105,11 @@ public class MediaplayerFX {
 
     public void pause() {
         if (!isReady) return;
-        if (program.audioFade) fadeOutAudio();
+        if (program.audioFade) {
+            fadeOutAudio();
+        } else {
+            mediaPlayer.pause();
+        }
         isPlaying.set(false);
     }
 

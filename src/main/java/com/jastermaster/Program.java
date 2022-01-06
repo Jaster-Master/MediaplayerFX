@@ -58,8 +58,13 @@ public class Program extends Application {
         mainCon.sortSongsComboBox.getItems().set(5, resourceBundle.getString("timeLabel"));
         mainCon.sortSongsComboBox.getItems().set(6, resourceBundle.getString("playedOnSortLabel"));
         mainCon.playlistTableView.getColumns().get(0).setText(resourceBundle.getString("playlistsTableViewHeader"));
+        mainCon.playlistTableView.setPlaceholder(new Label(resourceBundle.getString("playlistsTableViewPlaceholder")));
         mainCon.searchInPlaylistField.setPromptText(resourceBundle.getString("searchField"));
-        mainCon.playlistTableView.setPlaceholder(new Label(resourceBundle.getString("songsTableViewPlaceholder")));
+        mainCon.songsTableView.setPlaceholder(new Label(resourceBundle.getString("songsTableViewPlaceholder")));
+        mainCon.songsTableView.getColumns().get(1).setText(resourceBundle.getString("titleLabel"));
+        mainCon.songsTableView.getColumns().get(2).setText(resourceBundle.getString("albumLabel"));
+        mainCon.songsTableView.getColumns().get(3).setText(resourceBundle.getString("timeLabel"));
+        mainCon.songsTableView.getColumns().get(4).setText(resourceBundle.getString("addedOnLabel"));
     }
 
     public ResourceBundle resourceBundle;

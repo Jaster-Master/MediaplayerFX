@@ -1,17 +1,308 @@
+@import "base.css";
+
 .root {
-    -fx-text-fill: DARKGRAY;
-    -fx-background-color: #C0E6BA;
+    -fx-background-color: #f3f3f3;
+    scroll_pane_background_color: -fx-background-color;
+    dialog_background_color: white;
+    tab_pane_background_color: #f3f3f3;
 }
 
-.button, .menu-button, .combo-box, .color-picker, .spinner .increment-arrow-button, .spinner .decrement-arrow-button, .check-box .box, .radio-button .radio{
-    -fx-text-fill: BLACK;
-    -fx-background-color: #EAF9E7;
+.background{
+    -fx-background-color: #f3f3f3;
 }
 
-.button:hover, .menu-button:hover, .combo-box:hover, .color-picker:hover, .spinner .increment-arrow-button:hover, .spinner .decrement-arrow-button:hover, .check-box .box:hover, .radio-button .radio:hover{
-    -fx-background-color: #4CA771;
+.header{
+    -fx-text-fill: black;
 }
 
-.button:pressed, .menu-button:pressed, .combo-box:pressed, .color-picker:pressed, .spinner .increment-arrow-button:pressed, .spinner .decrement-arrow-button:pressed, .check-box .box:pressed, .radio-button .radio:pressed{
-    -fx-background-color: #C0E6BA;
+.item-title{
+    -fx-text-fill: black;
+}
+
+.menu-button,
+.choice-box,
+.combo-box-base,
+.split-menu-button {
+    arrow_color: #111;
+}
+
+.list-view,
+.table-view,
+.tree-view,
+.tree-table-view {
+    cell_hover_color: #dadada;
+    cell_pressed_color: #c2c2c2;
+
+    cell_selected_unfocused_color: cell_hover_color;
+
+    cell_selected_color: derive(accent_color, 90%);
+    cell_selected_hover_color: derive(accent_color, 70%);
+    cell_selected_pressed_color: derive(accent_color, 60%);
+}
+
+.label {
+    text_color: #111;
+}
+
+Text {
+    text_color: #111;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Button and ToggleButton                                                     *
+ *                                                                             *
+ ******************************************************************************/
+
+.button, .toggle-button {
+    button_background_color: #cccccc;
+    background_pressed_color: #999999;
+
+    border_hover_color: #7a7a7a;
+
+    text_color: #111;
+    default_button_text_color: white;
+
+    -fx-border-color: transparent;
+}
+
+.button {
+    border_hover_default_color: derive(accent_color, -40%);
+}
+
+.toggle-button {
+    border_hover_selected_color: derive(accent_color, -40%);
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Check Box                                                                   *
+ *                                                                             *
+ ******************************************************************************/
+.check-box {
+    text_color: #111;
+
+    box_background_color: white;
+
+    box_border_color: #333333;
+    box_border_hover_color: #333333;
+
+    indeterminate_mark_color: #333333;
+    indeterminate_box_pressed_color: white;
+
+    focus_ring_color: #111;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Tooltip                                                                     *
+ *                                                                             *
+ ******************************************************************************/
+
+.tooltip {
+    tooltip_background_color: #f2f2f2;
+    border_color: #cccccc;
+    text_color: #111;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Scroll Bar and Scroll Pane                                                  *
+ *                                                                             *
+ ******************************************************************************/
+
+.scroll-bar {
+    thumb_color: #c2c7ca;
+    thumb_hover_color: #838689;
+    thumb_pressed_color: #585a5c;
+
+    track_color: #e9e9e9;
+
+    inc_dec_button_color: #e8e6e3;
+    inc_dec_button_hover_color: #c6cacf;
+    inc_dec_button_pressed_color: #585a5c;
+
+    arrow_color: #5a5a59;
+    arrow_pressed_color: white;
+}
+
+.scroll-pane {
+    corner_background_color: #e9e9e9;
+}
+
+.list-view > .virtual-flow > .corner,
+.tree-view > .virtual-flow > .corner,
+.table-view > .virtual-flow > .corner,
+.tree-table-view > .virtual-flow > .corner {
+    corner_background_color: #e9e9e9;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Combo Box                                                                   *
+ *                                                                             *
+ ******************************************************************************/
+
+.combo-box-base {
+    text_color: #111;
+
+    /* border */
+    border_color: #999999;
+    border_hover_color: #666666;
+    border_focused_color: #5c5c5c;
+    border_pressed_color: border_color;
+
+    /* background */
+    combo_box_background_color: white;
+    background_pressed_color: #cccccc;
+
+    /* editable */
+    combo_box_editable_button_hover_color: #e6e6e6;
+    combo_box_editable_focused_button_hover_color: combo_box_editable_button_hover_color;
+    combo_box_editable_focused_background_color: white;
+    combo_box_editable_focused_arrow_color: arrow_color;
+}
+
+.combo-box-popup {
+    list_cell_color: #f2f2f2;
+    list_cell_hover_color: #dedede;
+
+    list_cell_border_color: #cccccc;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Text Common (TextField, PasswordField, TextArea)                            *
+ *                                                                             *
+ ******************************************************************************/
+
+.text-input {
+    border_color: #999999;
+    border_hover_color: #666666;
+    border_disabled_color: #d9d9d9;
+
+    text_input_background_color: white;
+    background_focused_color: white;
+    background_hover_color: white;
+    background_disabled_color: #eaeaea;
+
+    text_color: #111;
+    text_focused_color: #111;
+    text_disabled_color: #adadad;
+    prompt_text_color: #666666;
+
+    highlight_color: accent_color;
+    highlighted_text_color: white;
+
+    graphic_color: #747474;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Menu Button                                                                 *
+ *                                                                             *
+ ******************************************************************************/
+
+.menu-button {
+    menu_button_background_color: #ccc;
+    menu_button_text_color: #111;
+    menu_border_hover_color: #7a7a7a;
+    menu_button_pressed_color: #999;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Progress Bar                                                                *
+ *                                                                             *
+ ******************************************************************************/
+
+.progress-bar {
+    progress_background_color: #ccc;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Slider                                                                      *
+ *                                                                             *
+ ******************************************************************************/
+
+.slider {
+    track_hover_color: #666666;
+    thumb_hover_color: #171717;
+
+    thumb_pressed_color: #cccccc;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Spinner                                                                     *
+ *                                                                             *
+ ******************************************************************************/
+
+.spinner {
+    spinner_background_color: white;
+    spinner_border_color: #ddd;
+
+    arrow_button_hover_color: #e6e6e6;
+    arrow_button_pressed_color: #dadada;
+
+    arrow_color: -fx-mark-color;
+    arrow_pressed_color: -fx-mark-color;
+}
+
+.spinner > .text-field {
+    text_color: #111;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Table View                                                                  *
+ *                                                                             *
+ ******************************************************************************/
+
+.table-view {
+    table_background_color: white;
+    table_view_border_color: #e9e9e9;
+
+    alternate_row_color: #f0f0f0;
+
+    text_color: #111;
+    hover_text_color: #111;
+    selected_text_color: #111;
+    selected_unfocused_text_color: #111;
+
+    sort_arrow_color: #111;
+    show_hide_image_color: sort_arrow_color;
+}
+
+/* Check Box Table Cell */
+.check-box-table-cell {
+    table_check_box_cell_box_background_color: transparent;
+    table_check_box_cell_box_border_color: #111;
+    table_check_box_cell_mark_color: #111;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Context Menu, Menus, MenuBar and MenuItem                                   *
+ *                                                                             *
+ ******************************************************************************/
+
+/****************************** Context Menu **********************************/
+
+.context-menu {
+    menu_background_color: #f2f2f2;
+    context_menu_border_color: #cccccc;
+
+    separator_color: #c3c3c3;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Dialog                                                                      *
+ *                                                                             *
+ ******************************************************************************/
+
+.dialog-pane {
+    text_color: #111;
 }

@@ -56,14 +56,14 @@ public class MainController implements Initializable {
     public ToggleButton upDownSortPlaylistsToggle;
 
     private final Program program;
-    private ContextMenu songContextMenu;
-    private ContextMenu playlistContextMenu;
+    private final ContextMenuFactory contextMenuFactory;
 
     private Playlist lastPlayedSongs;
     public Playlist selectedPlaylist;
 
     public MainController(Program program) {
         this.program = program;
+        this.contextMenuFactory = new ContextMenuFactory(program);
     }
 
     @Override
@@ -85,16 +85,10 @@ public class MainController implements Initializable {
     }
 
     private void setUpClasses() {
-        Platform.runLater(() -> {
-            ContextMenuFactory contextMenuFactory = new ContextMenuFactory(program);
-            songContextMenu = contextMenuFactory.getSongContextMenu();
-            playlistContextMenu = contextMenuFactory.getPlaylistContextMenu();
-        });
         program.dialogOpener = new DialogOpener(program);
     }
 
     private void setUpSongsTableView() {
-        songsTableView.setPlaceholder(new Label("No Songs"));
         songsTableView.setRowFactory(songTableView -> {
             TableRow<Song> row = new TableRow<>();
             row.setOnMouseClicked(mouseEvent -> {
@@ -106,7 +100,7 @@ public class MainController implements Initializable {
                     setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
                     program.mediaPlayer.play();
                 } else if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && !row.isEmpty()) {
-                    songContextMenu.show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                    contextMenuFactory.getSongContextMenu().show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                 }
             });
             return row;
@@ -129,7 +123,7 @@ public class MainController implements Initializable {
                         if (empty) return;
                         TableRow<Song> row = this.getTableRow();
                         if (program.mediaPlayer.getSongIndex() == this.getIndex() && program.mediaPlayer.isReady()) {
-                            row.setStyle("-fx-background-color: #4CA771;");
+                            row.setStyle("-fx-border-color: #4CA771;");
                         }
                         this.setText(String.valueOf(row.getIndex() + 1));
                         row.setOnMouseEntered(mouseEvent -> {
@@ -156,7 +150,7 @@ public class MainController implements Initializable {
                         }
                         EventHandler<MouseEvent> contextMenuFix = mouseEvent -> {
                             if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                                songContextMenu.show(this.getTableRow(), mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                                contextMenuFactory.getSongContextMenu().show(this.getTableRow(), mouseEvent.getScreenX(), mouseEvent.getScreenY());
                             }
                         };
                         playSongButton.setOnMouseClicked(contextMenuFix);
@@ -226,12 +220,11 @@ public class MainController implements Initializable {
 
     private void setUpPlaylistTableView() {
         addPlaylistButton.setOnAction(actionEvent -> playlistTableView.getItems().add(program.dialogOpener.createNewPlaylist()));
-        playlistTableView.setPlaceholder(new Label("No Playlists"));
         playlistTableView.setRowFactory(playlistListView -> {
             TableRow<Playlist> row = new TableRow<>();
             row.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
                 if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && !row.isEmpty()) {
-                    playlistContextMenu.show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                    contextMenuFactory.getPlaylistContextMenu().show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                     mouseEvent.consume();
                 }
             });
@@ -262,12 +255,12 @@ public class MainController implements Initializable {
             }
         }
         if (playlist.equals(lastPlayedSongs)) {
-            songsTableView.getColumns().get(4).setText("PlayedOn");
+            songsTableView.getColumns().get(4).setText(program.resourceBundle.getString("playedOnSortLabel"));
             for (Song song : lastPlayedSongs.getSongs()) {
                 song.updatePlayedOn();
             }
         } else {
-            songsTableView.getColumns().get(4).setText("AddedOn");
+            songsTableView.getColumns().get(4).setText(program.resourceBundle.getString("addedOnLabel"));
         }
         playlistTitleLabel.setText(playlist.getTitle());
         songsTableView.getItems().clear();
@@ -533,7 +526,7 @@ public class MainController implements Initializable {
         });
         playlistMenuButton.setOnMouseClicked(mouseEvent -> {
             if (selectedPlaylist == null) return;
-            playlistContextMenu.show(playlistMenuButton, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+            contextMenuFactory.getPlaylistContextMenu().show(playlistMenuButton, mouseEvent.getScreenX(), mouseEvent.getScreenY());
         });
         randomPlayButton.setOnAction(actionEvent -> {
             program.mediaPlayer.setRandomPlaying(!program.mediaPlayer.isRandomPlaying());

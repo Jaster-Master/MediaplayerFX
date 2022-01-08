@@ -1,10 +1,15 @@
-package com.jastermaster;
+package com.jastermaster.util;
 
-import javafx.geometry.*;
-import javafx.stage.*;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 
-import java.time.*;
-import java.time.format.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class Util {
     public static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");

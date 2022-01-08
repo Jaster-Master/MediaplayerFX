@@ -1,349 +1,71 @@
-@import "base.css";
-
-.root {
-    -fx-background-color: #252525;
-    scroll_pane_background_color: -fx-background-color;
-    dialog_background_color: -fx-background-color;
-
-    tab_pane_background_color: #2e2e2e;
-}
-
-/* To be used in "background" Panes */
-.background{
-    -fx-background-color: #252525;
-}
-
-.header{
-    -fx-text-fill: white;
-}
-
-.item-title{
-    -fx-text-fill: white;
-    -fx-opacity: 0.6;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Common Styles                                                               *
- *                                                                             *
- * These are styles that give a standard look to a whole range of controls     *
- *                                                                             *
- ******************************************************************************/
-
-/* ====   CONTROLS WITH ARROW BUTTONS ======================================= */
-
-.menu-button,
-.choice-box,
-.combo-box-base,
-.split-menu-button {
-    arrow_color: white;
-}
-
-/* ====   CONTROLS WITH CELLS   ============================================= */
-
-.list-view,
-.table-view,
-.tree-view,
-.tree-table-view,
-.combo-box-popup {
-    cell_hover_color: #515151;
-    cell_pressed_color: #3e3e3e;
-
-    cell_selected_unfocused_color: cell_hover_color;
-
-    cell_selected_color: derive(accent_color, -35%);
-    cell_selected_hover_color: derive(accent_color, -20%);
-    cell_selected_pressed_color: derive(accent_color, 60%);
-}
-
-/*******************************************************************************
- *                                                                             *
- * Text Nodes                                                                  *
- *                                                                             *
- ******************************************************************************/
-
-.label {
-    text_color: white;
-}
-
-Text {
-    text_color: white;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Button and ToggleButton                                                     *
- *                                                                             *
- ******************************************************************************/
-
-.button, .toggle-button {
-    button_background_color: #333333;
-    background_pressed_color: #666666;
-
-    border_hover_color: #858585;
-
-    text_color: white;
-    default_button_text_color: white;
-
-    -fx-border-color: transparent;
-}
-
-.button {
-    border_hover_default_color: derive(accent_color, 70%);
-}
-
-.toggle-button {
-    border_hover_selected_color: derive(accent_color, 70%);
-}
-
-/*******************************************************************************
- *                                                                             *
- * Check Box                                                                   *
- *                                                                             *
- ******************************************************************************/
-.check-box {
-    text_color: white;
-
-    box_background_color: #111;
-    box_border_color: #cccccc;
-    box_border_hover_color: white;
-
-    indeterminate_mark_color: #cccccc;
-    indeterminate_box_pressed_color: #111;
-
-    focus_ring_color: white;
-}
-
-/* -- indeterminate - hover */
-.check-box:indeterminate:hover > .box > .mark {
-    -fx-background-color: white;
-}
-
-/* -- focused - hover */
-.check-box:focused:hover > .box{
-    -fx-border-color: focus_ring_color, box_border_hover_color;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Tooltip                                                                     *
- *                                                                             *
- ******************************************************************************/
-
-.tooltip {
-    tooltip_background_color: #2b2b2b;
-    border_color: #767676;
-    text_color: white;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Scroll Bar and Scroll Pane                                                  *
- *                                                                             *
- ******************************************************************************/
-
-.scroll-bar {
-    thumb_color: #52565a;
-    thumb_hover_color: #7d8183;
-    thumb_pressed_color: #a9abad;
-
-    track_color: #29292a;
-
-    inc_dec_button_color: #2a2d30;
-    inc_dec_button_hover_color: #3c4145;
-    inc_dec_button_pressed_color: #a8abac;
-
-    arrow_color: white;
-    arrow_pressed_color: #111;
-}
-
-.scroll-pane {
-    corner_background_color: #29292a;
-}
-
-.list-view > .virtual-flow > .corner,
-.tree-view > .virtual-flow > .corner,
-.table-view > .virtual-flow > .corner,
-.tree-table-view > .virtual-flow > .corner {
-    corner_background_color: #29292a;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Combo Box                                                                   *
- *                                                                             *
- ******************************************************************************/
-
-.combo-box-base {
-    text_color: white;
-
-    /* border */
-    border_color: #666666;
-    border_hover_color: #999999;
-    border_focused_color: white;
-    border_pressed_color: #666666;
-
-    /* background */
-    combo_box_background_color: #111;
-    background_pressed_color: #333333;
-
-    /* editable */
-    combo_box_editable_button_hover_color: #444;
-    combo_box_editable_focused_button_hover_color: #e6e6e6;
-    combo_box_editable_focused_background_color: white;
-    combo_box_editable_focused_arrow_color: #111;
-}
-
-.combo-box-popup {
-    list_cell_color: #2b2b2b;
-    list_cell_hover_color: #545454;
-
-    list_cell_border_color: #767676;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Text Common (TextField, PasswordField, TextArea)                            *
- *                                                                             *
- ******************************************************************************/
-
-.text-input {
-    border_color: #666;
-    border_hover_color: #999;
-    border_disabled_color: #333;
-
-    text_input_background_color: #111;
-    background_focused_color: #fff;
-    background_hover_color: #111;
-    background_disabled_color: #111;
-
-    text_color: white;
-    text_focused_color: #111;
-    text_disabled_color: #333;
-    prompt_text_color: #777;
-
-    highlight_color: accent_color;
-    highlighted_text_color: white;
-
-    graphic_color: #747474;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Menu Button                                                                 *
- *                                                                             *
- ******************************************************************************/
-
-.menu-button {
-    menu_button_background_color: #333;
-    menu_button_text_color: white;
-    menu_border_hover_color: #858585;
-    menu_button_pressed_color: #666;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Progress Bar                                                                *
- *                                                                             *
- ******************************************************************************/
-
-.progress-bar {
-    progress_background_color: #333;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Slider                                                                      *
- *                                                                             *
- ******************************************************************************/
-
-.slider {
-    track_hover_color: #999999;
-    thumb_hover_color: #f2f2f2;
-
-    thumb_pressed_color: #767676;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Spinner                                                                     *
- *                                                                             *
- ******************************************************************************/
-
-.spinner {
-    spinner_background_color: #111;
-    spinner_border_color: #444;
-
-    arrow_button_hover_color: #333;
-    arrow_button_pressed_color: #222;
-
-    arrow_color: #999;
-    arrow_pressed_color: #999;
-}
-
-.spinner > .text-field {
-    text_color: white;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Table View                                                                  *
- *                                                                             *
- ******************************************************************************/
-
-.table-view {
-    table_background_color: #333;
-    table_view_border_color: #171717;
-
-    alternate_row_color: #3c3c3c;
-
-    text_color: white;
-    hover_text_color: white;
-    selected_text_color: white;
-    selected_unfocused_text_color: white;
-
-    sort_arrow_color: white;
-    show_hide_image_color: sort_arrow_color;
-}
-
-/* Check Box Table Cell */
-.check-box-table-cell {
-    table_check_box_cell_box_background_color: transparent;
-    table_check_box_cell_box_border_color: white;
-    table_check_box_cell_mark_color: white;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Context Menu, Menus, MenuBar and MenuItem                                   *
- *                                                                             *
- ******************************************************************************/
-
-/****************************** Context Menu **********************************/
-
-.context-menu {
-    menu_background_color: #2b2b2b;
-    context_menu_border_color: #777677;
-
-    separator_color: #555555;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Dialogs                                                                     *
- *                                                                             *
- ******************************************************************************/
-
-.dialog-pane {
-    -fx-padding: 0.75em 0.5em 0.5em 0.5em;
-}
-
-/*******************************************************************************
- *                                                                             *
- * Dialog                                                                      *
- *                                                                             *
- ******************************************************************************/
-
-.dialog-pane {
-    text_color: white;
-}
+ /*https://stackoverflow.com/questions/49159286/make-a-dark-mode-with-javafx*/
+ .root {
+     -fx-accent: #1e74c6;
+     -fx-focus-color: -fx-accent;
+     -fx-base: #373e43;
+     -fx-control-inner-background: derive(-fx-base, 35%);
+     -fx-control-inner-background-alt: -fx-control-inner-background ;
+ }
+
+ .label, .text{
+     -fx-text-fill: lightgray;
+ }
+
+ .text-field {
+     -fx-prompt-text-fill: gray;
+ }
+
+ .titulo{
+     -fx-font-weight: bold;
+     -fx-font-size: 18px;
+ }
+
+ .button{
+     -fx-focus-traversable: false;
+ }
+
+ .button:hover{
+     -fx-text-fill: white;
+ }
+
+ .separator *.line {
+     -fx-background-color: #3C3C3C;
+     -fx-border-style: solid;
+     -fx-border-width: 1px;
+ }
+
+ .scroll-bar{
+     -fx-background-color: derive(-fx-base,45%)
+ }
+
+ .button:default {
+     -fx-base: -fx-accent ;
+ }
+
+ .table-view{
+     /*-fx-background-color: derive(-fx-base, 10%);*/
+     -fx-selection-bar-non-focused: derive(-fx-base, 50%);
+ }
+
+ .table-view .column-header .label{
+     -fx-alignment: CENTER_LEFT;
+     -fx-font-weight: none;
+ }
+
+ .list-cell:even,
+ .list-cell:odd,
+ .table-row-cell:even,
+ .table-row-cell:odd{
+     -fx-control-inner-background: derive(-fx-base, 15%);
+ }
+
+ .list-cell:empty,
+ .table-row-cell:empty {
+     -fx-background-color: transparent;
+ }
+
+ .list-cell,
+ .table-row-cell{
+     -fx-border-color: transparent;
+     -fx-table-cell-border-color:transparent;
+ }

@@ -6,4 +6,6 @@ module MediaplayerFX {
 
     exports com.jastermaster;
     exports com.jastermaster.controller;
+    exports com.jastermaster.application;
+    exports com.jastermaster.util;
 }

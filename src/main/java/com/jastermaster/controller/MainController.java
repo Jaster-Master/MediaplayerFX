@@ -1,6 +1,13 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.*;
+import com.jastermaster.ContextMenuFactory;
+import com.jastermaster.DialogOpener;
+import com.jastermaster.application.Main;
+import com.jastermaster.application.Program;
+import com.jastermaster.util.PlayingType;
+import com.jastermaster.util.Playlist;
+import com.jastermaster.util.Song;
+import com.jastermaster.util.Util;
 import com.jfoenix.controls.JFXSlider;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -9,16 +16,15 @@ import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.skin.TableHeaderRow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -34,6 +40,8 @@ import java.util.regex.Pattern;
 
 public class MainController implements Initializable {
 
+    @FXML
+    public AnchorPane anchorPane;
     @FXML
     public Button loopSongButton, nextSongButton, playButton, lastSongButton, randomPlayButton, addPlaylistButton, lastPlayedSongsButton, settingsButton, playPlaylistButton, playlistMenuButton;
     @FXML
@@ -51,19 +59,15 @@ public class MainController implements Initializable {
     @FXML
     public ComboBox<String> sortSongsComboBox, sortPlaylistsComboBox;
     @FXML
-    public ToggleButton upDownSortSongsToggle;
-    @FXML
-    public ToggleButton upDownSortPlaylistsToggle;
+    public ToggleButton upDownSortSongsToggle, upDownSortPlaylistsToggle;
 
     private final Program program;
-    private final ContextMenuFactory contextMenuFactory;
 
     private Playlist lastPlayedSongs;
     public Playlist selectedPlaylist;
 
     public MainController(Program program) {
         this.program = program;
-        this.contextMenuFactory = new ContextMenuFactory(program);
     }
 
     @Override
@@ -82,6 +86,11 @@ public class MainController implements Initializable {
         setUpSettings();
         lastPlayedSongs = new Playlist(program);
         lastPlayedSongs.setComparator(Comparator.comparing(Song::getPlayedOn), 6);
+
+        Platform.runLater(() -> {
+            program.contextMenuFactory = new ContextMenuFactory(program);
+            lastPlayedSongs.setTitle(program.resourceBundle.getString("lastPlayedSongsLabel"));
+        });
     }
 
     private void setUpClasses() {
@@ -100,7 +109,7 @@ public class MainController implements Initializable {
                     setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
                     program.mediaPlayer.play();
                 } else if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && !row.isEmpty()) {
-                    contextMenuFactory.getSongContextMenu().show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                    program.contextMenuFactory.getSongContextMenu().show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                 }
             });
             return row;
@@ -122,7 +131,7 @@ public class MainController implements Initializable {
                     protected void updateItem(Song item, boolean empty) {
                         if (empty) return;
                         TableRow<Song> row = this.getTableRow();
-                        if (program.mediaPlayer.getSongIndex() == this.getIndex() && program.mediaPlayer.isReady()) {
+                        if (program.mediaPlayer.getSongIndex() == this.getIndex() && program.mediaPlayer.isReady() && selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
                             row.setStyle("-fx-border-color: #4CA771;");
                         }
                         this.setText(String.valueOf(row.getIndex() + 1));
@@ -150,7 +159,7 @@ public class MainController implements Initializable {
                         }
                         EventHandler<MouseEvent> contextMenuFix = mouseEvent -> {
                             if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                                contextMenuFactory.getSongContextMenu().show(this.getTableRow(), mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                                program.contextMenuFactory.getSongContextMenu().show(this.getTableRow(), mouseEvent.getScreenX(), mouseEvent.getScreenY());
                             }
                         };
                         playSongButton.setOnMouseClicked(contextMenuFix);
@@ -219,12 +228,30 @@ public class MainController implements Initializable {
     }
 
     private void setUpPlaylistTableView() {
-        addPlaylistButton.setOnAction(actionEvent -> playlistTableView.getItems().add(program.dialogOpener.createNewPlaylist()));
+        playlistTitleLabel.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && selectedPlaylist != null && !selectedPlaylist.equals(lastPlayedSongs)) {
+                program.contextMenuFactory.getInputContextMenu().show(playlistTitleLabel, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                TextField inputField = (TextField) program.contextMenuFactory.getInputContextMenu().getItems().get(0).getGraphic();
+                inputField.setText(selectedPlaylist.getTitle());
+                inputField.setOnKeyPressed(keyEvent -> {
+                    if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                        selectedPlaylist.setTitle(inputField.getText());
+                        playlistTitleLabel.setText(inputField.getText());
+                    }
+                });
+            }
+        });
+        addPlaylistButton.setOnAction(actionEvent -> {
+            Playlist newPlaylist = program.dialogOpener.createNewPlaylist();
+            if (newPlaylist.getTitle() == null || newPlaylist.getTitle().isEmpty()) return;
+            playlistTableView.getItems().add(newPlaylist);
+            program.contextMenuFactory.loadContextMenus();
+        });
         playlistTableView.setRowFactory(playlistListView -> {
             TableRow<Playlist> row = new TableRow<>();
             row.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
                 if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && !row.isEmpty()) {
-                    contextMenuFactory.getPlaylistContextMenu().show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                    program.contextMenuFactory.getPlaylistContextMenu().show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                     mouseEvent.consume();
                 }
             });
@@ -434,12 +461,46 @@ public class MainController implements Initializable {
 
     private void setUpKeyCodes() {
         Platform.runLater(() -> {
-            program.primaryStage.setOnCloseRequest(windowEvent -> program.dialogOpener.openCloseDialog(windowEvent));
+            program.primaryStage.setOnCloseRequest(windowEvent -> program.dialogOpener.wantToCloseDialog(windowEvent));
+            program.primaryStage.getScene().getAccelerators().put(KeyCombination.keyCombination("CTRL+N"), () -> addPlaylistButton.fire());
+            program.primaryStage.getScene().getAccelerators().put(KeyCombination.keyCombination("CTRL+PLUS"), () -> volumeSlider.setValue(volumeSlider.getValue() + 0.01));
+            program.primaryStage.getScene().getAccelerators().put(KeyCombination.keyCombination("CTRL+MINUS"), () -> volumeSlider.setValue(volumeSlider.getValue() - 0.01));
             program.primaryStage.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
                 if (keyEvent.isControlDown()) return;
-                if (keyEvent.getCode().equals(KeyCode.SPACE)) {
-                    playButton.fire();
-                    keyEvent.consume();
+                switch (keyEvent.getCode()) {
+                    case SPACE -> {
+                        playButton.fire();
+                        keyEvent.consume();
+                    }
+                    case DELETE -> program.contextMenuFactory.getSongContextMenu().getItems().get(1).fire();
+                    case DIGIT0, DIGIT1, DIGIT2, DIGIT3, DIGIT4, DIGIT5, DIGIT6, DIGIT7, DIGIT8, DIGIT9 -> {
+                        String[] keyCodeChars = keyEvent.getCode().toString().split("");
+                        int pressedNumber = Integer.parseInt(keyCodeChars[keyCodeChars.length - 1]);
+                        if (pressedNumber == 0) {
+                            selectPlaylist(lastPlayedSongs);
+                        } else {
+                            pressedNumber--;
+                            if (pressedNumber > playlistTableView.getItems().size() - 1) {
+                                selectPlaylist(playlistTableView.getItems().get(playlistTableView.getItems().size() - 1));
+                            } else {
+                                selectPlaylist(playlistTableView.getItems().get(pressedNumber));
+                            }
+                        }
+                    }
+                    case F2 -> {
+                        if (selectedPlaylist == null) return;
+                        Bounds bounds = playlistTitleLabel.getBoundsInLocal();
+                        Bounds screenBounds = anchorPane.localToScreen(bounds);
+                        program.contextMenuFactory.getInputContextMenu().show(playlistTitleLabel, screenBounds.getCenterX(), screenBounds.getCenterY());
+                        TextField inputField = (TextField) program.contextMenuFactory.getInputContextMenu().getItems().get(0).getGraphic();
+                        inputField.setText(selectedPlaylist.getTitle());
+                        inputField.setOnKeyPressed(keyEvent1 -> {
+                            if (keyEvent1.getCode().equals(KeyCode.ENTER)) {
+                                selectedPlaylist.setTitle(inputField.getText());
+                                playlistTitleLabel.setText(inputField.getText());
+                            }
+                        });
+                    }
                 }
             });
         });
@@ -471,6 +532,26 @@ public class MainController implements Initializable {
             @Override
             public Double fromString(String s) {
                 return (double) Math.round(Double.parseDouble(s) / 100);
+            }
+        });
+        volumeSlider.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                program.contextMenuFactory.getInputContextMenu().show(playlistTitleLabel, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                TextField inputField = (TextField) program.contextMenuFactory.getInputContextMenu().getItems().get(0).getGraphic();
+                inputField.setText(String.valueOf(Math.round(volumeSlider.getValue() * 100)));
+                inputField.setOnKeyPressed(keyEvent -> {
+                    if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                        double value;
+                        try {
+                            value = Double.parseDouble(inputField.getText().replace(",", "."));
+                        } catch (NumberFormatException e) {
+                            return;
+                        }
+                        if (value > 1) value /= 100;
+                        volumeSlider.setValue(value);
+                    }
+                });
+                mouseEvent.consume();
             }
         });
         speakerImageView.setOnMouseClicked(mouseEvent -> {
@@ -526,7 +607,7 @@ public class MainController implements Initializable {
         });
         playlistMenuButton.setOnMouseClicked(mouseEvent -> {
             if (selectedPlaylist == null) return;
-            contextMenuFactory.getPlaylistContextMenu().show(playlistMenuButton, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+            program.contextMenuFactory.getPlaylistContextMenu().show(playlistMenuButton, mouseEvent.getScreenX(), mouseEvent.getScreenY());
         });
         randomPlayButton.setOnAction(actionEvent -> {
             program.mediaPlayer.setRandomPlaying(!program.mediaPlayer.isRandomPlaying());

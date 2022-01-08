@@ -1,4 +1,4 @@
-package com.jastermaster;
+package com.jastermaster.util;
 
 public enum PlayingType {
     NORMAL,

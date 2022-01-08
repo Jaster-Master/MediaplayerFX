@@ -1,5 +1,7 @@
-package com.jastermaster;
+package com.jastermaster.util;
 
+import com.jastermaster.application.Main;
+import com.jastermaster.application.Program;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -88,6 +90,7 @@ public class MediaplayerFX {
     }
 
     public void setSong(Song song) {
+        if (song.getSong() == null) return;
         mediaPlayer = new MediaPlayer(song.getSong());
         setUpMediaplayer();
         isReady = true;

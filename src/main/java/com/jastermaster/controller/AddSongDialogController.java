@@ -1,17 +1,15 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.Program;
-import com.jastermaster.Song;
+import com.jastermaster.application.Program;
+import com.jastermaster.util.Playlist;
+import com.jastermaster.util.Song;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
-import javafx.util.Callback;
 
 import java.io.File;
 import java.net.URL;
@@ -20,21 +18,42 @@ import java.util.ResourceBundle;
 public class AddSongDialogController implements Initializable {
 
     @FXML
+    public DialogPane dialogPane;
+    @FXML
     public Label pathLabel, titleLabel, interpreterLabel, albumLabel;
     @FXML
     public TextField pathField, titleField, interpreterField, albumField;
     @FXML
     public Button openPathButton;
     private final Program program;
+    private final Playlist clickedPlaylist;
+    private Song newSong;
 
-    public AddSongDialogController(Program program) {
+    public AddSongDialogController(Program program, Playlist clickedPlaylist) {
         this.program = program;
+        this.clickedPlaylist = clickedPlaylist;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setLanguage();
-        setUpOpenPathButton();
+        setUpSongPathNodes();
+        setUpFinishButton();
+    }
+
+    public void setUpFinishButton() {
+        dialogPane.lookupButton(ButtonType.FINISH).addEventFilter(ActionEvent.ACTION, actionEvent -> {
+            File songFile = new File(pathField.getText());
+            if (!songFile.exists()) return;
+            newSong.setTitle(titleField.getText());
+            newSong.setInterpreter(interpreterField.getText());
+            newSong.setAlbum(albumField.getText());
+            clickedPlaylist.addSong(newSong);
+            program.hasDuplicateQuestion = true;
+        });
+    }
+
+    private void setUpSongPathNodes() {
         pathField.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null || newValue.isEmpty()) return;
             File file = new File(newValue);
@@ -42,29 +61,10 @@ public class AddSongDialogController implements Initializable {
                 setFields(file);
             }
         });
-    }
-
-    public Callback<ButtonType, Song> getCallback() {
-        return buttonType -> {
-            if (!buttonType.equals(ButtonType.FINISH)) {
-                return null;
-            } else {
-                Song newSong = new Song();
-                File audioFile = new File(pathField.getText());
-                if (audioFile.exists()) newSong.setSong(new Media(audioFile.toURI().toString()));
-                if (titleField.getText() != null) newSong.setTitle(titleField.getText());
-                if (interpreterField.getText() != null) newSong.setInterpreter(interpreterField.getText());
-                if (albumField.getText() != null) newSong.setAlbum(albumField.getText());
-                return newSong;
-            }
-        };
-    }
-
-    private void setUpOpenPathButton() {
         openPathButton.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Audio", "*.mp3", ".MP3", "*.wav", "*.WAV", "*.aac", "*.AAC", "*.aiff", "*.AIFF"));
-            fileChooser.setTitle("Choose Path");
+            fileChooser.setTitle(program.resourceBundle.getString("chooseFile"));
             File chosenFile = fileChooser.showOpenDialog(program.primaryStage);
             if (chosenFile == null) return;
             setFields(chosenFile);
@@ -72,6 +72,7 @@ public class AddSongDialogController implements Initializable {
     }
 
     private void setFields(File file) {
+        newSong = Song.getSongFromFile(file);
         Media newSong = new Media(file.toURI().toString());
         pathField.setText(file.getAbsolutePath());
         new MediaPlayer(newSong).setOnReady(() -> {
@@ -95,6 +96,7 @@ public class AddSongDialogController implements Initializable {
 
     private void setLanguage() {
         pathLabel.setText(program.resourceBundle.getString("addSongPathLabel"));
+        pathField.setPromptText(program.resourceBundle.getString("addSongPathField"));
         openPathButton.setText(program.resourceBundle.getString("addSongOpenPathLabel"));
         titleLabel.setText(program.resourceBundle.getString("addSongTitleLabel"));
         titleField.setPromptText(program.resourceBundle.getString("titleLabel"));

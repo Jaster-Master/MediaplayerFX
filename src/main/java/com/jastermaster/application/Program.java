@@ -1,10 +1,15 @@
-package com.jastermaster;
+package com.jastermaster.application;
 
+import com.jastermaster.ContextMenuFactory;
+import com.jastermaster.DialogOpener;
 import com.jastermaster.controller.MainController;
+import com.jastermaster.util.MediaplayerFX;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.Locale;
@@ -30,7 +35,9 @@ public class Program extends Application {
         primaryStage.setMaximized(true);
         primaryStage.getScene().getStylesheets().add(cssPath);
 
+        audioFade = true;
         selectedDesign = "Light";
+        fontColor = Color.BLACK;
         changeLanguage(Locale.getDefault());
         primaryStage.show();
     }
@@ -65,6 +72,7 @@ public class Program extends Application {
         mainCon.songsTableView.getColumns().get(2).setText(resourceBundle.getString("albumLabel"));
         mainCon.songsTableView.getColumns().get(3).setText(resourceBundle.getString("timeLabel"));
         mainCon.songsTableView.getColumns().get(4).setText(resourceBundle.getString("addedOnLabel"));
+        Platform.runLater(() -> contextMenuFactory.loadContextMenus());
     }
 
     public ResourceBundle resourceBundle;
@@ -72,8 +80,12 @@ public class Program extends Application {
     public MainController mainCon;
     public Stage primaryStage;
     public String cssPath = Main.getResourceString("/css/light.css");
+    public Color fontColor;
     public DialogOpener dialogOpener;
+    public ContextMenuFactory contextMenuFactory;
     public String selectedDesign;
     public String selectedLanguage;
     public boolean audioFade;
+    public boolean hasDuplicateQuestion;
+    public boolean addAgain;
 }

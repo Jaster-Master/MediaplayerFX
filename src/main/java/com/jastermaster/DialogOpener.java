@@ -1,25 +1,27 @@
 package com.jastermaster;
 
+import com.jastermaster.application.Main;
+import com.jastermaster.application.Program;
 import com.jastermaster.controller.AddSongDialogController;
+import com.jastermaster.controller.AddSongsDialogController;
 import com.jastermaster.controller.DuplicateWarningDialogController;
 import com.jastermaster.controller.SettingsController;
+import com.jastermaster.util.Playlist;
+import com.jastermaster.util.Song;
+import com.jastermaster.util.Util;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class DialogOpener {
@@ -29,11 +31,11 @@ public class DialogOpener {
         this.program = program;
     }
 
-    public Song addNewSong() {
-        Dialog<Song> addSongDialog = new Dialog<>();
+    public void addNewSong(Playlist clickedPlaylist) {
+        Dialog<ButtonType> addSongDialog = new Dialog<>();
         addSongDialog.initOwner(program.primaryStage);
         FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/addSongDialog.fxml"));
-        loader.setControllerFactory(callback -> new AddSongDialogController(program));
+        loader.setControllerFactory(callback -> new AddSongDialogController(program, clickedPlaylist));
         DialogPane addSongDialogPane = null;
         try {
             addSongDialogPane = loader.load();
@@ -41,44 +43,40 @@ public class DialogOpener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        addSongDialog.setTitle("Add Song");
-        addSongDialog.setResultConverter(((AddSongDialogController) loader.getController()).getCallback());
+        addSongDialog.setTitle(program.resourceBundle.getString("contextMenuAddSong"));
         Util.centerWindow(addSongDialogPane.getScene().getWindow());
         setWindowStyle(addSongDialogPane.getScene());
-        Optional<Song> result = addSongDialog.showAndWait();
-        return result.orElse(null);
+        DialogPane finalAddSongDialogPane = addSongDialogPane;
+        addSongDialogPane.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                ((Button) finalAddSongDialogPane.lookupButton(ButtonType.FINISH)).fire();
+            }
+        });
+        addSongDialog.showAndWait();
     }
 
-    public List<Song> addNewSongs() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Audio", "*.mp3", ".MP3", "*.wav", "*.WAV", "*.aac", "*.AAC", "*.aiff", "*.AIFF"));
-        fileChooser.setTitle("Choose Path");
-        List<File> chosenFiles = fileChooser.showOpenMultipleDialog(program.primaryStage);
-        if (chosenFiles == null || chosenFiles.isEmpty()) return null;
-        List<Song> songs = new ArrayList<>();
-        for (File chosenFile : chosenFiles) {
-            Song newSong = new Song();
-            newSong.setSong(new Media(chosenFile.toURI().toString()));
-            new MediaPlayer(newSong.getSong()).setOnReady(() -> {
-                if (newSong.getSong().getMetadata().get("title") != null) {
-                    newSong.setTitle((String) newSong.getSong().getMetadata().get("title"));
-                } else {
-                    newSong.setTitle(chosenFile.getName().substring(0, chosenFile.getName().length() - 4));
-                }
-                if (newSong.getSong().getMetadata().get("artist") != null) {
-                    newSong.setInterpreter((String) newSong.getSong().getMetadata().get("artist"));
-                } else {
-                    newSong.setInterpreter("-");
-                }
-                if (newSong.getSong().getMetadata().get("album") != null) {
-                    newSong.setAlbum((String) newSong.getSong().getMetadata().get("album"));
-                } else {
-                    newSong.setAlbum("-");
-                }
-            });
-            songs.add(newSong);
+    public void addNewSongs(Playlist clickedPlaylist) {
+        Dialog<ButtonType> addSongsDialog = new Dialog<>();
+        addSongsDialog.initOwner(program.primaryStage);
+        FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/addSongsDialog.fxml"));
+        loader.setControllerFactory(callback -> new AddSongsDialogController(program, clickedPlaylist));
+        DialogPane addSongsDialogPane = null;
+        try {
+            addSongsDialogPane = loader.load();
+            addSongsDialog.setDialogPane(addSongsDialogPane);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return songs;
+        addSongsDialog.setTitle(program.resourceBundle.getString("contextMenuAddSongs"));
+        Util.centerWindow(addSongsDialogPane.getScene().getWindow());
+        setWindowStyle(addSongsDialogPane.getScene());
+        DialogPane finalAddSongsDialogPane = addSongsDialogPane;
+        addSongsDialogPane.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                ((Button) finalAddSongsDialogPane.lookupButton(ButtonType.FINISH)).fire();
+            }
+        });
+        addSongsDialog.showAndWait();
     }
 
     public Playlist createNewPlaylist() {
@@ -106,11 +104,12 @@ public class DialogOpener {
         AnchorPane.setBottomAnchor(createPlaylistVBox, 0.0);
         Util.centerWindow(createPlaylistDialogPane.getScene().getWindow());
         setWindowStyle(createPlaylistDialogPane.getScene());
-        createPlaylistDialogPane.setOnKeyPressed(keyEvent -> {
+        createPlaylistDialogPane.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 ((Button) createPlaylistDialogPane.lookupButton(ButtonType.FINISH)).fire();
             }
         });
+        Platform.runLater(createPlaylistField::requestFocus);
         Optional<ButtonType> result = createPlaylistDialog.showAndWait();
         final Playlist newPlaylist = new Playlist(program);
         result.ifPresent(buttonType -> {
@@ -143,9 +142,10 @@ public class DialogOpener {
         settingsDialog.showAndWait();
     }
 
-    public void openCloseDialog(WindowEvent windowEvent) {
+    public void wantToCloseDialog(WindowEvent windowEvent) {
         Dialog<ButtonType> closeDialog = new Dialog<>();
         closeDialog.initOwner(program.primaryStage);
+        closeDialog.setTitle(program.resourceBundle.getString("wantToCloseHeader"));
         Label closeLabel = new Label(program.resourceBundle.getString("wantToCloseLabel"));
         HBox closeHBox = new HBox(closeLabel);
         closeHBox.setAlignment(Pos.CENTER);
@@ -174,11 +174,11 @@ public class DialogOpener {
     /**
      * @return {@code true} if the user wants to add the song again, otherwise {@code false}
      */
-    public boolean openDuplicateWarningDialog() {
+    public boolean openDuplicateWarningDialog(Song duplicateSong) {
         Dialog<ButtonType> duplicateWarningDialog = new Dialog<>();
         duplicateWarningDialog.initOwner(program.primaryStage);
         FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/duplicateWarningDialog.fxml"));
-        loader.setControllerFactory(callback -> new DuplicateWarningDialogController(program));
+        loader.setControllerFactory(callback -> new DuplicateWarningDialogController(program, duplicateSong));
         DialogPane duplicateWarningDialogPane = null;
         try {
             duplicateWarningDialogPane = loader.load();
@@ -186,9 +186,15 @@ public class DialogOpener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        duplicateWarningDialog.setTitle("Duplicate Warning");
+        duplicateWarningDialog.setTitle(program.resourceBundle.getString("duplicateSongWarningHeader"));
         Util.centerWindow(duplicateWarningDialogPane.getScene().getWindow());
         setWindowStyle(duplicateWarningDialogPane.getScene());
+        DialogPane finalDuplicateWarningDialogPane = duplicateWarningDialogPane;
+        duplicateWarningDialogPane.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                ((Button) finalDuplicateWarningDialogPane.lookupButton(ButtonType.FINISH)).fire();
+            }
+        });
         Optional<ButtonType> result = duplicateWarningDialog.showAndWait();
         return result.map(buttonType -> buttonType.equals(ButtonType.YES)).orElse(false);
     }

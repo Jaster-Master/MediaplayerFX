@@ -1,5 +1,6 @@
-package com.jastermaster;
+package com.jastermaster.util;
 
+import com.jastermaster.application.Program;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
 
@@ -35,9 +36,13 @@ public class Playlist extends Label {
 
     public void addSong(Song song) {
         if (songs.contains(song)) {
-            if (!program.dialogOpener.openDuplicateWarningDialog()) return;
+            if (program.hasDuplicateQuestion) {
+                program.addAgain = program.dialogOpener.openDuplicateWarningDialog(song);
+            }
+            if (!program.addAgain) return;
         }
         songs.add(song);
+        if (program.mainCon.selectedPlaylist == null) return;
         if (program.mainCon.selectedPlaylist.equals(this)) {
             program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
         }
@@ -48,6 +53,7 @@ public class Playlist extends Label {
             return;
         }
         songs.add(song);
+        if (program.mainCon.selectedPlaylist == null) return;
         if (program.mainCon.selectedPlaylist.equals(this)) {
             program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
         }
@@ -55,6 +61,10 @@ public class Playlist extends Label {
 
     public void removeSong(Song song) {
         songs.remove(song);
+        if (program.mainCon.selectedPlaylist == null) return;
+        if (program.mainCon.selectedPlaylist.equals(this)) {
+            program.mainCon.songsTableView.getItems().remove(song);
+        }
     }
 
     public String getTitle() {

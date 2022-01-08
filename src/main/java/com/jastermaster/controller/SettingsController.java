@@ -1,10 +1,11 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.Program;
+import com.jastermaster.application.Program;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.paint.Color;
 
 import java.net.URL;
 import java.util.Locale;
@@ -51,8 +52,10 @@ public class SettingsController implements Initializable {
             program.selectedDesign = newValue;
             if (program.selectedDesign.equals("Light")) {
                 program.cssPath = program.cssPath.replace("dark", "light");
+                program.fontColor = Color.BLACK;
             } else {
                 program.cssPath = program.cssPath.replace("light", "dark");
+                program.fontColor = Color.LIGHTGRAY;
             }
             program.primaryStage.getScene().getStylesheets().clear();
             program.primaryStage.getScene().getStylesheets().add(program.cssPath);

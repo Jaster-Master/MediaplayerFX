@@ -1,11 +1,14 @@
-package com.jastermaster;
+package com.jastermaster.util;
 
-import javafx.beans.property.*;
-import javafx.scene.media.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
-import java.time.*;
-import java.time.temporal.*;
-import java.util.*;
+import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 public class Song implements Comparable<Song> {
     private Media song;
@@ -62,6 +65,30 @@ public class Song implements Comparable<Song> {
         this.playedOn.set(lastTime + " seconds ago");
     }
 
+    public static Song getSongFromFile(File songFile) {
+        Media media = new Media(songFile.toURI().toString());
+        Song song = new Song();
+        new MediaPlayer(media).setOnReady(() -> {
+            song.setSong(media);
+            if (media.getMetadata().get("title") != null) {
+                song.setTitle((String) media.getMetadata().get("title"));
+            } else {
+                song.setTitle(songFile.getName().substring(0, songFile.getName().length() - 4));
+            }
+            if (media.getMetadata().get("artist") != null) {
+                song.setInterpreter((String) media.getMetadata().get("artist"));
+            } else {
+                song.setInterpreter("-");
+            }
+            if (media.getMetadata().get("album") != null) {
+                song.setAlbum((String) media.getMetadata().get("album"));
+            } else {
+                song.setAlbum("-");
+            }
+        });
+        return song;
+    }
+
     public void setPlayedOn(LocalDateTime playedOn) {
         this.playedOnTime = playedOn;
         updatePlayedOn();
@@ -85,7 +112,6 @@ public class Song implements Comparable<Song> {
 
     public void setSong(Media song) {
         this.song = song;
-        // TODO: Too slow?
         new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
     }
 

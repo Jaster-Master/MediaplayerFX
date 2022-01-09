@@ -67,7 +67,7 @@ public class AddSongDialogController implements Initializable {
             fileChooser.setTitle(program.resourceBundle.getString("chooseFile"));
             File chosenFile = fileChooser.showOpenDialog(program.primaryStage);
             if (chosenFile == null) return;
-            setFields(chosenFile);
+            pathField.setText(chosenFile.getAbsolutePath());
         });
     }
 

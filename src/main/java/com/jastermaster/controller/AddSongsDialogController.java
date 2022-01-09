@@ -33,11 +33,13 @@ public class AddSongsDialogController implements Initializable {
     private final Playlist clickedPlaylist;
     private int subDirectories;
     private final List<Song> lastSongs;
+    private Thread searchSongsThread;
 
     public AddSongsDialogController(Program program, Playlist clickedPlaylist) {
         this.program = program;
         this.clickedPlaylist = clickedPlaylist;
         this.lastSongs = new ArrayList<>();
+        this.searchSongsThread = new Thread();
     }
 
     @Override
@@ -65,9 +67,11 @@ public class AddSongsDialogController implements Initializable {
         if (directoryFiles == null || directoryFiles.length == 0) return new ArrayList<>();
         List<Song> songs = new ArrayList<>();
         for (File currentFile : directoryFiles) {
-            if (currentFile.isDirectory() && subDirectories > 0) {
-                subDirectories--;
-                songs.addAll(getSongsOfDirectory(currentFile));
+            if (currentFile.isDirectory()) {
+                if (subDirectories > 0) {
+                    subDirectories--;
+                    songs.addAll(getSongsOfDirectory(currentFile));
+                }
                 continue;
             }
             //https://stackoverflow.com/questions/3571223/how-do-i-get-the-file-extension-of-a-file-in-java
@@ -86,7 +90,10 @@ public class AddSongsDialogController implements Initializable {
         subDirectoryCountSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 999));
         subDirectoryCountSpinner.getEditor().textProperty().addListener((observableValue, oldValue, newValue) -> {
             try {
-                Integer.parseInt(newValue);
+                subDirectories = Integer.parseInt(newValue);
+                String currentPath = directoryPathField.getText();
+                directoryPathField.clear();
+                directoryPathField.setText(currentPath); // Call listener again
             } catch (NumberFormatException e) {
                 subDirectoryCountSpinner.getEditor().setText(oldValue);
             }
@@ -99,8 +106,9 @@ public class AddSongsDialogController implements Initializable {
             File currentDirectory = new File(newValue);
             this.lastSongs.clear();
             if (currentDirectory.exists() && currentDirectory.isDirectory()) {
-                subDirectories = subDirectoryCountSpinner.getValue();
-                this.lastSongs.addAll(getSongsOfDirectory(currentDirectory));
+                if (searchSongsThread.isAlive()) searchSongsThread.interrupt();
+                searchSongsThread = new Thread(() -> this.lastSongs.addAll(getSongsOfDirectory(currentDirectory)));
+                searchSongsThread.start();
             }
         });
         openPathButton.setOnAction(actionEvent -> {
@@ -109,11 +117,6 @@ public class AddSongsDialogController implements Initializable {
             File chosenDirectory = directoryChooser.showDialog(program.primaryStage);
             if (chosenDirectory == null) return;
             directoryPathField.setText(chosenDirectory.getAbsolutePath());
-            this.lastSongs.clear();
-            if (chosenDirectory.exists() && chosenDirectory.isDirectory()) {
-                subDirectories = subDirectoryCountSpinner.getValue();
-                this.lastSongs.addAll(getSongsOfDirectory(chosenDirectory));
-            }
         });
     }
 

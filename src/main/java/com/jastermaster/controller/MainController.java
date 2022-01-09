@@ -98,21 +98,27 @@ public class MainController implements Initializable {
     }
 
     private void setUpSongsTableView() {
-        songsTableView.setRowFactory(songTableView -> {
-            TableRow<Song> row = new TableRow<>();
-            row.setOnMouseClicked(mouseEvent -> {
-                if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
-                    if (!selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
-                        selectedPlaylist.setPlayedOn(LocalDateTime.now());
-                        program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
+        songsTableView.setRowFactory(songTableView -> new TableRow<>() {
+            @Override
+            public void updateItem(Song item, boolean empty) {
+                if (empty) return;
+                this.setItem(item);
+                this.setOnMouseClicked(mouseEvent -> {
+                    if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() > 1) {
+                        if (!selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
+                            selectedPlaylist.setPlayedOn(LocalDateTime.now());
+                            program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
+                        }
+                        setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
+                        program.mediaPlayer.play();
+                    } else if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                        program.contextMenuFactory.getSongContextMenu().show(this, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                     }
-                    setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
-                    program.mediaPlayer.play();
-                } else if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && !row.isEmpty()) {
-                    program.contextMenuFactory.getSongContextMenu().show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                }
-            });
-            return row;
+                });
+                Tooltip songTooltip = new Tooltip();
+                songTooltip.textProperty().bind(item.titleProperty());
+                this.setTooltip(songTooltip);
+            }
         });
         songsTableView.widthProperty().addListener((src, o, n) -> Platform.runLater(() -> {
             if (o != null && o.intValue() > 0) return;
@@ -237,6 +243,7 @@ public class MainController implements Initializable {
                     if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                         selectedPlaylist.setTitle(inputField.getText());
                         playlistTitleLabel.setText(inputField.getText());
+                        program.contextMenuFactory.loadContextMenus();
                     }
                 });
             }
@@ -247,15 +254,21 @@ public class MainController implements Initializable {
             playlistTableView.getItems().add(newPlaylist);
             program.contextMenuFactory.loadContextMenus();
         });
-        playlistTableView.setRowFactory(playlistListView -> {
-            TableRow<Playlist> row = new TableRow<>();
-            row.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
-                if (mouseEvent.getButton().equals(MouseButton.SECONDARY) && !row.isEmpty()) {
-                    program.contextMenuFactory.getPlaylistContextMenu().show(row, mouseEvent.getScreenX(), mouseEvent.getScreenY());
-                    mouseEvent.consume();
-                }
-            });
-            return row;
+        playlistTableView.setRowFactory(playlistListView -> new TableRow<>() {
+            @Override
+            public void updateItem(Playlist item, boolean empty) {
+                if (empty) return;
+                this.setItem(item);
+                this.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
+                    if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                        program.contextMenuFactory.getPlaylistContextMenu().show(this, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        mouseEvent.consume();
+                    }
+                });
+                Tooltip playlistTooltip = new Tooltip();
+                playlistTooltip.textProperty().bind(item.textProperty());
+                this.setTooltip(playlistTooltip);
+            }
         });
         playlistTableView.getColumns().get(0).setCellValueFactory(cellData -> new ReadOnlyObjectWrapper(cellData.getValue()));
         playlistTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
@@ -498,6 +511,7 @@ public class MainController implements Initializable {
                             if (keyEvent1.getCode().equals(KeyCode.ENTER)) {
                                 selectedPlaylist.setTitle(inputField.getText());
                                 playlistTitleLabel.setText(inputField.getText());
+                                program.contextMenuFactory.loadContextMenus();
                             }
                         });
                     }
@@ -534,7 +548,7 @@ public class MainController implements Initializable {
                 return (double) Math.round(Double.parseDouble(s) / 100);
             }
         });
-        volumeSlider.setOnMouseClicked(mouseEvent -> {
+        volumeSlider.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
             if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
                 program.contextMenuFactory.getInputContextMenu().show(playlistTitleLabel, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                 TextField inputField = (TextField) program.contextMenuFactory.getInputContextMenu().getItems().get(0).getGraphic();

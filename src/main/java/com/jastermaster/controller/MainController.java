@@ -137,11 +137,9 @@ public class MainController implements Initializable {
                     protected void updateItem(Song item, boolean empty) {
                         super.updateItem(item, empty);
                         TableRow<Song> row = this.getTableRow();
-                        System.out.println(this.getAlignment());
-                        if (empty) {
-                            row.setStyle(null);
-                            this.setText(null);
-                        }
+                        row.setStyle(null);
+                        this.setText(null);
+                        if (empty) return;
                         if (program.mediaPlayer.getSongIndex() == this.getIndex() && program.mediaPlayer.isReady() && selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
                             row.setStyle("-fx-border-color: #4CA771;");
                         } else {

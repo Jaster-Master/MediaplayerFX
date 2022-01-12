@@ -2,6 +2,8 @@ package com.jastermaster.application;
 
 import com.jastermaster.ContextMenuFactory;
 import com.jastermaster.DialogOpener;
+import com.jastermaster.controller.AddSongDialogController;
+import com.jastermaster.controller.AddSongsDialogController;
 import com.jastermaster.controller.MainController;
 import com.jastermaster.util.MediaplayerFX;
 import javafx.application.Application;
@@ -78,6 +80,8 @@ public class Program extends Application {
     public ResourceBundle resourceBundle;
     public MediaplayerFX mediaPlayer;
     public MainController mainCon;
+    public AddSongDialogController addSongCon;
+    public AddSongsDialogController addSongsCon;
     public Stage primaryStage;
     public String cssPath = Main.getResourceString("/css/light.css");
     public Color fontColor;

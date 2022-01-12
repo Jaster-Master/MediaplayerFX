@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
@@ -13,6 +15,8 @@ import java.util.ResourceBundle;
 
 public class SettingsController implements Initializable {
 
+    @FXML
+    public DialogPane dialogPane;
     @FXML
     public Label settingsLabel, languageLabel, designLabel, audioFadeLabel;
     @FXML
@@ -34,6 +38,11 @@ public class SettingsController implements Initializable {
         setUpLanguageComboBox();
         setUpDesignComboBox();
         setUpAudioFadeCheckBox();
+        Platform.runLater(() -> dialogPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                ((Button) dialogPane.lookupButton(ButtonType.FINISH)).fire();
+            }
+        }));
     }
 
     private void setUpLanguageComboBox() {

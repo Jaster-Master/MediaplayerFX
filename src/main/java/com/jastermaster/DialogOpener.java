@@ -43,6 +43,7 @@ public class DialogOpener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        program.addSongCon = loader.getController();
         addSongDialog.setTitle(program.resourceBundle.getString("contextMenuAddSong"));
         Util.centerWindow(addSongDialogPane.getScene().getWindow());
         setWindowStyle(addSongDialogPane.getScene());
@@ -67,6 +68,7 @@ public class DialogOpener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        program.addSongsCon = loader.getController();
         addSongsDialog.setTitle(program.resourceBundle.getString("contextMenuAddSongs"));
         Util.centerWindow(addSongsDialogPane.getScene().getWindow());
         setWindowStyle(addSongsDialogPane.getScene());

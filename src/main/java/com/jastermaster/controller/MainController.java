@@ -135,10 +135,17 @@ public class MainController implements Initializable {
                 return new TableCell<>() {
                     @Override
                     protected void updateItem(Song item, boolean empty) {
-                        if (empty) return;
+                        super.updateItem(item, empty);
                         TableRow<Song> row = this.getTableRow();
+                        System.out.println(this.getAlignment());
+                        if (empty) {
+                            row.setStyle(null);
+                            this.setText(null);
+                        }
                         if (program.mediaPlayer.getSongIndex() == this.getIndex() && program.mediaPlayer.isReady() && selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
                             row.setStyle("-fx-border-color: #4CA771;");
+                        } else {
+                            row.setStyle(null);
                         }
                         this.setText(String.valueOf(row.getIndex() + 1));
                         row.setOnMouseEntered(mouseEvent -> {
@@ -306,7 +313,6 @@ public class MainController implements Initializable {
         songsTableView.getItems().clear();
         songsTableView.getItems().addAll(playlist.getSongs());
         sortSongsComboBox.getSelectionModel().select(playlist.getComparatorIndex());
-        songsTableView.refresh();
         songsTableView.sort();
     }
 
@@ -701,7 +707,7 @@ public class MainController implements Initializable {
         }
         newSong.setPlayedOn(LocalDateTime.now());
         lastPlayedSongs.setSong(newSong);
-        songsTableView.refresh();
+        songsTableView.sort();
     }
 
     private void setButtonBehaviour(Button button) {

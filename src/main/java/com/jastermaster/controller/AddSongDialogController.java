@@ -3,10 +3,13 @@ package com.jastermaster.controller;
 import com.jastermaster.application.Program;
 import com.jastermaster.util.Playlist;
 import com.jastermaster.util.Song;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
@@ -39,6 +42,11 @@ public class AddSongDialogController implements Initializable {
         setLanguage();
         setUpSongPathNodes();
         setUpFinishButton();
+        Platform.runLater(() -> dialogPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                ((Button) dialogPane.lookupButton(ButtonType.FINISH)).fire();
+            }
+        }));
     }
 
     public void setUpFinishButton() {

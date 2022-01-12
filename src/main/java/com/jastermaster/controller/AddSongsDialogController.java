@@ -3,10 +3,13 @@ package com.jastermaster.controller;
 import com.jastermaster.application.Program;
 import com.jastermaster.util.Playlist;
 import com.jastermaster.util.Song;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 
@@ -48,10 +51,16 @@ public class AddSongsDialogController implements Initializable {
         setUpDirectoryPathNodes();
         setUpSubDirectoryCountSpinner();
         setUpFinishButton();
+        Platform.runLater(() -> dialogPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                ((Button) dialogPane.lookupButton(ButtonType.FINISH)).fire();
+            }
+        }));
     }
 
     private void setUpFinishButton() {
         dialogPane.lookupButton(ButtonType.FINISH).addEventFilter(ActionEvent.ACTION, actionEvent -> {
+            if (directoryPathField.getText() == null || directoryPathField.getText().isEmpty()) return;
             File currentFile = new File(directoryPathField.getText());
             if (!currentFile.exists()) return;
             for (Song lastSong : lastSongs) {

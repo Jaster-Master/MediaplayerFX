@@ -1,28 +1,19 @@
 package com.jastermaster;
 
-import com.jastermaster.application.Main;
-import com.jastermaster.application.Program;
-import com.jastermaster.controller.AddSongDialogController;
-import com.jastermaster.controller.AddSongsDialogController;
-import com.jastermaster.controller.DuplicateWarningDialogController;
-import com.jastermaster.controller.SettingsController;
-import com.jastermaster.util.Playlist;
-import com.jastermaster.util.Song;
-import com.jastermaster.util.Util;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
+import com.jastermaster.application.*;
+import com.jastermaster.controller.*;
+import com.jastermaster.util.*;
+import javafx.application.*;
+import javafx.fxml.*;
+import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.WindowEvent;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
+import javafx.stage.*;
 
-import java.io.IOException;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
 
 public class DialogOpener {
     private final Program program;
@@ -138,6 +129,7 @@ public class DialogOpener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        program.settingsCon = loader.getController();
         settingsDialog.setTitle(program.resourceBundle.getString("settingsLabel"));
         Util.centerWindow(settingsDialogPane.getScene().getWindow());
         setWindowStyle(settingsDialogPane.getScene());

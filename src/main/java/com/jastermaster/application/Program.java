@@ -1,21 +1,16 @@
 package com.jastermaster.application;
 
-import com.jastermaster.ContextMenuFactory;
-import com.jastermaster.DialogOpener;
-import com.jastermaster.controller.AddSongDialogController;
-import com.jastermaster.controller.AddSongsDialogController;
-import com.jastermaster.controller.MainController;
-import com.jastermaster.util.MediaplayerFX;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
+import com.jastermaster.*;
+import com.jastermaster.controller.*;
+import com.jastermaster.util.*;
+import javafx.application.*;
+import javafx.fxml.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.paint.*;
+import javafx.stage.*;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class Program extends Application {
 
@@ -82,6 +77,7 @@ public class Program extends Application {
     public MainController mainCon;
     public AddSongDialogController addSongCon;
     public AddSongsDialogController addSongsCon;
+    public SettingsController settingsCon;
     public Stage primaryStage;
     public String cssPath = Main.getResourceString("/css/light.css");
     public Color fontColor;

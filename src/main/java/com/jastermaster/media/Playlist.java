@@ -50,8 +50,10 @@ public class Playlist extends Label {
         songs.add(song);
         if (program.mainCon.selectedPlaylist == null) return;
         if (program.mainCon.selectedPlaylist.equals(this)) {
-            program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
+            program.mainCon.songsTableView.getItems().clear();
+            program.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
         }
+        program.mainCon.updatePlaylistLabelSize();
     }
 
     public void setSong(Song song) {
@@ -61,7 +63,8 @@ public class Playlist extends Label {
         songs.add(song);
         if (program.mainCon.selectedPlaylist == null) return;
         if (program.mainCon.selectedPlaylist.equals(this)) {
-            program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
+            program.mainCon.songsTableView.getItems().clear();
+            program.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
         }
     }
 

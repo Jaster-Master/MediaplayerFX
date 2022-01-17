@@ -73,6 +73,10 @@ public class AddSongDialogController implements Initializable {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Audio", "*.mp3", ".MP3", "*.wav", "*.WAV", "*.aac", "*.AAC", "*.aiff", "*.AIFF"));
             fileChooser.setTitle(program.resourceBundle.getString("chooseFile"));
+            File oldFile = new File(pathField.getText());
+            if (oldFile.exists()) {
+                fileChooser.setInitialDirectory(oldFile);
+            }
             File chosenFile = fileChooser.showOpenDialog(program.primaryStage);
             if (chosenFile == null) return;
             pathField.setText(chosenFile.getAbsolutePath());

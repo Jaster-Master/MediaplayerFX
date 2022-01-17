@@ -53,11 +53,12 @@ public class AddSongsDialogController implements Initializable {
         setUpFinishButton();
         lastSongs.addListener((ListChangeListener<Song>) change -> {
             change.next();
-            List<Song> nextSongs = (List<Song>) change.getAddedSubList();
-            for (Song nextSong : nextSongs) {
-                // TODO: Not on FX-Thread?
-                clickedPlaylist.addSong(nextSong);
-            }
+            Platform.runLater(() -> {
+                List<Song> nextSongs = (List<Song>) change.getAddedSubList();
+                for (Song nextSong : nextSongs) {
+                    clickedPlaylist.addSong(nextSong);
+                }
+            });
         });
         Platform.runLater(() -> dialogPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
@@ -71,7 +72,7 @@ public class AddSongsDialogController implements Initializable {
             if (directoryPathField.getText() == null || directoryPathField.getText().isEmpty()) return;
             File currentFile = new File(directoryPathField.getText());
             if (!currentFile.exists()) return;
-            new Thread(() -> this.lastSongs.addAll(getSongsOfDirectory(currentFile))).start();
+            Platform.runLater(() -> this.lastSongs.addAll(getSongsOfDirectory(currentFile)));
         });
     }
 

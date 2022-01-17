@@ -49,7 +49,7 @@ public class MainController implements Initializable {
     @FXML
     public JFXSlider timeSlider, volumeSlider;
     @FXML
-    public Label timeLabel, currentTimeLabel, songTitleLabel, songInterpreterLabel, playlistTitleLabel;
+    public Label timeLabel, currentTimeLabel, songTitleLabel, songInterpreterLabel, playlistTitleLabel, playlistSizeLabel;
     @FXML
     public TableView<Song> songsTableView;
     @FXML
@@ -320,6 +320,11 @@ public class MainController implements Initializable {
         });
     }
 
+    public void updatePlaylistLabelSize() {
+        playlistSizeLabel.setVisible(selectedPlaylist.getSongs().size() > 0);
+        playlistSizeLabel.setText(String.valueOf(selectedPlaylist.getSongs().size()));
+    }
+
     private void selectPlaylist(Playlist newPlaylist) {
         selectedPlaylist = newPlaylist;
         URL currentUrl;
@@ -342,8 +347,9 @@ public class MainController implements Initializable {
         }
         playlistTitleLabel.setText(newPlaylist.getTitle());
         playlistPictureImageView.setImage(newPlaylist.getPlaylistImage());
+        updatePlaylistLabelSize();
         songsTableView.getItems().clear();
-        songsTableView.getItems().addAll(newPlaylist.getSongs());
+        songsTableView.getItems().addAll(selectedPlaylist.getSongs());
         sortSongsComboBox.getSelectionModel().select(newPlaylist.getComparatorIndex());
         songsTableView.sort();
     }
@@ -493,13 +499,15 @@ public class MainController implements Initializable {
         final Set<Song> tableViewListBackup = new LinkedHashSet<>();
         searchInPlaylistField.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null || newValue.isEmpty()) {
-                songsTableView.setItems(FXCollections.observableArrayList(tableViewListBackup));
+                songsTableView.getItems().clear();
+                songsTableView.getItems().addAll(FXCollections.observableArrayList(tableViewListBackup));
                 tableViewListBackup.clear();
                 return;
             }
             tableViewListBackup.addAll(songsTableView.getItems());
             // Wenn ein Buchstabe weggelöscht wird, dann setItems
-            songsTableView.setItems(FXCollections.observableArrayList(tableViewListBackup));
+            songsTableView.getItems().clear();
+            songsTableView.getItems().addAll(FXCollections.observableArrayList(tableViewListBackup));
             songsTableView.getItems().removeIf(nextSong -> {
                 String input = newValue.trim();
                 boolean removeSong = !Pattern.compile(Pattern.quote(input), Pattern.CASE_INSENSITIVE).matcher(nextSong.getTitle()).find();

@@ -8,6 +8,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
 import java.io.File;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -105,7 +106,7 @@ public class Song implements Comparable<Song> {
             if (change.getMap().get("title") != null) {
                 this.setTitle((String) change.getMap().get("title"));
             } else {
-                File sourceFile = new File(song.getSource());
+                File sourceFile = new File(URI.create(song.getSource()).getPath());
                 this.setTitle(sourceFile.getName().substring(0, sourceFile.getName().length() - 4));
             }
             if (change.getMap().get("artist") != null) {

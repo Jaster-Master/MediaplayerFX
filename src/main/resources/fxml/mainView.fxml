@@ -68,11 +68,7 @@
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                        <ImageView fx:id="playlistPictureImageView" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@../images/UpdatedLogoBrighter.png" />
-                            </image>
-                        </ImageView>
+                        <ImageView fx:id="playlistPictureImageView" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
                         <Label fx:id="playlistTitleLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="-">
                             <font>
                                 <Font name="System Bold" size="20.0" />
@@ -173,11 +169,7 @@
                     <children>
                         <HBox alignment="CENTER_LEFT" minWidth="300.0" spacing="20.0">
                             <children>
-                                <ImageView fx:id="songPictureImageView" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../images/UpdatedLogoBrighter.png" />
-                                    </image>
-                                </ImageView>
+                                <ImageView fx:id="songPictureImageView" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" />
                                 <VBox alignment="CENTER_LEFT">
                                     <children>
                                           <Label fx:id="songTitleLabel" text="-">

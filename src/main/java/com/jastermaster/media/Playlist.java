@@ -1,8 +1,9 @@
-package com.jastermaster.util;
+package com.jastermaster.media;
 
 import com.jastermaster.application.Program;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class Playlist extends Label {
     private Comparator<Song> comparator;
     private int comparatorIndex;
     private final Program program;
+    private Image playlistImage;
 
     public Playlist(Program program) {
         super();
@@ -35,6 +37,10 @@ public class Playlist extends Label {
     }
 
     public void addSong(Song song) {
+        if (playlistImage == null) {
+            playlistImage = song.getSongImage();
+            program.mainCon.playlistPictureImageView.setImage(playlistImage);
+        }
         if (songs.contains(song)) {
             if (program.hasDuplicateQuestion) {
                 program.addAgain = program.dialogOpener.openDuplicateWarningDialog(song);
@@ -107,5 +113,13 @@ public class Playlist extends Label {
 
     public int getComparatorIndex() {
         return comparatorIndex;
+    }
+
+    public Image getPlaylistImage() {
+        return playlistImage;
+    }
+
+    public void setPlaylistImage(Image playlistImage) {
+        this.playlistImage = playlistImage;
     }
 }

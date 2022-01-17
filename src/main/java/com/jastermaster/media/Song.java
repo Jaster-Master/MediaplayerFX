@@ -1,6 +1,9 @@
-package com.jastermaster.util;
+package com.jastermaster.media;
 
+import com.jastermaster.util.Util;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.MapChangeListener;
+import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
@@ -20,6 +23,7 @@ public class Song implements Comparable<Song> {
     private SimpleStringProperty time;
     private SimpleStringProperty playedOn;
     private LocalDateTime playedOnTime;
+    private Image songImage;
 
     public Song() {
         initializeProperties();
@@ -68,24 +72,7 @@ public class Song implements Comparable<Song> {
     public static Song getSongFromFile(File songFile) {
         Media media = new Media(songFile.toURI().toString());
         Song song = new Song();
-        new MediaPlayer(media).setOnReady(() -> {
-            song.setSong(media);
-            if (media.getMetadata().get("title") != null) {
-                song.setTitle((String) media.getMetadata().get("title"));
-            } else {
-                song.setTitle(songFile.getName().substring(0, songFile.getName().length() - 4));
-            }
-            if (media.getMetadata().get("artist") != null) {
-                song.setInterpreter((String) media.getMetadata().get("artist"));
-            } else {
-                song.setInterpreter("-");
-            }
-            if (media.getMetadata().get("album") != null) {
-                song.setAlbum((String) media.getMetadata().get("album"));
-            } else {
-                song.setAlbum("-");
-            }
-        });
+        song.setSong(media);
         return song;
     }
 
@@ -113,6 +100,28 @@ public class Song implements Comparable<Song> {
     public void setSong(Media song) {
         this.song = song;
         new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
+        song.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
+            this.time.set(Util.getStringFromMillis(song.getDuration().toMillis()));
+            if (change.getMap().get("title") != null) {
+                this.setTitle((String) change.getMap().get("title"));
+            } else {
+                File sourceFile = new File(song.getSource());
+                this.setTitle(sourceFile.getName().substring(0, sourceFile.getName().length() - 4));
+            }
+            if (change.getMap().get("artist") != null) {
+                this.setInterpreter((String) change.getMap().get("artist"));
+            } else {
+                this.setInterpreter("-");
+            }
+            if (change.getMap().get("album") != null) {
+                this.setAlbum((String) change.getMap().get("album"));
+            } else {
+                this.setAlbum("-");
+            }
+            if (change.getMap().get("image") != null) {
+                this.songImage = (Image) change.getMap().get("image");
+            }
+        });
     }
 
     public Media getSong() {
@@ -177,6 +186,10 @@ public class Song implements Comparable<Song> {
 
     public SimpleStringProperty playedOnProperty() {
         return playedOn;
+    }
+
+    public Image getSongImage() {
+        return songImage;
     }
 
     @Override

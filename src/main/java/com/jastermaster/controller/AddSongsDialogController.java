@@ -1,9 +1,12 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.application.Program;
-import com.jastermaster.util.Playlist;
-import com.jastermaster.util.Song;
+import com.jastermaster.media.Playlist;
+import com.jastermaster.media.Song;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,7 +18,6 @@ import javafx.stage.DirectoryChooser;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -35,14 +37,12 @@ public class AddSongsDialogController implements Initializable {
     private final Program program;
     private final Playlist clickedPlaylist;
     private int subDirectories;
-    private final List<Song> lastSongs;
-    private Thread searchSongsThread;
+    private final ObservableList<Song> lastSongs;
 
     public AddSongsDialogController(Program program, Playlist clickedPlaylist) {
         this.program = program;
         this.clickedPlaylist = clickedPlaylist;
-        this.lastSongs = new ArrayList<>();
-        this.searchSongsThread = new Thread();
+        this.lastSongs = FXCollections.observableArrayList();
     }
 
     @Override
@@ -51,6 +51,14 @@ public class AddSongsDialogController implements Initializable {
         setUpDirectoryPathNodes();
         setUpSubDirectoryCountSpinner();
         setUpFinishButton();
+        lastSongs.addListener((ListChangeListener<Song>) change -> {
+            change.next();
+            List<Song> nextSongs = (List<Song>) change.getAddedSubList();
+            for (Song nextSong : nextSongs) {
+                // TODO: Not on FX-Thread?
+                clickedPlaylist.addSong(nextSong);
+            }
+        });
         Platform.runLater(() -> dialogPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 ((Button) dialogPane.lookupButton(ButtonType.FINISH)).fire();
@@ -63,19 +71,17 @@ public class AddSongsDialogController implements Initializable {
             if (directoryPathField.getText() == null || directoryPathField.getText().isEmpty()) return;
             File currentFile = new File(directoryPathField.getText());
             if (!currentFile.exists()) return;
-            for (Song lastSong : lastSongs) {
-                clickedPlaylist.addSong(lastSong);
-            }
-            program.hasDuplicateQuestion = true;
+            new Thread(() -> this.lastSongs.addAll(getSongsOfDirectory(currentFile))).start();
         });
     }
 
-    private List<Song> getSongsOfDirectory(File directory) {
-        if (!directory.exists()) return new ArrayList<>();
+    private ObservableList<Song> getSongsOfDirectory(File directory) {
+        if (!directory.exists()) return FXCollections.observableArrayList();
         File[] directoryFiles = directory.listFiles();
-        if (directoryFiles == null || directoryFiles.length == 0) return new ArrayList<>();
-        List<Song> songs = new ArrayList<>();
+        if (directoryFiles == null || directoryFiles.length == 0) return FXCollections.observableArrayList();
+        ObservableList<Song> songs = FXCollections.observableArrayList();
         for (File currentFile : directoryFiles) {
+            if (currentFile == null) continue;
             if (currentFile.isDirectory()) {
                 if (subDirectories > 0) {
                     subDirectories--;
@@ -89,8 +95,12 @@ public class AddSongsDialogController implements Initializable {
             if (extensionIndex == -1) continue;
             String fileFormat = fileName.substring(extensionIndex + 1);
             if (fileFormat.equalsIgnoreCase("mp3") || fileFormat.equalsIgnoreCase("wav") || fileFormat.equalsIgnoreCase("aac") || fileFormat.equalsIgnoreCase("aiff")) {
-                songs.add(Song.getSongFromFile(currentFile));
+                Song newSong = Song.getSongFromFile(currentFile);
+                songs.add(newSong);
             }
+        }
+        if (directory.equals(new File(directoryPathField.getText()))) {
+            program.hasDuplicateQuestion = true;
         }
         return songs;
     }
@@ -100,9 +110,6 @@ public class AddSongsDialogController implements Initializable {
         subDirectoryCountSpinner.getEditor().textProperty().addListener((observableValue, oldValue, newValue) -> {
             try {
                 subDirectories = Integer.parseInt(newValue);
-                String currentPath = directoryPathField.getText();
-                directoryPathField.clear();
-                directoryPathField.setText(currentPath); // Call listener again
             } catch (NumberFormatException e) {
                 subDirectoryCountSpinner.getEditor().setText(oldValue);
             }
@@ -113,11 +120,8 @@ public class AddSongsDialogController implements Initializable {
         directoryPathField.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null || newValue.isEmpty()) return;
             File currentDirectory = new File(newValue);
-            this.lastSongs.clear();
-            if (currentDirectory.exists() && currentDirectory.isDirectory()) {
-                if (searchSongsThread.isAlive()) searchSongsThread.interrupt();
-                searchSongsThread = new Thread(() -> this.lastSongs.addAll(getSongsOfDirectory(currentDirectory)));
-                searchSongsThread.start();
+            if (!currentDirectory.exists() || !currentDirectory.isDirectory()) {
+                directoryPathField.setText(oldValue);
             }
         });
         openPathButton.setOnAction(actionEvent -> {

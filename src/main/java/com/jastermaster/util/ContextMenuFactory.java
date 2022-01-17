@@ -1,10 +1,13 @@
-package com.jastermaster;
+package com.jastermaster.util;
 
 import com.jastermaster.application.Program;
-import com.jastermaster.util.Playlist;
-import com.jastermaster.util.Song;
+import com.jastermaster.media.Playlist;
+import com.jastermaster.media.Song;
 import javafx.application.Platform;
-import javafx.scene.control.*;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 
 public class ContextMenuFactory {
     private final Program program;
@@ -58,17 +61,9 @@ public class ContextMenuFactory {
 
     private void createPlaylistContextMenu() {
         MenuItem addSongMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSong"));
-        addSongMenu.setOnAction(actionEvent -> {
-            MenuItem selectedMenuItem = (MenuItem) actionEvent.getTarget();
-            TableRow<Playlist> clickedRow = (TableRow<Playlist>) selectedMenuItem.getParentPopup().getOwnerNode();
-            program.dialogOpener.addNewSong(clickedRow.getItem());
-        });
+        addSongMenu.setOnAction(actionEvent -> program.dialogOpener.addNewSong(program.mainCon.selectedPlaylist));
         MenuItem addSongsMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSongs"));
-        addSongsMenu.setOnAction(actionEvent -> {
-            MenuItem selectedMenuItem = (MenuItem) actionEvent.getTarget();
-            TableRow<Playlist> clickedRow = (TableRow<Playlist>) selectedMenuItem.getParentPopup().getOwnerNode();
-            program.dialogOpener.addNewSongs(clickedRow.getItem());
-        });
+        addSongsMenu.setOnAction(actionEvent -> program.dialogOpener.addNewSongs(program.mainCon.selectedPlaylist));
         Menu addToPlaylistMenu = new Menu(program.resourceBundle.getString("contextMenuAddToPlaylist"));
         for (Playlist item : program.mainCon.playlistTableView.getItems()) {
             MenuItem currentPlaylist = new MenuItem(item.getTitle());
@@ -82,9 +77,7 @@ public class ContextMenuFactory {
         }
         MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
-            MenuItem selectedMenuItem = (MenuItem) actionEvent.getTarget();
-            TableRow<Playlist> clickedRow = (TableRow<Playlist>) selectedMenuItem.getParentPopup().getOwnerNode();
-            program.mainCon.playlistTableView.getItems().remove(clickedRow.getItem());
+            program.mainCon.playlistTableView.getItems().remove(program.mainCon.selectedPlaylist);
             this.loadContextMenus();
         });
         playlistContextMenu = new ContextMenu(addSongMenu, addSongsMenu, addToPlaylistMenu, removeMenu);

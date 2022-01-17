@@ -1,7 +1,8 @@
-package com.jastermaster.util;
+package com.jastermaster.media;
 
 import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
+import com.jastermaster.util.Util;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;

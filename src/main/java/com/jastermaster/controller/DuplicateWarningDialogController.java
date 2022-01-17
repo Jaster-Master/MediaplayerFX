@@ -1,7 +1,7 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.application.Program;
-import com.jastermaster.util.Song;
+import com.jastermaster.media.Song;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

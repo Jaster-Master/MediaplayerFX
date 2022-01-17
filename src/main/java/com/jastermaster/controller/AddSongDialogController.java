@@ -1,8 +1,8 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.application.Program;
-import com.jastermaster.util.Playlist;
-import com.jastermaster.util.Song;
+import com.jastermaster.media.Playlist;
+import com.jastermaster.media.Song;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -64,9 +64,9 @@ public class AddSongDialogController implements Initializable {
     private void setUpSongPathNodes() {
         pathField.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue == null || newValue.isEmpty()) return;
-            File file = new File(newValue);
-            if (file.exists()) {
-                setFields(file);
+            File songFile = new File(newValue);
+            if (songFile.exists()) {
+                setFields(songFile);
             }
         });
         openPathButton.setOnAction(actionEvent -> {

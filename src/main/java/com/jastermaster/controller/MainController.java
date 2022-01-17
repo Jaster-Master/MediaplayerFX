@@ -1,12 +1,12 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.ContextMenuFactory;
-import com.jastermaster.DialogOpener;
 import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
-import com.jastermaster.util.PlayingType;
-import com.jastermaster.util.Playlist;
-import com.jastermaster.util.Song;
+import com.jastermaster.media.PlayingType;
+import com.jastermaster.media.Playlist;
+import com.jastermaster.media.Song;
+import com.jastermaster.util.ContextMenuFactory;
+import com.jastermaster.util.DialogOpener;
 import com.jastermaster.util.Util;
 import com.jfoenix.controls.JFXSlider;
 import javafx.application.Platform;
@@ -82,19 +82,52 @@ public class MainController implements Initializable {
         setUpSongsSorting();
         setUpPlaylistsSorting();
         setUpPlaylistTableView();
-        setUpClasses();
+        setUpOtherThings();
         setUpSettings();
-        lastPlayedSongs = new Playlist(program);
-        lastPlayedSongs.setComparator(Comparator.comparing(Song::getPlayedOn), 6);
+        setUpDefaultImages();
+        setUpLastPlayedSongsPlaylist();
+    }
 
+    private void setUpOtherThings() {
+        program.dialogOpener = new DialogOpener(program);
         Platform.runLater(() -> {
             program.contextMenuFactory = new ContextMenuFactory(program);
             lastPlayedSongs.setTitle(program.resourceBundle.getString("lastPlayedSongsLabel"));
         });
     }
 
-    private void setUpClasses() {
-        program.dialogOpener = new DialogOpener(program);
+    private void setUpLastPlayedSongsPlaylist() {
+        lastPlayedSongs = new Playlist(program);
+        URL currentUrl;
+        if ((currentUrl = Main.getResourceURL("/images/clockwise.png")) != null) {
+            lastPlayedSongs.setPlaylistImage(new Image(currentUrl.toString()));
+        }
+        lastPlayedSongs.setComparator(Comparator.comparing(Song::getPlayedOn), 6);
+    }
+
+    private void setUpDefaultImages() {
+        URL songPictureURL = Main.getResourceURL("/images/image-not-found.png");
+        if ((songPictureURL) != null) {
+            songPictureImageView.setImage(new Image(songPictureURL.toString()));
+        }
+        songPictureImageView.imageProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (newValue == null) {
+                if (songPictureURL != null) {
+                    songPictureImageView.setImage(new Image(songPictureURL.toString()));
+                }
+            }
+        });
+        URL playlistPictureURL = Main.getResourceURL("/images/image-not-found.png");
+        if ((playlistPictureURL) != null) {
+            playlistPictureImageView.setImage(new Image(playlistPictureURL.toString()));
+        }
+        playlistPictureImageView.imageProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (newValue == null) {
+                if (playlistPictureURL != null) {
+                    playlistPictureImageView.setImage(new Image(playlistPictureURL.toString()));
+                }
+            }
+        });
     }
 
     private void setUpSongsTableView() {
@@ -109,7 +142,7 @@ public class MainController implements Initializable {
                             selectedPlaylist.setPlayedOn(LocalDateTime.now());
                             program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
                         }
-                        setUpNewSong(songsTableView.getSelectionModel().getSelectedIndex());
+                        setUpNewSong(selectedPlaylist.getSongs().indexOf(songsTableView.getSelectionModel().getSelectedItem()));
                         program.mediaPlayer.play();
                     } else if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
                         program.contextMenuFactory.getSongContextMenu().show(this, mouseEvent.getScreenX(), mouseEvent.getScreenY());
@@ -180,7 +213,7 @@ public class MainController implements Initializable {
                                 selectedPlaylist.setPlayedOn(LocalDateTime.now());
                                 program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
                             }
-                            setUpNewSong(this.getIndex());
+                            setUpNewSong(selectedPlaylist.getSongs().indexOf(this.getItem()));
                             program.mediaPlayer.play();
                         });
                         return playSongButton;
@@ -287,8 +320,8 @@ public class MainController implements Initializable {
         });
     }
 
-    private void selectPlaylist(Playlist playlist) {
-        selectedPlaylist = playlist;
+    private void selectPlaylist(Playlist newPlaylist) {
+        selectedPlaylist = newPlaylist;
         URL currentUrl;
         if (!program.mainCon.selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
             if ((currentUrl = Main.getResourceURL("/images/play-round.png")) != null) {
@@ -299,7 +332,7 @@ public class MainController implements Initializable {
                 ((ImageView) program.mainCon.playPlaylistButton.getGraphic()).setImage(new Image(currentUrl.toString()));
             }
         }
-        if (playlist.equals(lastPlayedSongs)) {
+        if (newPlaylist.equals(lastPlayedSongs)) {
             songsTableView.getColumns().get(4).setText(program.resourceBundle.getString("playedOnSortLabel"));
             for (Song song : lastPlayedSongs.getSongs()) {
                 song.updatePlayedOn();
@@ -307,10 +340,11 @@ public class MainController implements Initializable {
         } else {
             songsTableView.getColumns().get(4).setText(program.resourceBundle.getString("addedOnLabel"));
         }
-        playlistTitleLabel.setText(playlist.getTitle());
+        playlistTitleLabel.setText(newPlaylist.getTitle());
+        playlistPictureImageView.setImage(newPlaylist.getPlaylistImage());
         songsTableView.getItems().clear();
-        songsTableView.getItems().addAll(playlist.getSongs());
-        sortSongsComboBox.getSelectionModel().select(playlist.getComparatorIndex());
+        songsTableView.getItems().addAll(newPlaylist.getSongs());
+        sortSongsComboBox.getSelectionModel().select(newPlaylist.getComparatorIndex());
         songsTableView.sort();
     }
 
@@ -554,7 +588,7 @@ public class MainController implements Initializable {
         });
         volumeSlider.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
             if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                program.contextMenuFactory.getInputContextMenu().show(playlistTitleLabel, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                program.contextMenuFactory.getInputContextMenu().show(volumeSlider, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                 TextField inputField = (TextField) program.contextMenuFactory.getInputContextMenu().getItems().get(0).getGraphic();
                 inputField.setText(String.valueOf(Math.round(volumeSlider.getValue() * 100)));
                 inputField.setOnKeyPressed(keyEvent -> {
@@ -565,7 +599,7 @@ public class MainController implements Initializable {
                         } catch (NumberFormatException e) {
                             return;
                         }
-                        if (value > 1) value /= 100;
+                        if (value >= 1) value /= 100;
                         volumeSlider.setValue(value);
                     }
                 });
@@ -700,6 +734,7 @@ public class MainController implements Initializable {
         songInterpreterLabel.setText(newSong.getInterpreter());
         songTitleLabel.setTooltip(new Tooltip(songTitleLabel.getText()));
         songInterpreterLabel.setTooltip(new Tooltip(songInterpreterLabel.getText()));
+        songPictureImageView.setImage(newSong.getSongImage());
         if (isPlaying) {
             program.mediaPlayer.play();
         }

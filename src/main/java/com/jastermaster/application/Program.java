@@ -1,16 +1,22 @@
 package com.jastermaster.application;
 
-import com.jastermaster.*;
-import com.jastermaster.controller.*;
-import com.jastermaster.util.*;
-import javafx.application.*;
-import javafx.fxml.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.paint.*;
-import javafx.stage.*;
+import com.jastermaster.controller.AddSongDialogController;
+import com.jastermaster.controller.AddSongsDialogController;
+import com.jastermaster.controller.MainController;
+import com.jastermaster.controller.SettingsController;
+import com.jastermaster.media.MediaplayerFX;
+import com.jastermaster.util.ContextMenuFactory;
+import com.jastermaster.util.DialogOpener;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class Program extends Application {
 

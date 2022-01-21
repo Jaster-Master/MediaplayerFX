@@ -1,42 +1,29 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.application.Main;
-import com.jastermaster.application.Program;
-import com.jastermaster.media.PlayingType;
-import com.jastermaster.media.Playlist;
-import com.jastermaster.media.Song;
-import com.jastermaster.util.ContextMenuFactory;
-import com.jastermaster.util.DialogOpener;
-import com.jastermaster.util.Util;
-import com.jfoenix.controls.JFXSlider;
-import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
+import com.jastermaster.application.*;
+import com.jastermaster.media.*;
+import com.jastermaster.util.*;
+import com.jfoenix.controls.*;
+import javafx.application.*;
+import javafx.beans.property.*;
+import javafx.collections.*;
+import javafx.event.*;
+import javafx.fxml.*;
+import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.TableHeaderRow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.skin.*;
+import javafx.scene.image.*;
 import javafx.scene.input.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.util.Callback;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
+import javafx.util.*;
 
-import java.net.URL;
-import java.time.LocalDateTime;
+import java.net.*;
+import java.time.*;
 import java.util.*;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 public class MainController implements Initializable {
 
@@ -148,9 +135,6 @@ public class MainController implements Initializable {
                         program.contextMenuFactory.getSongContextMenu().show(this, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                     }
                 });
-                Tooltip songTooltip = new Tooltip();
-                songTooltip.textProperty().bind(item.titleProperty());
-                this.setTooltip(songTooltip);
             }
         });
         songsTableView.widthProperty().addListener((src, o, n) -> Platform.runLater(() -> {
@@ -223,7 +207,13 @@ public class MainController implements Initializable {
         });
         songsTableView.getColumns().get(1).setCellValueFactory(cellData -> {
             Label title = new Label();
+            Tooltip titleTooltip = new Tooltip();
+            titleTooltip.textProperty().bind(title.textProperty());
+            title.setTooltip(titleTooltip);
             Label interpreter = new Label();
+            Tooltip interpreterTooltip = new Tooltip();
+            interpreterTooltip.textProperty().bind(interpreter.textProperty());
+            interpreter.setTooltip(interpreterTooltip);
             title.setFont(Font.font("System", FontWeight.BOLD, 12));
             title.textProperty().bind(cellData.getValue().titleProperty());
             interpreter.textProperty().bind(cellData.getValue().interpreterProperty());
@@ -232,9 +222,12 @@ public class MainController implements Initializable {
             return new ReadOnlyObjectWrapper(titleInterpreterBox);
         });
         songsTableView.getColumns().get(2).setCellValueFactory(cellData -> {
-            Label label = new Label();
-            label.textProperty().bind(cellData.getValue().albumProperty());
-            HBox hBox = new HBox(label);
+            Label album = new Label();
+            Tooltip albumTooltip = new Tooltip();
+            albumTooltip.textProperty().bind(album.textProperty());
+            album.setTooltip(albumTooltip);
+            album.textProperty().bind(cellData.getValue().albumProperty());
+            HBox hBox = new HBox(album);
             hBox.setAlignment(Pos.CENTER_LEFT);
             return new ReadOnlyObjectWrapper(hBox);
         });

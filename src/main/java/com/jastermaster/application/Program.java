@@ -92,6 +92,4 @@ public class Program extends Application {
     public String selectedDesign;
     public String selectedLanguage;
     public boolean audioFade;
-    public boolean hasDuplicateQuestion;
-    public boolean addAgain;
 }

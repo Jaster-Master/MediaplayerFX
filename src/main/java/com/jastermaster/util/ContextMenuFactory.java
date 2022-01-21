@@ -45,7 +45,7 @@ public class ContextMenuFactory {
     private void createSongContextMenu() {
         MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
-            program.mainCon.playlistTableView.getSelectionModel().getSelectedItem().removeSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
+            program.mainCon.selectedPlaylist.removeSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
         });
         Menu addToPlaylistMenu = new Menu(program.resourceBundle.getString("contextMenuAddToPlaylist"));
         // Add all playlists to menu

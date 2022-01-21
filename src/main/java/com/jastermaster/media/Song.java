@@ -12,6 +12,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ConcurrentModificationException;
 import java.util.Objects;
 
 public class Song implements Comparable<Song> {
@@ -100,27 +101,35 @@ public class Song implements Comparable<Song> {
 
     public void setSong(Media song) {
         this.song = song;
-        new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
+        synchronized (song) {
+            try {
+                MediaPlayer tempPlayer = new MediaPlayer(song);
+                tempPlayer.setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
+                tempPlayer.dispose();
+            } catch (ConcurrentModificationException e) {
+                e.printStackTrace();
+            }
+        }
         song.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
-            this.time.set(Util.getStringFromMillis(song.getDuration().toMillis()));
-            if (change.getMap().get("title") != null) {
-                this.setTitle((String) change.getMap().get("title"));
+            if (!change.wasAdded()) return;
+            if (change.getKey().equals("title")) {
+                this.setTitle((String) change.getValueAdded());
             } else {
                 File sourceFile = new File(URI.create(song.getSource()).getPath());
                 this.setTitle(sourceFile.getName().substring(0, sourceFile.getName().length() - 4));
             }
-            if (change.getMap().get("artist") != null) {
-                this.setInterpreter((String) change.getMap().get("artist"));
+            if (change.getKey().equals("artist")) {
+                this.setInterpreter((String) change.getValueAdded());
             } else {
                 this.setInterpreter("-");
             }
-            if (change.getMap().get("album") != null) {
-                this.setAlbum((String) change.getMap().get("album"));
+            if (change.getKey().equals("album")) {
+                this.setAlbum((String) change.getValueAdded());
             } else {
                 this.setAlbum("-");
             }
-            if (change.getMap().get("image") != null) {
-                this.songImage = (Image) change.getMap().get("image");
+            if (change.getKey().equals("image")) {
+                this.setSongImage((Image) change.getValueAdded());
             }
         });
     }
@@ -191,6 +200,10 @@ public class Song implements Comparable<Song> {
 
     public Image getSongImage() {
         return songImage;
+    }
+
+    public void setSongImage(Image songImage) {
+        this.songImage = songImage;
     }
 
     @Override

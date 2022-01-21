@@ -57,7 +57,6 @@ public class AddSongDialogController implements Initializable {
             newSong.setInterpreter(interpreterField.getText());
             newSong.setAlbum(albumField.getText());
             clickedPlaylist.addSong(newSong);
-            program.hasDuplicateQuestion = true;
         });
     }
 

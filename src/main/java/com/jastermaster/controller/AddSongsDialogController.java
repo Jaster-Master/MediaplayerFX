@@ -5,7 +5,6 @@ import com.jastermaster.media.Playlist;
 import com.jastermaster.media.Song;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,7 +17,6 @@ import javafx.stage.DirectoryChooser;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class AddSongsDialogController implements Initializable {
@@ -34,15 +32,13 @@ public class AddSongsDialogController implements Initializable {
     @FXML
     public Spinner<Integer> subDirectoryCountSpinner;
 
-    private final Program program;
+    private final Program PROGRAM;
     private final Playlist clickedPlaylist;
     private int subDirectories;
-    private final ObservableList<Song> lastSongs;
 
     public AddSongsDialogController(Program program, Playlist clickedPlaylist) {
-        this.program = program;
+        this.PROGRAM = program;
         this.clickedPlaylist = clickedPlaylist;
-        this.lastSongs = FXCollections.observableArrayList();
     }
 
     @Override
@@ -51,15 +47,6 @@ public class AddSongsDialogController implements Initializable {
         setUpDirectoryPathNodes();
         setUpSubDirectoryCountSpinner();
         setUpFinishButton();
-        lastSongs.addListener((ListChangeListener<Song>) change -> {
-            change.next();
-            Platform.runLater(() -> {
-                List<Song> nextSongs = (List<Song>) change.getAddedSubList();
-                for (Song nextSong : nextSongs) {
-                    clickedPlaylist.addSong(nextSong);
-                }
-            });
-        });
         Platform.runLater(() -> dialogPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
             if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                 ((Button) dialogPane.lookupButton(ButtonType.FINISH)).fire();
@@ -72,21 +59,21 @@ public class AddSongsDialogController implements Initializable {
             if (directoryPathField.getText() == null || directoryPathField.getText().isEmpty()) return;
             File currentFile = new File(directoryPathField.getText());
             if (!currentFile.exists()) return;
-            Platform.runLater(() -> this.lastSongs.addAll(getSongsOfDirectory(currentFile)));
+            new Thread(() -> getSongsOfDirectory(currentFile)).start();
         });
     }
 
-    private ObservableList<Song> getSongsOfDirectory(File directory) {
-        if (!directory.exists()) return FXCollections.observableArrayList();
+    private void getSongsOfDirectory(File directory) {
+        if (!directory.exists()) return;
         File[] directoryFiles = directory.listFiles();
-        if (directoryFiles == null || directoryFiles.length == 0) return FXCollections.observableArrayList();
+        if (directoryFiles == null || directoryFiles.length == 0) return;
         ObservableList<Song> songs = FXCollections.observableArrayList();
         for (File currentFile : directoryFiles) {
             if (currentFile == null) continue;
             if (currentFile.isDirectory()) {
                 if (subDirectories > 0) {
                     subDirectories--;
-                    songs.addAll(getSongsOfDirectory(currentFile));
+                    getSongsOfDirectory(currentFile);
                 }
                 continue;
             }
@@ -97,13 +84,9 @@ public class AddSongsDialogController implements Initializable {
             String fileFormat = fileName.substring(extensionIndex + 1);
             if (fileFormat.equalsIgnoreCase("mp3") || fileFormat.equalsIgnoreCase("wav") || fileFormat.equalsIgnoreCase("aac") || fileFormat.equalsIgnoreCase("aiff")) {
                 Song newSong = Song.getSongFromFile(currentFile);
-                songs.add(newSong);
+                Platform.runLater(() -> clickedPlaylist.setSong(newSong));
             }
         }
-        if (directory.equals(new File(directoryPathField.getText()))) {
-            program.hasDuplicateQuestion = true;
-        }
-        return songs;
     }
 
     private void setUpSubDirectoryCountSpinner() {
@@ -127,20 +110,20 @@ public class AddSongsDialogController implements Initializable {
         });
         openPathButton.setOnAction(actionEvent -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setTitle(program.resourceBundle.getString("choosePath"));
-            File chosenDirectory = directoryChooser.showDialog(program.primaryStage);
+            directoryChooser.setTitle(PROGRAM.resourceBundle.getString("choosePath"));
+            File chosenDirectory = directoryChooser.showDialog(PROGRAM.primaryStage);
             if (chosenDirectory == null) return;
             directoryPathField.setText(chosenDirectory.getAbsolutePath());
         });
     }
 
     private void setLanguage() {
-        directoryText.setText(program.resourceBundle.getString("addSongsDirectoryPathLabel"));
-        directoryText.setFill(program.fontColor);
-        subDirectoryText.setText(program.resourceBundle.getString("addSongsSubDirectoryCountLabel"));
-        subDirectoryText.setFill(program.fontColor);
-        directoryPathField.setPromptText(program.resourceBundle.getString("addSongsDirectoryPathField"));
-        openPathButton.setText(program.resourceBundle.getString("addSongOpenPathLabel"));
-        subDirectoryCountSpinner.setPromptText(program.resourceBundle.getString("addSongsSubDirectoryCountField"));
+        directoryText.setText(PROGRAM.resourceBundle.getString("addSongsDirectoryPathLabel"));
+        directoryText.setFill(PROGRAM.fontColor);
+        subDirectoryText.setText(PROGRAM.resourceBundle.getString("addSongsSubDirectoryCountLabel"));
+        subDirectoryText.setFill(PROGRAM.fontColor);
+        directoryPathField.setPromptText(PROGRAM.resourceBundle.getString("addSongsDirectoryPathField"));
+        openPathButton.setText(PROGRAM.resourceBundle.getString("addSongOpenPathLabel"));
+        subDirectoryCountSpinner.setPromptText(PROGRAM.resourceBundle.getString("addSongsSubDirectoryCountField"));
     }
 }

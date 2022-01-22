@@ -1,5 +1,6 @@
 package com.jastermaster.media;
 
+import com.jastermaster.application.Program;
 import com.jastermaster.util.Util;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.MapChangeListener;
@@ -27,7 +28,10 @@ public class Song implements Comparable<Song> {
     private LocalDateTime playedOnTime;
     private Image songImage;
 
-    public Song() {
+    private final Program program;
+
+    public Song(Program program) {
+        this.program = program;
         initializeProperties();
         setAddedOn(LocalDate.now());
     }
@@ -53,27 +57,27 @@ public class Song implements Comparable<Song> {
                         lastTime = ChronoUnit.MONTHS.between(playedOnTime, LocalDateTime.now());
                         if (lastTime > 12) {
                             lastTime = ChronoUnit.YEARS.between(playedOnTime, LocalDateTime.now());
-                            this.playedOn.set(lastTime + " years ago");
+                            this.playedOn.set(lastTime + " " + program.resourceBundle.getString("yearsAgoLabel"));
                             return;
                         }
-                        this.playedOn.set(lastTime + " months ago");
+                        this.playedOn.set(lastTime + " " + program.resourceBundle.getString("monthsAgoLabel"));
                         return;
                     }
-                    this.playedOn.set(lastTime + " days ago");
+                    this.playedOn.set(lastTime + " " + program.resourceBundle.getString("daysAgoLabel"));
                     return;
                 }
-                this.playedOn.set(lastTime + " hours ago");
+                this.playedOn.set(lastTime + " " + program.resourceBundle.getString("hoursAgoLabel"));
                 return;
             }
-            this.playedOn.set(lastTime + " minutes ago");
+            this.playedOn.set(lastTime + " " + program.resourceBundle.getString("minutesAgoLabel"));
             return;
         }
-        this.playedOn.set(lastTime + " seconds ago");
+        this.playedOn.set(lastTime + " " + program.resourceBundle.getString("secondsAgoLabel"));
     }
 
-    public static Song getSongFromFile(File songFile) {
+    public static Song getSongFromFile(Program program, File songFile) {
         Media media = new Media(songFile.toURI().toString());
-        Song song = new Song();
+        Song song = new Song(program);
         song.setSong(media);
         return song;
     }
@@ -86,15 +90,15 @@ public class Song implements Comparable<Song> {
     public void setAddedOn(LocalDate addedOn) {
         this.addedOnDate = addedOn;
         if (LocalDate.now().isEqual(addedOnDate)) {
-            this.addedOn.set("Today");
+            this.addedOn.set(program.resourceBundle.getString("todayLabel"));
         } else if (LocalDate.now().minusDays(1).isEqual(addedOnDate)) {
-            this.addedOn.set("Yesterday");
+            this.addedOn.set(program.resourceBundle.getString("yesterdayLabel"));
         } else {
             long days = ChronoUnit.DAYS.between(addedOnDate, LocalDate.now());
             if (days > 30) {
                 this.addedOn.set(Util.getStringFromDate(addedOnDate));
             } else {
-                this.addedOn.set(days + " days ago");
+                this.addedOn.set(days + " " + program.resourceBundle.getString("daysAgoLabel"));
             }
         }
     }

@@ -83,7 +83,7 @@ public class AddSongDialogController implements Initializable {
     }
 
     private void setFields(File file) {
-        newSong = Song.getSongFromFile(file);
+        newSong = Song.getSongFromFile(program, file);
         Media newSong = new Media(file.toURI().toString());
         pathField.setText(file.getAbsolutePath());
         new MediaPlayer(newSong).setOnReady(() -> {

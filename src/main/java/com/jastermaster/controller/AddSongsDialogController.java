@@ -32,12 +32,12 @@ public class AddSongsDialogController implements Initializable {
     @FXML
     public Spinner<Integer> subDirectoryCountSpinner;
 
-    private final Program PROGRAM;
+    private final Program program;
     private final Playlist clickedPlaylist;
     private int subDirectories;
 
     public AddSongsDialogController(Program program, Playlist clickedPlaylist) {
-        this.PROGRAM = program;
+        this.program = program;
         this.clickedPlaylist = clickedPlaylist;
     }
 
@@ -83,7 +83,7 @@ public class AddSongsDialogController implements Initializable {
             if (extensionIndex == -1) continue;
             String fileFormat = fileName.substring(extensionIndex + 1);
             if (fileFormat.equalsIgnoreCase("mp3") || fileFormat.equalsIgnoreCase("wav") || fileFormat.equalsIgnoreCase("aac") || fileFormat.equalsIgnoreCase("aiff")) {
-                Song newSong = Song.getSongFromFile(currentFile);
+                Song newSong = Song.getSongFromFile(program, currentFile);
                 Platform.runLater(() -> clickedPlaylist.setSong(newSong));
             }
         }
@@ -110,20 +110,20 @@ public class AddSongsDialogController implements Initializable {
         });
         openPathButton.setOnAction(actionEvent -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setTitle(PROGRAM.resourceBundle.getString("choosePath"));
-            File chosenDirectory = directoryChooser.showDialog(PROGRAM.primaryStage);
+            directoryChooser.setTitle(program.resourceBundle.getString("choosePath"));
+            File chosenDirectory = directoryChooser.showDialog(program.primaryStage);
             if (chosenDirectory == null) return;
             directoryPathField.setText(chosenDirectory.getAbsolutePath());
         });
     }
 
     private void setLanguage() {
-        directoryText.setText(PROGRAM.resourceBundle.getString("addSongsDirectoryPathLabel"));
-        directoryText.setFill(PROGRAM.fontColor);
-        subDirectoryText.setText(PROGRAM.resourceBundle.getString("addSongsSubDirectoryCountLabel"));
-        subDirectoryText.setFill(PROGRAM.fontColor);
-        directoryPathField.setPromptText(PROGRAM.resourceBundle.getString("addSongsDirectoryPathField"));
-        openPathButton.setText(PROGRAM.resourceBundle.getString("addSongOpenPathLabel"));
-        subDirectoryCountSpinner.setPromptText(PROGRAM.resourceBundle.getString("addSongsSubDirectoryCountField"));
+        directoryText.setText(program.resourceBundle.getString("addSongsDirectoryPathLabel"));
+        directoryText.setFill(program.fontColor);
+        subDirectoryText.setText(program.resourceBundle.getString("addSongsSubDirectoryCountLabel"));
+        subDirectoryText.setFill(program.fontColor);
+        directoryPathField.setPromptText(program.resourceBundle.getString("addSongsDirectoryPathField"));
+        openPathButton.setText(program.resourceBundle.getString("addSongOpenPathLabel"));
+        subDirectoryCountSpinner.setPromptText(program.resourceBundle.getString("addSongsSubDirectoryCountField"));
     }
 }

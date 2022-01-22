@@ -18,19 +18,19 @@ public class Playlist extends Label {
     private LocalDateTime playedOn;
     private Comparator<Song> comparator;
     private int comparatorIndex;
-    private final Program PROGRAM;
     private Image playlistImage;
+    private final Program program;
 
     public Playlist(Program program) {
         super();
-        this.PROGRAM = program;
+        this.program = program;
         songs = new ArrayList<>();
         setCreatedOn(LocalDate.now());
     }
 
     public Playlist(Program program, String title) {
         super(title);
-        this.PROGRAM = program;
+        this.program = program;
         songs = new ArrayList<>();
         this.title = title;
         setCreatedOn(LocalDate.now());
@@ -39,45 +39,45 @@ public class Playlist extends Label {
     public void addSong(Song song) {
         if (playlistImage == null) {
             playlistImage = song.getSongImage();
-            PROGRAM.mainCon.playlistPictureImageView.setImage(playlistImage);
+            program.mainCon.playlistPictureImageView.setImage(playlistImage);
         }
         if (songs.contains(song)) {
-            boolean addAgain = PROGRAM.dialogOpener.openDuplicateWarningDialog(this, song);
+            boolean addAgain = program.dialogOpener.openDuplicateWarningDialog(this, song);
             if (!addAgain) return;
         }
         songs.add(song);
-        if (PROGRAM.mainCon.selectedPlaylist == null) return;
-        if (PROGRAM.mainCon.selectedPlaylist.equals(this)) {
-            PROGRAM.mainCon.songsTableView.getItems().clear();
-            PROGRAM.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
+        if (program.mainCon.selectedPlaylist == null) return;
+        if (program.mainCon.selectedPlaylist.equals(this)) {
+            program.mainCon.songsTableView.getItems().clear();
+            program.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
         }
-        PROGRAM.mainCon.updatePlaylistLabelSize();
+        program.mainCon.updatePlaylistLabelSize();
     }
 
     public void setSong(Song song) {
         if (playlistImage == null) {
             playlistImage = song.getSongImage();
-            PROGRAM.mainCon.playlistPictureImageView.setImage(playlistImage);
+            program.mainCon.playlistPictureImageView.setImage(playlistImage);
         }
         if (songs.contains(song)) {
             return;
         }
         songs.add(song);
-        if (PROGRAM.mainCon.selectedPlaylist == null) return;
-        if (PROGRAM.mainCon.selectedPlaylist.equals(this)) {
-            PROGRAM.mainCon.songsTableView.getItems().clear();
-            PROGRAM.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
+        if (program.mainCon.selectedPlaylist == null) return;
+        if (program.mainCon.selectedPlaylist.equals(this)) {
+            program.mainCon.songsTableView.getItems().clear();
+            program.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
         }
-        PROGRAM.mainCon.updatePlaylistLabelSize();
+        program.mainCon.updatePlaylistLabelSize();
     }
 
     public void removeSong(Song song) {
         songs.remove(song);
-        if (PROGRAM.mainCon.selectedPlaylist == null) return;
-        if (PROGRAM.mainCon.selectedPlaylist.equals(this)) {
-            PROGRAM.mainCon.songsTableView.getItems().remove(song);
+        if (program.mainCon.selectedPlaylist == null) return;
+        if (program.mainCon.selectedPlaylist.equals(this)) {
+            program.mainCon.songsTableView.getItems().remove(song);
         }
-        PROGRAM.mainCon.updatePlaylistLabelSize();
+        program.mainCon.updatePlaylistLabelSize();
     }
 
     public String getTitle() {

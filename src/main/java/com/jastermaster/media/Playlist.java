@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Playlist extends Label {
     private String title;
-    private final List<Song> songs;
+    private List<Song> songs;
     private LocalDate createdOn;
     private LocalDateTime playedOn;
     private Comparator<Song> comparator;
@@ -57,7 +57,6 @@ public class Playlist extends Label {
     public void setSong(Song song) {
         if (playlistImage == null) {
             playlistImage = song.getSongImage();
-            program.mainCon.playlistPictureImageView.setImage(playlistImage);
         }
         if (songs.contains(song)) {
             return;
@@ -67,6 +66,7 @@ public class Playlist extends Label {
         if (program.mainCon.selectedPlaylist.equals(this)) {
             program.mainCon.songsTableView.getItems().clear();
             program.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
+            program.mainCon.playlistPictureImageView.setImage(playlistImage);
         }
         program.mainCon.updatePlaylistLabelSize();
     }
@@ -91,6 +91,10 @@ public class Playlist extends Label {
 
     public List<Song> getSongs() {
         return songs;
+    }
+
+    public void setSongs(List<Song> songs) {
+        this.songs = songs;
     }
 
     public LocalDate getCreatedOn() {

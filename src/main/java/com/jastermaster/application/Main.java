@@ -1,12 +1,16 @@
 package com.jastermaster.application;
 
+import com.jastermaster.media.Playlist;
+import com.jastermaster.util.DataHandler;
 import javafx.application.Platform;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
-    public static volatile Program runningProgram;
+    public static Program runningProgram;
 
     public static void startApplication(String[] params) {
         Program program = new Program();
@@ -24,6 +28,9 @@ public class Main {
     }
 
     public static void closeApplication() {
+        List<Playlist> playlists = new ArrayList<>(runningProgram.mainCon.playlistTableView.getItems());
+        playlists.add(runningProgram.mainCon.lastPlayedSongs);
+        DataHandler.savePlaylists(playlists);
         Platform.exit();
     }
 

@@ -7,5 +7,3 @@ JavaFX (License: GPL with the class path exception)
 
 Following APIs are used in this Project:
 JFoenix (License: MIT-License)
-Apache Tika (License: Apache License 2.0)
-Apache Tika AudioVideo (License: Apache License 2.0)

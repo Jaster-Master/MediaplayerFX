@@ -288,6 +288,7 @@ public class MainController implements Initializable {
                         selectedPlaylist.setTitle(inputField.getText());
                         playlistTitleLabel.setText(inputField.getText());
                         program.contextMenuFactory.loadContextMenus();
+                        Main.saveApplication();
                     }
                 });
             }
@@ -297,6 +298,7 @@ public class MainController implements Initializable {
             if (newPlaylist.getTitle() == null || newPlaylist.getTitle().isEmpty()) return;
             playlistTableView.getItems().add(newPlaylist);
             program.contextMenuFactory.loadContextMenus();
+            Main.saveApplication();
         });
         playlistTableView.setRowFactory(playlistListView -> new TableRow<>() {
             @Override
@@ -392,6 +394,7 @@ public class MainController implements Initializable {
                 case 6 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getPlayedOn), newValue.intValue());
             }
             songsTableView.sort();
+            Main.saveApplication();
         });
         upDownSortSongsToggle.setOnAction(actionEvent -> {
             URL currentUrl;
@@ -565,6 +568,7 @@ public class MainController implements Initializable {
                                 selectedPlaylist.setTitle(inputField.getText());
                                 playlistTitleLabel.setText(inputField.getText());
                                 program.contextMenuFactory.loadContextMenus();
+                                Main.saveApplication();
                             }
                         });
                     }

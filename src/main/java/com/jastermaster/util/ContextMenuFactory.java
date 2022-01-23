@@ -1,5 +1,6 @@
 package com.jastermaster.util;
 
+import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
 import com.jastermaster.media.Playlist;
 import com.jastermaster.media.Song;
@@ -46,6 +47,7 @@ public class ContextMenuFactory {
         MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
             program.mainCon.selectedPlaylist.removeSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
+            Main.saveApplication();
         });
         Menu addToPlaylistMenu = new Menu(program.resourceBundle.getString("contextMenuAddToPlaylist"));
         // Add all playlists to menu
@@ -55,6 +57,7 @@ public class ContextMenuFactory {
                 item.addSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
             });
             addToPlaylistMenu.getItems().add(currentPlaylist);
+            Main.saveApplication();
         }
         songContextMenu = new ContextMenu(addToPlaylistMenu, removeMenu);
     }
@@ -74,11 +77,13 @@ public class ContextMenuFactory {
                 }
             });
             addToPlaylistMenu.getItems().add(currentPlaylist);
+            Main.saveApplication();
         }
         MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
             program.mainCon.playlistTableView.getItems().remove(program.mainCon.selectedPlaylist);
             this.loadContextMenus();
+            Main.saveApplication();
         });
         playlistContextMenu = new ContextMenu(addSongMenu, addSongsMenu, addToPlaylistMenu, removeMenu);
     }

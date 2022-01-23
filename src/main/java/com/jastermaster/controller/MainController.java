@@ -307,7 +307,7 @@ public class MainController implements Initializable {
                 this.setItem(item);
                 this.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
                     if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
-                        program.contextMenuFactory.getPlaylistContextMenu().show(this, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                        program.contextMenuFactory.getPlaylistContextMenu().show(item, mouseEvent.getScreenX(), mouseEvent.getScreenY());
                         mouseEvent.consume();
                     }
                 });
@@ -683,7 +683,7 @@ public class MainController implements Initializable {
         });
         playlistMenuButton.setOnMouseClicked(mouseEvent -> {
             if (selectedPlaylist == null) return;
-            program.contextMenuFactory.getPlaylistContextMenu().show(playlistMenuButton, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+            program.contextMenuFactory.getPlaylistContextMenu().show(selectedPlaylist, mouseEvent.getScreenX(), mouseEvent.getScreenY());
         });
         randomPlayButton.setOnAction(actionEvent -> {
             program.mediaPlayer.setRandomPlaying(!program.mediaPlayer.isRandomPlaying());

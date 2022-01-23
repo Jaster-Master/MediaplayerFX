@@ -1,6 +1,7 @@
 package com.jastermaster.controller;
 
 import com.jastermaster.application.Program;
+import com.jastermaster.media.Song;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -51,6 +52,11 @@ public class SettingsController implements Initializable {
         languageComboBox.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             program.changeLanguage(new Locale(newValue.substring(0, 2).toLowerCase()));
             reopenSettings();
+            if (program.mainCon.selectedPlaylist == null) return;
+            for (Song item : program.mainCon.songsTableView.getItems()) {
+                item.updatePlayedOn();
+                item.setAddedOn(item.getAddedOn());
+            }
         });
     }
 

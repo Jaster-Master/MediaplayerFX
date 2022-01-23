@@ -27,10 +27,16 @@ public class Main {
         return Main.class.getResource(fileName);
     }
 
+    public static void saveApplication() {
+        new Thread(() -> {
+            List<Playlist> playlists = new ArrayList<>(runningProgram.mainCon.playlistTableView.getItems());
+            playlists.add(runningProgram.mainCon.lastPlayedSongs);
+            DataHandler.savePlaylists(playlists);
+        }).start();
+    }
+
     public static void closeApplication() {
-        List<Playlist> playlists = new ArrayList<>(runningProgram.mainCon.playlistTableView.getItems());
-        playlists.add(runningProgram.mainCon.lastPlayedSongs);
-        DataHandler.savePlaylists(playlists);
+        saveApplication();
         Platform.exit();
     }
 

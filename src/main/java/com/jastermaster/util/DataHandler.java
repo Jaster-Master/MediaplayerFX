@@ -116,8 +116,10 @@ public class DataHandler {
         playlist.setComparator(null, playlistInfo.getComparatorIndex());
         if (!lastPlaylist) {
             Platform.runLater(() -> {
-                Image playlistImage = songs.stream().map(Song::getSongImage).filter(Objects::nonNull).collect(Collectors.toList()).get(0);
-                playlist.setPlaylistImage(playlistImage);
+                List<Image> songImages = songs.stream().map(Song::getSongImage).filter(Objects::nonNull).collect(Collectors.toList());
+                if (songImages.size() > 0) {
+                    playlist.setPlaylistImage(songImages.get(0));
+                }
             });
         }
         return playlist;

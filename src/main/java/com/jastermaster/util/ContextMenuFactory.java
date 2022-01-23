@@ -64,16 +64,28 @@ public class ContextMenuFactory {
 
     private void createPlaylistContextMenu() {
         MenuItem addSongMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSong"));
-        addSongMenu.setOnAction(actionEvent -> program.dialogOpener.addNewSong(program.mainCon.selectedPlaylist));
+        addSongMenu.setOnAction(actionEvent -> {
+            ContextMenu sourceMenu = ((MenuItem) actionEvent.getSource()).getParentPopup();
+            if (sourceMenu.getOwnerNode() instanceof Playlist playlist) {
+                program.dialogOpener.addNewSong(playlist);
+            }
+        });
         MenuItem addSongsMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSongs"));
-        addSongsMenu.setOnAction(actionEvent -> program.dialogOpener.addNewSongs(program.mainCon.selectedPlaylist));
+        addSongsMenu.setOnAction(actionEvent -> {
+            ContextMenu sourceMenu = ((MenuItem) actionEvent.getSource()).getParentPopup();
+            if (sourceMenu.getOwnerNode() instanceof Playlist playlist) {
+                program.dialogOpener.addNewSongs(playlist);
+            }
+        });
         Menu addToPlaylistMenu = new Menu(program.resourceBundle.getString("contextMenuAddToPlaylist"));
         for (Playlist item : program.mainCon.playlistTableView.getItems()) {
             MenuItem currentPlaylist = new MenuItem(item.getTitle());
             currentPlaylist.setOnAction(actionEvent -> {
-                if (program.mainCon.selectedPlaylist == null) return;
-                for (Song song : program.mainCon.selectedPlaylist.getSongs()) {
-                    item.addSong(song);
+                ContextMenu sourceMenu = ((MenuItem) actionEvent.getSource()).getParentPopup();
+                if (sourceMenu.getOwnerNode() instanceof Playlist playlist) {
+                    for (Song song : playlist.getSongs()) {
+                        item.addSong(song);
+                    }
                 }
             });
             addToPlaylistMenu.getItems().add(currentPlaylist);
@@ -81,7 +93,10 @@ public class ContextMenuFactory {
         }
         MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
-            program.mainCon.playlistTableView.getItems().remove(program.mainCon.selectedPlaylist);
+            ContextMenu sourceMenu = ((MenuItem) actionEvent.getSource()).getParentPopup();
+            if (sourceMenu.getOwnerNode() instanceof Playlist playlist) {
+                program.mainCon.playlistTableView.getItems().remove(playlist);
+            }
             this.loadContextMenus();
             Main.saveApplication();
         });

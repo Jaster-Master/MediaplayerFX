@@ -1,29 +1,42 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.application.*;
-import com.jastermaster.media.*;
-import com.jastermaster.util.*;
-import com.jfoenix.controls.*;
-import javafx.application.*;
-import javafx.beans.property.*;
-import javafx.collections.*;
-import javafx.event.*;
-import javafx.fxml.*;
-import javafx.geometry.*;
-import javafx.scene.*;
+import com.jastermaster.application.Main;
+import com.jastermaster.application.Program;
+import com.jastermaster.media.PlayingType;
+import com.jastermaster.media.Playlist;
+import com.jastermaster.media.Song;
+import com.jastermaster.util.ContextMenuFactory;
+import com.jastermaster.util.DialogOpener;
+import com.jastermaster.util.Util;
+import com.jfoenix.controls.JFXSlider;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.*;
-import javafx.scene.image.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.text.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.util.*;
+import javafx.util.StringConverter;
 
-import java.net.*;
-import java.time.*;
+import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 public class MainController implements Initializable {
 
@@ -50,7 +63,7 @@ public class MainController implements Initializable {
 
     private final Program program;
 
-    private Playlist lastPlayedSongs;
+    public Playlist lastPlayedSongs;
     public Playlist selectedPlaylist;
 
     public MainController(Program program) {
@@ -72,7 +85,7 @@ public class MainController implements Initializable {
         setUpOtherThings();
         setUpSettings();
         setUpDefaultImages();
-        setUpLastPlayedSongsPlaylist();
+        setUpLastPlayedSongsPlaylist(new Playlist(program));
     }
 
     private void setUpOtherThings() {
@@ -83,8 +96,8 @@ public class MainController implements Initializable {
         });
     }
 
-    private void setUpLastPlayedSongsPlaylist() {
-        lastPlayedSongs = new Playlist(program);
+    public void setUpLastPlayedSongsPlaylist(Playlist playlist) {
+        lastPlayedSongs = playlist;
         URL currentUrl;
         if ((currentUrl = Main.getResourceURL("/images/clockwise.png")) != null) {
             lastPlayedSongs.setPlaylistImage(new Image(currentUrl.toString()));
@@ -251,7 +264,7 @@ public class MainController implements Initializable {
             return new ReadOnlyObjectWrapper(hBox);
         });
 
-        Platform.runLater(() -> {
+        songsTableView.skinProperty().addListener((observableValue, oldValue, newValue) -> {
             TableHeaderRow tableHeaderRow = (TableHeaderRow) songsTableView.lookup("TableHeaderRow");
             tableHeaderRow.setOnMouseEntered(mouseEvent -> {
                 TableHeaderRow clickedRow = (TableHeaderRow) mouseEvent.getTarget();
@@ -519,6 +532,7 @@ public class MainController implements Initializable {
             program.primaryStage.getScene().getAccelerators().put(KeyCombination.keyCombination("CTRL+MINUS"), () -> volumeSlider.setValue(volumeSlider.getValue() - 0.01));
             program.primaryStage.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
                 if (keyEvent.isControlDown()) return;
+                if (keyEvent.getTarget() instanceof TextField) return;
                 switch (keyEvent.getCode()) {
                     case SPACE -> {
                         playButton.fire();
@@ -632,6 +646,11 @@ public class MainController implements Initializable {
             }
         });
         timeSlider.setOnMouseReleased(mouseEvent -> program.mediaPlayer.seek(Duration.seconds(timeSlider.getValue())));
+        timeSlider.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
+            if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                mouseEvent.consume();
+            }
+        });
         timeSlider.setValue(0.0);
     }
 

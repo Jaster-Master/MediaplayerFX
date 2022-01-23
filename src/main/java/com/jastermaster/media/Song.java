@@ -13,7 +13,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ConcurrentModificationException;
 import java.util.Objects;
 
 public class Song implements Comparable<Song> {
@@ -46,6 +45,7 @@ public class Song implements Comparable<Song> {
     }
 
     public void updatePlayedOn() {
+        if (playedOnTime == null) return;
         long lastTime = ChronoUnit.SECONDS.between(playedOnTime, LocalDateTime.now());
         if (lastTime > 60) {
             lastTime = ChronoUnit.MINUTES.between(playedOnTime, LocalDateTime.now());
@@ -105,15 +105,7 @@ public class Song implements Comparable<Song> {
 
     public void setSong(Media song) {
         this.song = song;
-        synchronized (song) {
-            try {
-                MediaPlayer tempPlayer = new MediaPlayer(song);
-                tempPlayer.setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
-                tempPlayer.dispose();
-            } catch (ConcurrentModificationException e) {
-                e.printStackTrace();
-            }
-        }
+        new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
         song.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
             if (!change.wasAdded()) return;
             if (change.getKey().equals("title")) {

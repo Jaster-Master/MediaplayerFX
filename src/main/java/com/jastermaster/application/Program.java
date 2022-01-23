@@ -5,10 +5,14 @@ import com.jastermaster.controller.AddSongsDialogController;
 import com.jastermaster.controller.MainController;
 import com.jastermaster.controller.SettingsController;
 import com.jastermaster.media.MediaplayerFX;
+import com.jastermaster.media.Playlist;
 import com.jastermaster.util.ContextMenuFactory;
+import com.jastermaster.util.DataHandler;
 import com.jastermaster.util.DialogOpener;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -42,7 +46,17 @@ public class Program extends Application {
         selectedDesign = "Light";
         fontColor = Color.BLACK;
         changeLanguage(Locale.getDefault());
-        primaryStage.show();
+
+        new Thread(() -> {
+            ObservableList<Playlist> playlists = FXCollections.observableArrayList(DataHandler.loadPlaylists(this));
+            Platform.runLater(() -> {
+                if (!playlists.isEmpty()) {
+                    this.mainCon.setUpLastPlayedSongsPlaylist(playlists.remove(playlists.size() - 1));
+                    this.mainCon.playlistTableView.setItems(playlists);
+                }
+                primaryStage.show();
+            });
+        }).start();
     }
 
     public void changeLanguage(Locale newLocale) {

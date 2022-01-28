@@ -1,6 +1,8 @@
 package com.jastermaster.util;
 
+import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
+import com.jastermaster.application.Settings;
 import com.jastermaster.media.Playlist;
 import com.jastermaster.media.Song;
 import javafx.application.Platform;
@@ -21,7 +23,7 @@ public class DataHandler {
     public static File saveFile;
 
     static {
-        saveFile = new File("./playlists.mpfx");
+        saveFile = new File("./mediaPlayerData.mpfx");
         if (!saveFile.exists()) {
             try {
                 saveFile.createNewFile();
@@ -31,7 +33,7 @@ public class DataHandler {
         }
     }
 
-    public static void savePlaylists(List<Playlist> playlists) {
+    public static void saveData(List<Playlist> playlists) {
         if (!saveFile.exists()) {
             try {
                 saveFile.createNewFile();
@@ -44,21 +46,33 @@ public class DataHandler {
             for (Playlist playlist : playlists) {
                 playlistInfos.add(getInfoFromPlaylist(playlist));
             }
-            oos.writeObject(playlistInfos);
+            Data data = new Data();
+            data.setPlaylists(playlistInfos);
+            data.setSettings(Main.runningProgram.settings);
+            oos.writeObject(data);
             oos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static List<Playlist> loadPlaylists(Program program) {
+    public static List<Playlist> loadData(Program program) {
         List<Playlist> playlists = new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
             Object readObject = ois.readObject();
-            if (readObject instanceof List readPlaylists) {
-                for (int i = 0; i < readPlaylists.size(); i++) {
+            if (readObject instanceof Data data) {
+                program.settings.setVolume(data.getSettings().getVolume());
+                program.settings.setRandomPlaying(data.getSettings().isRandomPlaying());
+                program.settings.setPlayingType(data.getSettings().getPlayingType());
+                program.settings.setAudioFade(data.getSettings().isAudioFade());
+                program.settings.setSelectedDesign(data.getSettings().getSelectedDesign());
+                program.settings.setSelectedLanguage(data.getSettings().getSelectedLanguage());
+                program.settings.setPlaylistsSortComparator(data.getSettings().getPlaylistsSortComparator());
+                program.settings.setAscendingPlaylistsSorting(data.getSettings().isAscendingPlaylistsSorting());
+                List<PlaylistInfo> playlistInfos = data.getPlaylists();
+                for (int i = 0; i < playlistInfos.size(); i++) {
                     // i == readPlaylists.size() - 1 is last played songs
-                    playlists.add(getPlaylistFromInfo(program, (PlaylistInfo) readPlaylists.get(i), i == readPlaylists.size() - 1));
+                    playlists.add(getPlaylistFromInfo(program, playlistInfos.get(i), i == playlistInfos.size() - 1));
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -69,7 +83,11 @@ public class DataHandler {
 
     private static SongInfo getInfoFromSong(Song song) {
         SongInfo songInfo = new SongInfo();
-        songInfo.setSongPath(URI.create(song.getSong().getSource()).toString());
+        try {
+            songInfo.setSongPath(URI.create(song.getSong().getSource()).toString());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
         songInfo.setTitle(song.getTitle());
         songInfo.setInterpreter(song.getInterpreter());
         songInfo.setAlbum(song.getAlbum());
@@ -80,12 +98,17 @@ public class DataHandler {
 
     private static Song getSongFromInfo(Program program, SongInfo songInfo) {
         Song song = new Song(program);
+        if (!new File(URI.create(songInfo.getSongPath()).getPath()).exists()) {
+            return null;
+        }
         song.setSong(new Media(songInfo.getSongPath()));
         song.setTitle(songInfo.getTitle());
         song.setInterpreter(songInfo.getInterpreter());
         song.setAlbum(songInfo.getAlbum());
-        song.setAddedOn(songInfo.getAddedOn());
-        song.setPlayedOn(songInfo.getPlayedOn());
+        Platform.runLater(() -> {
+            song.setAddedOn(songInfo.getAddedOn());
+            song.setPlayedOn(songInfo.getPlayedOn());
+        });
         return song;
     }
 
@@ -93,13 +116,17 @@ public class DataHandler {
         PlaylistInfo playlistInfo = new PlaylistInfo();
         List<SongInfo> songInfos = new ArrayList<>();
         for (Song song : playlist.getSongs()) {
-            songInfos.add(getInfoFromSong(song));
+            SongInfo songInfo = getInfoFromSong(song);
+            if (songInfo != null) {
+                songInfos.add(songInfo);
+            }
         }
         playlistInfo.setSongs(songInfos);
         playlistInfo.setTitle(playlist.getTitle());
         playlistInfo.setCreatedOn(playlist.getCreatedOn());
         playlistInfo.setPlayedOn(playlist.getPlayedOn());
         playlistInfo.setComparatorIndex(playlist.getComparatorIndex());
+        playlistInfo.setAscendingSort(playlist.isAscendingSort());
         return playlistInfo;
     }
 
@@ -107,13 +134,18 @@ public class DataHandler {
         Playlist playlist = new Playlist(program);
         List<Song> songs = new ArrayList<>();
         for (SongInfo songInfo : playlistInfo.getSongs()) {
-            songs.add(getSongFromInfo(program, songInfo));
+            Song newSong = getSongFromInfo(program, songInfo);
+            if (newSong != null) {
+                songs.add(newSong);
+            }
+
         }
         playlist.setSongs(songs);
         playlist.setTitle(playlistInfo.getTitle());
         playlist.setPlayedOn(playlistInfo.getPlayedOn());
         playlist.setCreatedOn(playlistInfo.getCreatedOn());
         playlist.setComparator(null, playlistInfo.getComparatorIndex());
+        playlist.setAscendingSort(playlistInfo.isAscendingSort());
         if (!lastPlaylist) {
             Platform.runLater(() -> {
                 List<Image> songImages = songs.stream().map(Song::getSongImage).filter(Objects::nonNull).collect(Collectors.toList());
@@ -125,12 +157,42 @@ public class DataHandler {
         return playlist;
     }
 
+    static class Data implements Serializable {
+        private List<PlaylistInfo> playlists;
+        private Settings settings;
+
+        public Data() {
+        }
+
+        public Data(List<PlaylistInfo> playlists, Settings settings) {
+            this.playlists = playlists;
+            this.settings = settings;
+        }
+
+        public List<PlaylistInfo> getPlaylists() {
+            return playlists;
+        }
+
+        public void setPlaylists(List<PlaylistInfo> playlists) {
+            this.playlists = playlists;
+        }
+
+        public Settings getSettings() {
+            return settings;
+        }
+
+        public void setSettings(Settings settings) {
+            this.settings = settings;
+        }
+    }
+
     static class PlaylistInfo implements Serializable {
         private String title;
         private List<SongInfo> songs;
         private LocalDate createdOn;
         private LocalDateTime playedOn;
         private int comparatorIndex;
+        private boolean isAscendingSort;
 
         public PlaylistInfo() {
         }
@@ -173,6 +235,14 @@ public class DataHandler {
 
         public void setComparatorIndex(int comparatorIndex) {
             this.comparatorIndex = comparatorIndex;
+        }
+
+        public boolean isAscendingSort() {
+            return isAscendingSort;
+        }
+
+        public void setAscendingSort(boolean ascendingSort) {
+            isAscendingSort = ascendingSort;
         }
     }
 

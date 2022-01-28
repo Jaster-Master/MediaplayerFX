@@ -47,7 +47,6 @@ public class ContextMenuFactory {
         MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
             program.mainCon.selectedPlaylist.removeSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
-            Main.saveApplication();
         });
         Menu addToPlaylistMenu = new Menu(program.resourceBundle.getString("contextMenuAddToPlaylist"));
         // Add all playlists to menu
@@ -55,9 +54,9 @@ public class ContextMenuFactory {
             MenuItem currentPlaylist = new MenuItem(item.getTitle());
             currentPlaylist.setOnAction(actionEvent -> {
                 item.addSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
+                Main.saveApplication();
             });
             addToPlaylistMenu.getItems().add(currentPlaylist);
-            Main.saveApplication();
         }
         songContextMenu = new ContextMenu(addToPlaylistMenu, removeMenu);
     }
@@ -86,15 +85,23 @@ public class ContextMenuFactory {
                     for (Song song : playlist.getSongs()) {
                         item.addSong(song);
                     }
+                    Main.saveApplication();
                 }
             });
             addToPlaylistMenu.getItems().add(currentPlaylist);
-            Main.saveApplication();
         }
         MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
             ContextMenu sourceMenu = ((MenuItem) actionEvent.getSource()).getParentPopup();
             if (sourceMenu.getOwnerNode() instanceof Playlist playlist) {
+                if (program.mainCon.selectedPlaylist != null && program.mainCon.selectedPlaylist.equals(playlist)) {
+                    program.mainCon.selectedPlaylist = null;
+                    program.mainCon.songsTableView.getItems().clear();
+                    program.mainCon.updatePlaylistLabelSize();
+                    program.mainCon.playlistPictureImageView.setImage(null);
+                    program.mainCon.playlistTitleLabel.setText("");
+                    program.mainCon.sortSongsComboBox.getSelectionModel().select(0);
+                }
                 program.mainCon.playlistTableView.getItems().remove(playlist);
             }
             this.loadContextMenus();

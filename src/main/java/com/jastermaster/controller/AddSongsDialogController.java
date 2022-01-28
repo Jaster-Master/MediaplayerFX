@@ -1,11 +1,11 @@
 package com.jastermaster.controller;
 
+import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
 import com.jastermaster.media.Playlist;
 import com.jastermaster.media.Song;
+import com.jastermaster.util.Util;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -59,33 +59,33 @@ public class AddSongsDialogController implements Initializable {
             if (directoryPathField.getText() == null || directoryPathField.getText().isEmpty()) return;
             File currentFile = new File(directoryPathField.getText());
             if (!currentFile.exists()) return;
-            new Thread(() -> getSongsOfDirectory(currentFile)).start();
+            new Thread(() -> addSongsOfDirectory(currentFile)).start();
         });
     }
 
-    private void getSongsOfDirectory(File directory) {
+    private void addSongsOfDirectory(File directory) {
         if (!directory.exists()) return;
         File[] directoryFiles = directory.listFiles();
         if (directoryFiles == null || directoryFiles.length == 0) return;
-        ObservableList<Song> songs = FXCollections.observableArrayList();
         for (File currentFile : directoryFiles) {
             if (currentFile == null) continue;
             if (currentFile.isDirectory()) {
                 if (subDirectories > 0) {
                     subDirectories--;
-                    getSongsOfDirectory(currentFile);
+                    addSongsOfDirectory(currentFile);
                 }
                 continue;
             }
-            //https://stackoverflow.com/questions/3571223/how-do-i-get-the-file-extension-of-a-file-in-java
-            String fileName = currentFile.getName();
-            int extensionIndex = fileName.lastIndexOf('.');
-            if (extensionIndex == -1) continue;
-            String fileFormat = fileName.substring(extensionIndex + 1);
-            if (fileFormat.equalsIgnoreCase("mp3") || fileFormat.equalsIgnoreCase("wav") || fileFormat.equalsIgnoreCase("aac") || fileFormat.equalsIgnoreCase("aiff")) {
+            String fileFormat = Util.getFileExtensionFromFile(currentFile);
+            if (fileFormat != null && Util.isSupportedFormat(fileFormat)) {
                 Song newSong = Song.getSongFromFile(program, currentFile);
-                Platform.runLater(() -> clickedPlaylist.setSong(newSong));
+                newSong.isReadyProperty().addListener((observableValue, oldValue, newValue) -> {
+                    clickedPlaylist.setSong(newSong);
+                });
             }
+        }
+        if (directory.getAbsolutePath().equals(directoryPathField.getText())) {
+            Main.saveApplication();
         }
     }
 

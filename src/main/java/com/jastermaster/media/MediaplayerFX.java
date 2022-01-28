@@ -8,6 +8,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.MediaPlayer;
@@ -23,8 +24,8 @@ public class MediaplayerFX {
     private Playlist playingPlaylist;
     private int songIndex;
     private double lastVolume;
-    private boolean randomPlaying;
-    private PlayingType playingType = PlayingType.NORMAL;
+    private final SimpleBooleanProperty isRandomPlaying = new SimpleBooleanProperty();
+    private final SimpleObjectProperty<PlayingType> playingType = new SimpleObjectProperty<>();
     private boolean isReady;
     private final SimpleBooleanProperty isPlaying = new SimpleBooleanProperty();
 
@@ -35,14 +36,15 @@ public class MediaplayerFX {
 
     private void setUpMediaplayer() {
         mediaPlayer.setOnEndOfMedia(() -> {
-            if (randomPlaying) {
+            if (isRandomPlaying.get()) {
                 program.mainCon.setUpNewSong(new Random().nextInt(0, playingPlaylist.getSongs().size()));
-            } else if (songIndex + 1 >= playingPlaylist.getSongs().size() && playingType.equals(PlayingType.LOOP)) {
+            } else if (songIndex + 1 >= playingPlaylist.getSongs().size() && playingType.get().equals(PlayingType.LOOP_PLAYLIST)) {
                 program.mainCon.setUpNewSong(0);
-            } else if (songIndex + 1 >= playingPlaylist.getSongs().size() && playingType.equals(PlayingType.NORMAL)) {
+            } else if (songIndex + 1 >= playingPlaylist.getSongs().size() && playingType.get().equals(PlayingType.NORMAL)) {
                 mediaPlayer.seek(Duration.ZERO);
                 mediaPlayer.stop();
-            } else if (playingType.equals(PlayingType.LOOP_SONG)) {
+                isPlaying.set(false);
+            } else if (playingType.get().equals(PlayingType.LOOP_SONG)) {
                 mediaPlayer.seek(Duration.ZERO);
                 program.mediaPlayer.play();
             } else {
@@ -61,7 +63,7 @@ public class MediaplayerFX {
         });
         mediaPlayer.setVolume(lastVolume);
         mediaPlayer.setOnPlaying(() -> {
-            if (program.audioFade) {
+            if (program.settings.isAudioFade()) {
                 this.fadeInAudio();
             } else {
                 this.mediaPlayer.setVolume(program.mainCon.volumeSlider.getValue());
@@ -70,6 +72,34 @@ public class MediaplayerFX {
     }
 
     private void addListeners() {
+        isRandomPlaying.addListener((observableValue, oldValue, newValue) -> {
+            URL currentUrl;
+            if (program.mediaPlayer.isRandomPlaying()) {
+                if ((currentUrl = Main.getResourceURL("/images/random-arrow_green.png")) != null) {
+                    ((ImageView) program.mainCon.randomPlayButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                }
+            } else {
+                if ((currentUrl = Main.getResourceURL("/images/random-arrow.png")) != null) {
+                    ((ImageView) program.mainCon.randomPlayButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                }
+            }
+        });
+        playingType.addListener((observableValue, oldValue, newValue) -> {
+            URL currentUrl;
+            if (newValue.equals(PlayingType.NORMAL)) {
+                if ((currentUrl = Main.getResourceURL("/images/circle-arrow.png")) != null) {
+                    ((ImageView) program.mainCon.loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                }
+            } else if (newValue.equals(PlayingType.LOOP_PLAYLIST)) {
+                if ((currentUrl = Main.getResourceURL("/images/circle-arrow_green.png")) != null) {
+                    ((ImageView) program.mainCon.loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                }
+            } else if (program.mediaPlayer.getPlayingType().equals(PlayingType.LOOP_SONG)) {
+                if ((currentUrl = Main.getResourceURL("/images/circle-arrow_loop.png")) != null) {
+                    ((ImageView) program.mainCon.loopSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
+                }
+            }
+        });
         isPlaying.addListener((observableValue, oldValue, newValue) -> {
             URL currentUrl;
             if (newValue) {
@@ -109,7 +139,7 @@ public class MediaplayerFX {
 
     public void pause() {
         if (!isReady) return;
-        if (program.audioFade) {
+        if (program.settings.isAudioFade()) {
             fadeOutAudio();
         } else {
             mediaPlayer.pause();
@@ -161,6 +191,7 @@ public class MediaplayerFX {
     }
 
     public void setVolume(double volume) {
+        program.settings.setVolume(volume);
         if (!isReady) return;
         mediaPlayer.setVolume(volume);
     }
@@ -174,19 +205,21 @@ public class MediaplayerFX {
     }
 
     public boolean isRandomPlaying() {
-        return randomPlaying;
+        return isRandomPlaying.get();
     }
 
     public void setRandomPlaying(boolean randomPlaying) {
-        this.randomPlaying = randomPlaying;
+        this.isRandomPlaying.set(randomPlaying);
+        program.settings.setRandomPlaying(randomPlaying);
     }
 
     public PlayingType getPlayingType() {
-        return playingType;
+        return playingType.get();
     }
 
     public void setPlayingType(PlayingType playingType) {
-        this.playingType = playingType;
+        this.playingType.set(playingType);
+        program.settings.setPlayingType(playingType);
     }
 
     public int getSongIndex() {

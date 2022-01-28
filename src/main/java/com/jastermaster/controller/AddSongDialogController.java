@@ -1,5 +1,6 @@
 package com.jastermaster.controller;
 
+import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
 import com.jastermaster.media.Playlist;
 import com.jastermaster.media.Song;
@@ -57,6 +58,7 @@ public class AddSongDialogController implements Initializable {
             newSong.setInterpreter(interpreterField.getText());
             newSong.setAlbum(albumField.getText());
             clickedPlaylist.addSong(newSong);
+            Main.saveApplication();
         });
     }
 

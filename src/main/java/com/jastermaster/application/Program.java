@@ -5,6 +5,7 @@ import com.jastermaster.controller.AddSongsDialogController;
 import com.jastermaster.controller.MainController;
 import com.jastermaster.controller.SettingsController;
 import com.jastermaster.media.MediaplayerFX;
+import com.jastermaster.media.PlayingType;
 import com.jastermaster.media.Playlist;
 import com.jastermaster.util.ContextMenuFactory;
 import com.jastermaster.util.DataHandler;
@@ -28,27 +29,9 @@ public class Program extends Application {
         launch(params);
     }
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        Main.runningProgram = this;
-        mediaPlayer = new MediaplayerFX(this);
-        primaryStage = stage;
-        FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/mainView.fxml"));
-        loader.setControllerFactory(callback -> new MainController(this));
-        primaryStage.setScene(new Scene(loader.load()));
-        primaryStage.setTitle("MediaplayerFX");
-        primaryStage.setMinWidth(1280);
-        primaryStage.setMinHeight(720);
-        primaryStage.setMaximized(true);
-        primaryStage.getScene().getStylesheets().add(cssPath);
-
-        audioFade = true;
-        selectedDesign = "Light";
-        fontColor = Color.BLACK;
-        changeLanguage(Locale.getDefault());
-
+    private void loadProgramData() {
         new Thread(() -> {
-            ObservableList<Playlist> playlists = FXCollections.observableArrayList(DataHandler.loadPlaylists(this));
+            ObservableList<Playlist> playlists = FXCollections.observableArrayList(DataHandler.loadData(this));
             Platform.runLater(() -> {
                 if (!playlists.isEmpty()) {
                     this.mainCon.setUpLastPlayedSongsPlaylist(playlists.remove(playlists.size() - 1));
@@ -59,28 +42,37 @@ public class Program extends Application {
         }).start();
     }
 
+    @Override
+    public void start(Stage stage) throws Exception {
+        Main.runningProgram = this;
+        primaryStage = stage;
+        settings = new Settings();
+        settings.setVolume(0.5);
+        settings.setPlayingType(PlayingType.NORMAL);
+        settings.setRandomPlaying(false);
+        settings.setAudioFade(true);
+        settings.setSelectedDesign("Light");
+        settings.setSelectedLanguage(Locale.getDefault());
+        loadProgramData();
+        mediaPlayer = new MediaplayerFX(this);
+        FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/mainView.fxml"));
+        loader.setControllerFactory(callback -> new MainController(this));
+        primaryStage.setScene(new Scene(loader.load()));
+        primaryStage.setTitle("MediaplayerFX");
+        primaryStage.setMinWidth(1280);
+        primaryStage.setMinHeight(720);
+        primaryStage.setMaximized(true);
+        primaryStage.getScene().getStylesheets().add(cssPath);
+
+        changeLanguage(settings.getSelectedLanguage());
+    }
+
     public void changeLanguage(Locale newLocale) {
         resourceBundle = ResourceBundle.getBundle("properties.languages", newLocale);
         Locale.setDefault(newLocale);
-        selectedLanguage = newLocale.getDisplayLanguage();
+        settings.setSelectedLanguage(newLocale);
 
         mainCon.lastPlayedSongsButton.setText(resourceBundle.getString("lastPlayedSongsLabel"));
-        mainCon.sortPlaylistsComboBox.setPromptText(resourceBundle.getString("sortLabel"));
-        mainCon.sortSongsComboBox.setPromptText(resourceBundle.getString("sortLabel"));
-        mainCon.sortPlaylistsComboBox.getItems().set(0, resourceBundle.getString("customSortLabel"));
-        mainCon.sortPlaylistsComboBox.getItems().set(1, resourceBundle.getString("nameSortLabel"));
-        mainCon.sortPlaylistsComboBox.getItems().set(2, resourceBundle.getString("songCountSortLabel"));
-        mainCon.sortPlaylistsComboBox.getItems().set(3, resourceBundle.getString("timeLabel"));
-        mainCon.sortPlaylistsComboBox.getItems().set(4, resourceBundle.getString("createdOnSortLabel"));
-        mainCon.sortPlaylistsComboBox.getItems().set(5, resourceBundle.getString("playedOnSortLabel"));
-        mainCon.sortSongsComboBox.setPromptText(resourceBundle.getString("sortLabel"));
-        mainCon.sortSongsComboBox.getItems().set(0, resourceBundle.getString("customSortLabel"));
-        mainCon.sortSongsComboBox.getItems().set(1, resourceBundle.getString("titleLabel"));
-        mainCon.sortSongsComboBox.getItems().set(2, resourceBundle.getString("interpreterSortLabel"));
-        mainCon.sortSongsComboBox.getItems().set(3, resourceBundle.getString("albumLabel"));
-        mainCon.sortSongsComboBox.getItems().set(4, resourceBundle.getString("addedOnLabel"));
-        mainCon.sortSongsComboBox.getItems().set(5, resourceBundle.getString("timeLabel"));
-        mainCon.sortSongsComboBox.getItems().set(6, resourceBundle.getString("playedOnSortLabel"));
         mainCon.playlistTableView.getColumns().get(0).setText(resourceBundle.getString("playlistsTableViewHeader"));
         mainCon.playlistTableView.setPlaceholder(new Label(resourceBundle.getString("playlistsTableViewPlaceholder")));
         mainCon.searchInPlaylistField.setPromptText(resourceBundle.getString("searchField"));
@@ -103,7 +95,5 @@ public class Program extends Application {
     public Color fontColor;
     public DialogOpener dialogOpener;
     public ContextMenuFactory contextMenuFactory;
-    public String selectedDesign;
-    public String selectedLanguage;
-    public boolean audioFade;
+    public Settings settings;
 }

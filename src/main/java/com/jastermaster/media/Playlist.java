@@ -1,5 +1,6 @@
 package com.jastermaster.media;
 
+import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
@@ -18,6 +19,7 @@ public class Playlist extends Label {
     private LocalDateTime playedOn;
     private Comparator<Song> comparator;
     private int comparatorIndex;
+    private boolean isAscendingSort;
     private Image playlistImage;
     private final Program program;
 
@@ -78,6 +80,7 @@ public class Playlist extends Label {
             program.mainCon.songsTableView.getItems().remove(song);
         }
         program.mainCon.updatePlaylistLabelSize();
+        Main.saveApplication();
     }
 
     public String getTitle() {
@@ -132,5 +135,13 @@ public class Playlist extends Label {
 
     public void setPlaylistImage(Image playlistImage) {
         this.playlistImage = playlistImage;
+    }
+
+    public boolean isAscendingSort() {
+        return isAscendingSort;
+    }
+
+    public void setAscendingSort(boolean ascendingSort) {
+        isAscendingSort = ascendingSort;
     }
 }

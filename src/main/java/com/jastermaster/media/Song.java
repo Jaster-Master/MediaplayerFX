@@ -2,8 +2,9 @@ package com.jastermaster.media;
 
 import com.jastermaster.application.Program;
 import com.jastermaster.util.Util;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.MapChangeListener;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -26,6 +27,7 @@ public class Song implements Comparable<Song> {
     private SimpleStringProperty playedOn;
     private LocalDateTime playedOnTime;
     private Image songImage;
+    private SimpleBooleanProperty isReady;
 
     private final Program program;
 
@@ -42,6 +44,7 @@ public class Song implements Comparable<Song> {
         addedOn = new SimpleStringProperty("-");
         time = new SimpleStringProperty("-");
         playedOn = new SimpleStringProperty("-");
+        isReady = new SimpleBooleanProperty(false);
     }
 
     public void updatePlayedOn() {
@@ -89,44 +92,46 @@ public class Song implements Comparable<Song> {
 
     public void setAddedOn(LocalDate addedOn) {
         this.addedOnDate = addedOn;
-        if (LocalDate.now().isEqual(addedOnDate)) {
-            this.addedOn.set(program.resourceBundle.getString("todayLabel"));
-        } else if (LocalDate.now().minusDays(1).isEqual(addedOnDate)) {
-            this.addedOn.set(program.resourceBundle.getString("yesterdayLabel"));
-        } else {
-            long days = ChronoUnit.DAYS.between(addedOnDate, LocalDate.now());
-            if (days > 30) {
-                this.addedOn.set(Util.getStringFromDate(addedOnDate));
+        Platform.runLater(() -> {
+            if (LocalDate.now().isEqual(addedOnDate)) {
+                this.addedOn.set(program.resourceBundle.getString("todayLabel"));
+            } else if (LocalDate.now().minusDays(1).isEqual(addedOnDate)) {
+                this.addedOn.set(program.resourceBundle.getString("yesterdayLabel"));
             } else {
-                this.addedOn.set(days + " " + program.resourceBundle.getString("daysAgoLabel"));
+                long days = ChronoUnit.DAYS.between(addedOnDate, LocalDate.now());
+                if (days > 30) {
+                    this.addedOn.set(Util.getStringFromDate(addedOnDate));
+                } else {
+                    this.addedOn.set(days + " " + program.resourceBundle.getString("daysAgoLabel"));
+                }
             }
-        }
+        });
     }
 
     public void setSong(Media song) {
         this.song = song;
-        new MediaPlayer(song).setOnReady(() -> this.time.set(Util.getStringFromMillis(song.getDuration().toMillis())));
-        song.getMetadata().addListener((MapChangeListener<String, Object>) change -> {
-            if (!change.wasAdded()) return;
-            if (change.getKey().equals("title")) {
-                this.setTitle((String) change.getValueAdded());
+        new MediaPlayer(song).setOnReady(() -> {
+            this.time.set(Util.getStringFromMillis(song.getDuration().toMillis()));
+            if (song.getMetadata().get("title") != null) {
+                this.setTitle((String) song.getMetadata().get("title"));
             } else {
                 File sourceFile = new File(URI.create(song.getSource()).getPath());
                 this.setTitle(sourceFile.getName().substring(0, sourceFile.getName().length() - 4));
             }
-            if (change.getKey().equals("artist")) {
-                this.setInterpreter((String) change.getValueAdded());
+            if (song.getMetadata().get("artist") != null) {
+                this.setInterpreter((String) song.getMetadata().get("artist"));
             } else {
                 this.setInterpreter("-");
             }
-            if (change.getKey().equals("album")) {
-                this.setAlbum((String) change.getValueAdded());
+            if (song.getMetadata().get("album") != null) {
+                this.setAlbum((String) song.getMetadata().get("album"));
             } else {
                 this.setAlbum("-");
             }
-            if (change.getKey().equals("image")) {
-                this.setSongImage((Image) change.getValueAdded());
+            if (song.getMetadata().get("image") != null) {
+                this.setSongImage((Image) song.getMetadata().get("image"));
             }
+            this.isReady.set(true);
         });
     }
 
@@ -200,6 +205,10 @@ public class Song implements Comparable<Song> {
 
     public void setSongImage(Image songImage) {
         this.songImage = songImage;
+    }
+
+    public SimpleBooleanProperty isReadyProperty() {
+        return isReady;
     }
 
     @Override

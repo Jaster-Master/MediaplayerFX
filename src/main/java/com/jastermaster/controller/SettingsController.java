@@ -1,18 +1,14 @@
 package com.jastermaster.controller;
 
-import com.jastermaster.application.Program;
-import com.jastermaster.media.Song;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import com.jastermaster.application.*;
+import com.jastermaster.media.*;
+import javafx.application.*;
+import javafx.fxml.*;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
+import javafx.scene.input.*;
 
-import java.net.URL;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.net.*;
+import java.util.*;
 
 public class SettingsController implements Initializable {
 
@@ -48,7 +44,7 @@ public class SettingsController implements Initializable {
 
     private void setUpLanguageComboBox() {
         languageComboBox.getItems().addAll("English", "Deutsch");
-        languageComboBox.getSelectionModel().select(program.selectedLanguage);
+        languageComboBox.getSelectionModel().select(program.settings.getSelectedLanguage().getDisplayLanguage());
         languageComboBox.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             program.changeLanguage(new Locale(newValue.substring(0, 2).toLowerCase()));
             reopenSettings();
@@ -62,16 +58,9 @@ public class SettingsController implements Initializable {
 
     private void setUpDesignComboBox() {
         designComboBox.getItems().addAll("Light", "Dark");
-        designComboBox.getSelectionModel().select(program.selectedDesign);
+        designComboBox.getSelectionModel().select(program.settings.getSelectedDesign());
         designComboBox.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            program.selectedDesign = newValue;
-            if (program.selectedDesign.equals("Light")) {
-                program.cssPath = program.cssPath.replace("dark", "light");
-                program.fontColor = Color.BLACK;
-            } else {
-                program.cssPath = program.cssPath.replace("light", "dark");
-                program.fontColor = Color.LIGHTGRAY;
-            }
+            program.settings.setSelectedDesign(newValue);
             program.primaryStage.getScene().getStylesheets().clear();
             program.primaryStage.getScene().getStylesheets().add(program.cssPath);
             reopenSettings();
@@ -79,8 +68,8 @@ public class SettingsController implements Initializable {
     }
 
     private void setUpAudioFadeCheckBox() {
-        audioFadeCheckBox.setSelected(program.audioFade);
-        audioFadeCheckBox.selectedProperty().addListener((observableValue, oldValue, newValue) -> program.audioFade = newValue);
+        audioFadeCheckBox.setSelected(program.settings.isAudioFade());
+        audioFadeCheckBox.selectedProperty().addListener((observableValue, oldValue, newValue) -> program.settings.setAudioFade(newValue));
     }
 
     private void reopenSettings() {

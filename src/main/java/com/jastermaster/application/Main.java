@@ -31,7 +31,8 @@ public class Main {
         new Thread(() -> {
             List<Playlist> playlists = new ArrayList<>(runningProgram.mainCon.playlistTableView.getItems());
             playlists.add(runningProgram.mainCon.lastPlayedSongs);
-            DataHandler.savePlaylists(playlists);
+            if (playlists.get(0) == null || playlists.get(playlists.size() - 1) == null) return;
+            DataHandler.saveData(playlists);
         }).start();
     }
 

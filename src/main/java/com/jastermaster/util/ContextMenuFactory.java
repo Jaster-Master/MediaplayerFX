@@ -9,6 +9,11 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContextMenuFactory {
     private final Program program;
@@ -62,14 +67,23 @@ public class ContextMenuFactory {
     }
 
     private void createPlaylistContextMenu() {
-        MenuItem addSongMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSong"));
+        MenuItem addSongMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSongs"));
         addSongMenu.setOnAction(actionEvent -> {
             ContextMenu sourceMenu = ((MenuItem) actionEvent.getSource()).getParentPopup();
             if (sourceMenu.getOwnerNode() instanceof Playlist playlist) {
-                program.dialogOpener.addNewSong(playlist);
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Audio", "*.mp3", ".MP3", "*.wav", "*.WAV", "*.aac", "*.AAC", "*.aiff", "*.AIFF"));
+                fileChooser.setTitle(program.resourceBundle.getString("chooseFile"));
+                List<File> chosenFiles = fileChooser.showOpenMultipleDialog(program.primaryStage);
+                List<Song> newSongs = new ArrayList<>();
+                for (File chosenFile : chosenFiles) {
+                    Song newSong = Song.getSongFromFile(program, chosenFile);
+                    newSongs.add(newSong);
+                }
+                addSongsToPlaylist(newSongs, playlist);
             }
         });
-        MenuItem addSongsMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddSongs"));
+        MenuItem addSongsMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddDirectories"));
         addSongsMenu.setOnAction(actionEvent -> {
             ContextMenu sourceMenu = ((MenuItem) actionEvent.getSource()).getParentPopup();
             if (sourceMenu.getOwnerNode() instanceof Playlist playlist) {
@@ -108,6 +122,23 @@ public class ContextMenuFactory {
             Main.saveApplication();
         });
         playlistContextMenu = new ContextMenu(addSongMenu, addSongsMenu, addToPlaylistMenu, removeMenu);
+    }
+
+    private void addSongsToPlaylist(List<Song> songs, Playlist playlist) {
+        Platform.runLater(() -> {
+            if (songs.size() == 1) {
+                songs.get(0).isReadyProperty().addListener((observableValue, oldValue, newValue) -> {
+                    playlist.addSong(songs.get(0));
+                });
+            } else {
+                for (Song newSong : songs) {
+                    newSong.isReadyProperty().addListener((observableValue, oldValue, newValue) -> {
+                        playlist.addSong(newSong);
+                    });
+                }
+            }
+            Main.saveApplication();
+        });
     }
 
     public ContextMenu getInputContextMenu() {

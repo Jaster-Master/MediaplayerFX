@@ -1,44 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonType?>
-<?import javafx.scene.control.DialogPane?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-
-<DialogPane fx:id="dialogPane" maxHeight="300.0" maxWidth="300.0" minHeight="300.0" minWidth="300.0" prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jastermaster.controller.AddSongsDialogController">
+<DialogPane fx:id="dialogPane" maxHeight="300.0" maxWidth="300.0" minHeight="300.0" minWidth="300.0" prefHeight="300.0"
+            prefWidth="300.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.jastermaster.controller.AddDirectoriesDialogController">
     <content>
         <AnchorPane prefHeight="200.0" prefWidth="200.0">
             <children>
-                <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                        <Text fx:id="directoryText" strokeType="OUTSIDE" strokeWidth="0.0" text="Please select the desired directory:" textAlignment="CENTER" wrappingWidth="300.0" />
+                        <Text fx:id="directoryText" strokeType="OUTSIDE" strokeWidth="0.0"
+                              text="Please select the desired directory:" textAlignment="CENTER" wrappingWidth="300.0"/>
                     </children>
                 </HBox>
-                <HBox alignment="CENTER" layoutX="160.0" layoutY="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
+                <HBox alignment="CENTER" layoutX="160.0" layoutY="60.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
                     <children>
-                        <TextField fx:id="directoryPathField" maxHeight="25.0" maxWidth="150.0" minHeight="25.0" minWidth="150.0" prefHeight="25.0" prefWidth="150.0" />
-                        <Button fx:id="openPathButton" maxHeight="25.0" minHeight="25.0" mnemonicParsing="false" prefHeight="25.0" text="Open" />
+                        <TextField fx:id="directoryPathField" maxHeight="25.0" maxWidth="150.0" minHeight="25.0"
+                                   minWidth="150.0" prefHeight="25.0" prefWidth="150.0"/>
+                        <Button fx:id="openPathButton" maxHeight="25.0" minHeight="25.0" mnemonicParsing="false"
+                                prefHeight="25.0" text="Open"/>
                     </children>
                 </HBox>
-                <HBox alignment="CENTER" layoutX="10.0" layoutY="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
+                <HBox alignment="CENTER" layoutX="10.0" layoutY="60.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
                     <children>
-                        <Text fx:id="subDirectoryText" strokeType="OUTSIDE" strokeWidth="0.0" text="Please enter the desired number of subdirectories that should be searched through:" textAlignment="CENTER" wrappingWidth="300.0" />
+                        <Text fx:id="subDirectoryText" strokeType="OUTSIDE" strokeWidth="0.0"
+                              text="Please enter the desired number of subdirectories that should be searched through:"
+                              textAlignment="CENTER" wrappingWidth="300.0"/>
                     </children>
                 </HBox>
-                <HBox alignment="CENTER" layoutX="160.0" layoutY="160.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="180.0">
+                <HBox alignment="CENTER" layoutX="160.0" layoutY="160.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="180.0">
                     <children>
-                        <Spinner fx:id="subDirectoryCountSpinner" editable="true" maxHeight="25.0" maxWidth="150.0" minHeight="25.0" minWidth="150.0" prefHeight="25.0" prefWidth="150.0" />
+                        <Spinner fx:id="subDirectoryCountSpinner" editable="true" maxHeight="25.0" maxWidth="150.0"
+                                 minHeight="25.0" minWidth="150.0" prefHeight="25.0" prefWidth="150.0"/>
                     </children>
                 </HBox>
             </children>
         </AnchorPane>
     </content>
     <buttonTypes>
-        <ButtonType fx:constant="FINISH" />
-        <ButtonType fx:constant="CANCEL" />
+        <ButtonType fx:constant="FINISH"/>
+        <ButtonType fx:constant="CANCEL"/>
     </buttonTypes>
 </DialogPane>

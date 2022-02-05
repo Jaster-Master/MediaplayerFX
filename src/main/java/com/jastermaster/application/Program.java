@@ -1,7 +1,6 @@
 package com.jastermaster.application;
 
-import com.jastermaster.controller.AddSongDialogController;
-import com.jastermaster.controller.AddSongsDialogController;
+import com.jastermaster.controller.AddDirectoriesDialogController;
 import com.jastermaster.controller.MainController;
 import com.jastermaster.controller.SettingsController;
 import com.jastermaster.media.MediaplayerFX;
@@ -87,8 +86,7 @@ public class Program extends Application {
     public ResourceBundle resourceBundle;
     public MediaplayerFX mediaPlayer;
     public MainController mainCon;
-    public AddSongDialogController addSongCon;
-    public AddSongsDialogController addSongsCon;
+    public AddDirectoriesDialogController addSongsCon;
     public SettingsController settingsCon;
     public Stage primaryStage;
     public String cssPath = Main.getResourceString("/css/light.css");

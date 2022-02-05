@@ -19,7 +19,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class AddSongsDialogController implements Initializable {
+public class AddDirectoriesDialogController implements Initializable {
 
     @FXML
     public DialogPane dialogPane;
@@ -36,7 +36,7 @@ public class AddSongsDialogController implements Initializable {
     private final Playlist clickedPlaylist;
     private int subDirectories;
 
-    public AddSongsDialogController(Program program, Playlist clickedPlaylist) {
+    public AddDirectoriesDialogController(Program program, Playlist clickedPlaylist) {
         this.program = program;
         this.clickedPlaylist = clickedPlaylist;
     }

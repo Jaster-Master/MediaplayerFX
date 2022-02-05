@@ -2,8 +2,7 @@ package com.jastermaster.util;
 
 import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
-import com.jastermaster.controller.AddSongDialogController;
-import com.jastermaster.controller.AddSongsDialogController;
+import com.jastermaster.controller.AddDirectoriesDialogController;
 import com.jastermaster.controller.DuplicateWarningDialogController;
 import com.jastermaster.controller.SettingsController;
 import com.jastermaster.media.Playlist;
@@ -30,36 +29,11 @@ public class DialogOpener {
         this.PROGRAM = program;
     }
 
-    public void addNewSong(Playlist clickedPlaylist) {
-        Dialog<ButtonType> addSongDialog = new Dialog<>();
-        addSongDialog.initOwner(PROGRAM.primaryStage);
-        FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/addSongDialog.fxml"));
-        loader.setControllerFactory(callback -> new AddSongDialogController(PROGRAM, clickedPlaylist));
-        DialogPane addSongDialogPane = null;
-        try {
-            addSongDialogPane = loader.load();
-            addSongDialog.setDialogPane(addSongDialogPane);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PROGRAM.addSongCon = loader.getController();
-        addSongDialog.setTitle(PROGRAM.resourceBundle.getString("contextMenuAddSong"));
-        Util.centerWindow(addSongDialogPane.getScene().getWindow());
-        setWindowStyle(addSongDialogPane.getScene());
-        DialogPane finalAddSongDialogPane = addSongDialogPane;
-        addSongDialogPane.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
-            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                ((Button) finalAddSongDialogPane.lookupButton(ButtonType.FINISH)).fire();
-            }
-        });
-        addSongDialog.showAndWait();
-    }
-
     public void addNewSongs(Playlist clickedPlaylist) {
         Dialog<ButtonType> addSongsDialog = new Dialog<>();
         addSongsDialog.initOwner(PROGRAM.primaryStage);
         FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/addSongsDialog.fxml"));
-        loader.setControllerFactory(callback -> new AddSongsDialogController(PROGRAM, clickedPlaylist));
+        loader.setControllerFactory(callback -> new AddDirectoriesDialogController(PROGRAM, clickedPlaylist));
         DialogPane addSongsDialogPane = null;
         try {
             addSongsDialogPane = loader.load();
@@ -68,7 +42,7 @@ public class DialogOpener {
             e.printStackTrace();
         }
         PROGRAM.addSongsCon = loader.getController();
-        addSongsDialog.setTitle(PROGRAM.resourceBundle.getString("contextMenuAddSongs"));
+        addSongsDialog.setTitle(PROGRAM.resourceBundle.getString("contextMenuAddDirectories"));
         Util.centerWindow(addSongsDialogPane.getScene().getWindow());
         setWindowStyle(addSongsDialogPane.getScene());
         DialogPane finalAddSongsDialogPane = addSongsDialogPane;

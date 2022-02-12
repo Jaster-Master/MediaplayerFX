@@ -1,4 +1,14 @@
-This is a little Mediaplayer, created in Java, to play song files on your computer.
+# MediaplayerFX
+
+## Description
+
+This is a little Mediaplayer to play song files on your computer.
+
+## Developer
+
+Julian Zecher
+
+## Libraries and other Sources
 
 All icons are from: https://uxwing.com
 
@@ -7,3 +17,7 @@ JavaFX (License: GPL with the class path exception)
 
 Following APIs are used in this Project:
 JFoenix (License: MIT-License)
+
+## License
+
+This project is licensed under the MIT-License.

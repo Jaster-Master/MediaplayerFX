@@ -144,7 +144,7 @@ public class MainController implements Initializable {
                             selectedPlaylist.setPlayedOn(LocalDateTime.now());
                             program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
                         }
-                        setUpNewSong(selectedPlaylist.getSongs().indexOf(songsTableView.getSelectionModel().getSelectedItem()));
+                        setUpNewSong(this.getIndex());
                         program.mediaPlayer.play();
                     } else if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
                         program.contextMenuFactory.getSongContextMenu().show(this, mouseEvent.getScreenX(), mouseEvent.getScreenY());
@@ -170,6 +170,7 @@ public class MainController implements Initializable {
                         super.updateItem(item, empty);
                         TableRow<Song> row = this.getTableRow();
                         this.setText(null);
+                        this.setGraphic(null);
                         row.setStyle(null);
                         row.setOnMouseEntered(null);
                         row.setOnMouseExited(null);
@@ -202,19 +203,19 @@ public class MainController implements Initializable {
                         if ((currentUrl = Main.getResourceURL("/images/play.png")) != null) {
                             ((ImageView) playSongButton.getGraphic()).setImage(new Image(currentUrl.toString()));
                         }
-                        EventHandler<MouseEvent> contextMenuFix = mouseEvent -> {
+                        EventHandler<MouseEvent> onContextMenu = mouseEvent -> {
                             if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
                                 program.contextMenuFactory.getSongContextMenu().show(this.getTableRow(), mouseEvent.getScreenX(), mouseEvent.getScreenY());
                             }
                         };
-                        playSongButton.setOnMouseClicked(contextMenuFix);
-                        playSongImageView.setOnMouseClicked(contextMenuFix);
+                        playSongButton.setOnMouseClicked(onContextMenu);
+                        playSongImageView.setOnMouseClicked(onContextMenu);
                         playSongButton.setOnAction(actionEvent -> {
                             if (!selectedPlaylist.equals(program.mediaPlayer.getPlayingPlaylist())) {
                                 selectedPlaylist.setPlayedOn(LocalDateTime.now());
                                 program.mediaPlayer.setPlayingPlaylist(selectedPlaylist);
                             }
-                            setUpNewSong(selectedPlaylist.getSongs().indexOf(this.getItem()));
+                            setUpNewSong(this.getIndex());
                             program.mediaPlayer.play();
                         });
                         return playSongButton;
@@ -222,6 +223,7 @@ public class MainController implements Initializable {
                 };
             }
         });
+        songsTableView.getColumns().get(0).setCellValueFactory(cellData -> new ReadOnlyObjectWrapper(cellData.getValue()));
         songsTableView.getColumns().get(1).setCellValueFactory(cellData -> {
             Label title = new Label();
             Tooltip titleTooltip = new Tooltip();
@@ -369,7 +371,7 @@ public class MainController implements Initializable {
         upDownSortSongsToggle.setSelected(newPlaylist.isAscendingSort());
         updatePlaylistLabelSize();
         songsTableView.getItems().clear();
-        songsTableView.getItems().addAll(selectedPlaylist.getSongs());
+        songsTableView.setItems(selectedPlaylist.getSongs());
         sortSongsComboBox.getSelectionModel().select(newPlaylist.getComparatorIndex());
         songsTableView.sort();
     }
@@ -404,7 +406,7 @@ public class MainController implements Initializable {
                 return true;
             });
             sortSongsComboBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, oldValue, newValue) -> {
-                if (newValue == null) return;
+                if (newValue == null || selectedPlaylist == null) return;
                 switch (newValue.intValue()) {
                     case 1 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getTitle, String.CASE_INSENSITIVE_ORDER), newValue.intValue());
                     case 2 -> selectedPlaylist.setComparator(Comparator.comparing(Song::getInterpreter, String.CASE_INSENSITIVE_ORDER), newValue.intValue());

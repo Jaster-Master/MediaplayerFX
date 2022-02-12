@@ -110,29 +110,33 @@ public class Song implements Comparable<Song> {
 
     public void setSong(Media song) {
         this.song = song;
-        new MediaPlayer(song).setOnReady(() -> {
-            this.time.set(Util.getStringFromMillis(song.getDuration().toMillis()));
-            if (song.getMetadata().get("title") != null) {
-                this.setTitle((String) song.getMetadata().get("title"));
-            } else {
-                File sourceFile = new File(URI.create(song.getSource()).getPath());
-                this.setTitle(sourceFile.getName().substring(0, sourceFile.getName().length() - 4));
-            }
-            if (song.getMetadata().get("artist") != null) {
-                this.setInterpreter((String) song.getMetadata().get("artist"));
-            } else {
-                this.setInterpreter("-");
-            }
-            if (song.getMetadata().get("album") != null) {
-                this.setAlbum((String) song.getMetadata().get("album"));
-            } else {
-                this.setAlbum("-");
-            }
-            if (song.getMetadata().get("image") != null) {
-                this.setSongImage((Image) song.getMetadata().get("image"));
-            }
-            this.isReady.set(true);
-        });
+        try {
+            new MediaPlayer(song).setOnReady(() -> {
+                this.time.set(Util.getStringFromMillis(song.getDuration().toMillis()));
+                if (song.getMetadata().get("title") != null) {
+                    this.setTitle((String) song.getMetadata().get("title"));
+                } else {
+                    File sourceFile = new File(URI.create(song.getSource()).getPath());
+                    this.setTitle(sourceFile.getName().substring(0, sourceFile.getName().length() - 4));
+                }
+                if (song.getMetadata().get("artist") != null) {
+                    this.setInterpreter((String) song.getMetadata().get("artist"));
+                } else {
+                    this.setInterpreter("-");
+                }
+                if (song.getMetadata().get("album") != null) {
+                    this.setAlbum((String) song.getMetadata().get("album"));
+                } else {
+                    this.setAlbum("-");
+                }
+                if (song.getMetadata().get("image") != null) {
+                    this.setSongImage((Image) song.getMetadata().get("image"));
+                }
+                this.isReady.set(true);
+            });
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
     }
 
     public Media getSong() {

@@ -32,7 +32,7 @@ public class DialogOpener {
     public void addNewSongs(Playlist clickedPlaylist) {
         Dialog<ButtonType> addSongsDialog = new Dialog<>();
         addSongsDialog.initOwner(PROGRAM.primaryStage);
-        FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/addSongsDialog.fxml"));
+        FXMLLoader loader = new FXMLLoader(Main.getResourceURL("/fxml/addDirectoriesDialog.fxml"));
         loader.setControllerFactory(callback -> new AddDirectoriesDialogController(PROGRAM, clickedPlaylist));
         DialogPane addSongsDialogPane = null;
         try {

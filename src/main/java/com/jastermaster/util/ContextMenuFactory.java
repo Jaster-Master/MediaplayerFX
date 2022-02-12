@@ -52,6 +52,7 @@ public class ContextMenuFactory {
         MenuItem removeMenu = new MenuItem(program.resourceBundle.getString("contextMenuRemove"));
         removeMenu.setOnAction(actionEvent -> {
             program.mainCon.selectedPlaylist.removeSong(program.mainCon.songsTableView.getSelectionModel().getSelectedItem());
+            Main.saveApplication();
         });
         Menu addToPlaylistMenu = new Menu(program.resourceBundle.getString("contextMenuAddToPlaylist"));
         // Add all playlists to menu
@@ -81,6 +82,7 @@ public class ContextMenuFactory {
                     newSongs.add(newSong);
                 }
                 addSongsToPlaylist(newSongs, playlist);
+                Main.saveApplication();
             }
         });
         MenuItem addSongsMenu = new MenuItem(program.resourceBundle.getString("contextMenuAddDirectories"));
@@ -129,6 +131,7 @@ public class ContextMenuFactory {
             if (songs.size() == 1) {
                 songs.get(0).isReadyProperty().addListener((observableValue, oldValue, newValue) -> {
                     playlist.addSong(songs.get(0));
+                    Main.saveApplication();
                 });
             } else {
                 for (Song newSong : songs) {

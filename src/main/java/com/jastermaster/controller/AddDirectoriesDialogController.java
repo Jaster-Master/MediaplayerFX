@@ -82,6 +82,7 @@ public class AddDirectoriesDialogController implements Initializable {
                 newSong.isReadyProperty().addListener((observableValue, oldValue, newValue) -> {
                     clickedPlaylist.setSong(newSong);
                 });
+                while (!newSong.isReadyProperty().get()) Thread.onSpinWait();
             }
         }
         if (directory.getAbsolutePath().equals(directoryPathField.getText())) {

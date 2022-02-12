@@ -1,20 +1,18 @@
 package com.jastermaster.media;
 
-import com.jastermaster.application.Main;
 import com.jastermaster.application.Program;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 public class Playlist extends Label {
     private String title;
-    private List<Song> songs;
+    private ObservableList<Song> songs;
     private LocalDate createdOn;
     private LocalDateTime playedOn;
     private Comparator<Song> comparator;
@@ -26,14 +24,14 @@ public class Playlist extends Label {
     public Playlist(Program program) {
         super();
         this.program = program;
-        songs = new ArrayList<>();
+        songs = FXCollections.observableArrayList();
         setCreatedOn(LocalDate.now());
     }
 
     public Playlist(Program program, String title) {
         super(title);
         this.program = program;
-        songs = new ArrayList<>();
+        songs = FXCollections.observableArrayList();
         this.title = title;
         setCreatedOn(LocalDate.now());
     }
@@ -80,7 +78,6 @@ public class Playlist extends Label {
             program.mainCon.songsTableView.getItems().remove(song);
         }
         program.mainCon.updatePlaylistLabelSize();
-        Main.saveApplication();
     }
 
     public String getTitle() {
@@ -92,11 +89,11 @@ public class Playlist extends Label {
         setText(title);
     }
 
-    public List<Song> getSongs() {
+    public ObservableList<Song> getSongs() {
         return songs;
     }
 
-    public void setSongs(List<Song> songs) {
+    public void setSongs(ObservableList<Song> songs) {
         this.songs = songs;
     }
 

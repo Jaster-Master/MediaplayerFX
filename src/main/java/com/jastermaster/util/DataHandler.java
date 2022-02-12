@@ -6,6 +6,7 @@ import com.jastermaster.application.Settings;
 import com.jastermaster.media.Playlist;
 import com.jastermaster.media.Song;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 
@@ -140,7 +141,7 @@ public class DataHandler {
             }
 
         }
-        playlist.setSongs(songs);
+        playlist.setSongs(FXCollections.observableArrayList(songs));
         playlist.setTitle(playlistInfo.getTitle());
         playlist.setPlayedOn(playlistInfo.getPlayedOn());
         playlist.setCreatedOn(playlistInfo.getCreatedOn());

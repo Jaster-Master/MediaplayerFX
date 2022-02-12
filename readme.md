@@ -12,11 +12,11 @@ Julian Zecher
 
 All icons are from: https://uxwing.com
 
-Following Framework is used in this Project:
+### Used Framework
 
 JavaFX (License: GPL with the class path exception)
 
-Following APIs are used in this Project:
+### Used API
 
 JFoenix (License: MIT-License)
 

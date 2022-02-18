@@ -80,6 +80,28 @@ public class Program extends Application {
         mainCon.songsTableView.getColumns().get(2).setText(resourceBundle.getString("albumLabel"));
         mainCon.songsTableView.getColumns().get(3).setText(resourceBundle.getString("timeLabel"));
         mainCon.songsTableView.getColumns().get(4).setText(resourceBundle.getString("addedOnLabel"));
+        mainCon.sortPlaylistsComboBox.setPromptText(resourceBundle.getString("sortLabel"));
+        if (mainCon.sortPlaylistsComboBox.getItems().isEmpty()) {
+            mainCon.sortPlaylistsComboBox.getItems().addAll("1", "2", "3", "4", "5", "6");
+        }
+        mainCon.sortPlaylistsComboBox.getItems().set(0, resourceBundle.getString("customSortLabel"));
+        mainCon.sortPlaylistsComboBox.getItems().set(1, resourceBundle.getString("nameSortLabel"));
+        mainCon.sortPlaylistsComboBox.getItems().set(2, resourceBundle.getString("songCountSortLabel"));
+        mainCon.sortPlaylistsComboBox.getItems().set(3, resourceBundle.getString("timeLabel"));
+        mainCon.sortPlaylistsComboBox.getItems().set(4, resourceBundle.getString("createdOnSortLabel"));
+        mainCon.sortPlaylistsComboBox.getItems().set(5, resourceBundle.getString("playedOnSortLabel"));
+        mainCon.sortSongsComboBox.setPromptText(resourceBundle.getString("sortLabel"));
+        if (mainCon.sortSongsComboBox.getItems().isEmpty()) {
+            mainCon.sortSongsComboBox.getItems().addAll("1", "2", "3", "4", "5", "6", "7");
+        }
+        mainCon.sortSongsComboBox.getItems().set(0, resourceBundle.getString("customSortLabel"));
+        mainCon.sortSongsComboBox.getItems().set(1, resourceBundle.getString("titleLabel"));
+        mainCon.sortSongsComboBox.getItems().set(2, resourceBundle.getString("interpreterSortLabel"));
+        mainCon.sortSongsComboBox.getItems().set(3, resourceBundle.getString("albumLabel"));
+        mainCon.sortSongsComboBox.getItems().set(4, resourceBundle.getString("addedOnLabel"));
+        mainCon.sortSongsComboBox.getItems().set(5, resourceBundle.getString("timeLabel"));
+        mainCon.sortSongsComboBox.getItems().set(6, resourceBundle.getString("playedOnSortLabel"));
+
         Platform.runLater(() -> contextMenuFactory.loadContextMenus());
     }
 

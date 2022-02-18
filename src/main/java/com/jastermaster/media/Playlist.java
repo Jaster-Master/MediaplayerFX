@@ -39,7 +39,6 @@ public class Playlist extends Label {
     public void addSong(Song song) {
         if (playlistImage == null) {
             playlistImage = song.getSongImage();
-            program.mainCon.playlistPictureImageView.setImage(playlistImage);
         }
         if (songs.contains(song)) {
             boolean addAgain = program.dialogOpener.openDuplicateWarningDialog(this, song);
@@ -48,8 +47,8 @@ public class Playlist extends Label {
         songs.add(song);
         if (program.mainCon.selectedPlaylist == null) return;
         if (program.mainCon.selectedPlaylist.equals(this)) {
-            program.mainCon.songsTableView.getItems().clear();
-            program.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
+            program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
+            program.mainCon.playlistPictureImageView.setImage(playlistImage);
         }
         program.mainCon.updatePlaylistLabelSize();
     }
@@ -64,8 +63,7 @@ public class Playlist extends Label {
         songs.add(song);
         if (program.mainCon.selectedPlaylist == null) return;
         if (program.mainCon.selectedPlaylist.equals(this)) {
-            program.mainCon.songsTableView.getItems().clear();
-            program.mainCon.songsTableView.getItems().addAll(FXCollections.observableList(songs));
+            program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
             program.mainCon.playlistPictureImageView.setImage(playlistImage);
         }
         program.mainCon.updatePlaylistLabelSize();

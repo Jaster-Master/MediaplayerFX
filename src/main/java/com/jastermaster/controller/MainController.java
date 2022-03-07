@@ -34,6 +34,7 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
+import java.io.File;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -78,7 +79,7 @@ public class MainController implements Initializable {
         setUpTimeSlider();
         setUpVolumeObjects();
         setUpSongsTableView();
-        setUpKeyCodes();
+        setUpSceneEvents();
         setUpSearchInPlaylistField();
         setUpSongsSorting();
         setUpPlaylistsSorting();
@@ -552,12 +553,14 @@ public class MainController implements Initializable {
         });
     }
 
-    private void setUpKeyCodes() {
+    private void setUpSceneEvents() {
         Platform.runLater(() -> {
             program.primaryStage.setOnCloseRequest(windowEvent -> program.dialogOpener.wantToCloseDialog(windowEvent));
+
             program.primaryStage.getScene().getAccelerators().put(KeyCombination.keyCombination("CTRL+N"), () -> addPlaylistButton.fire());
             program.primaryStage.getScene().getAccelerators().put(KeyCombination.keyCombination("CTRL+PLUS"), () -> volumeSlider.setValue(volumeSlider.getValue() + 0.01));
             program.primaryStage.getScene().getAccelerators().put(KeyCombination.keyCombination("CTRL+MINUS"), () -> volumeSlider.setValue(volumeSlider.getValue() - 0.01));
+
             program.primaryStage.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
                 if (keyEvent.isControlDown()) return;
                 if (keyEvent.getTarget() instanceof TextField) return;
@@ -603,6 +606,31 @@ public class MainController implements Initializable {
                         });
                     }
                 }
+            });
+
+            program.primaryStage.getScene().setOnDragOver(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasFiles()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                } else {
+                    event.consume();
+                }
+            });
+            program.primaryStage.getScene().setOnDragDropped(dragEvent -> {
+                Dragboard db = dragEvent.getDragboard();
+                boolean success = false;
+                if (db.hasFiles()) {
+                    File droppedFile = db.getFiles().get(0);
+                    String fileFormat = Util.getFileExtensionFromFile(droppedFile);
+                    if (droppedFile.exists() && Util.isSupportedFormat(fileFormat)) {
+                        Song newSong = Song.getSongFromFile(program, droppedFile);
+                        selectedPlaylist.addSong(newSong);
+                        Main.saveApplication();
+                    }
+                    success = true;
+                }
+                dragEvent.setDropCompleted(success);
+                dragEvent.consume();
             });
         });
     }

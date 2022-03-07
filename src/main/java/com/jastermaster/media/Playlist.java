@@ -44,13 +44,7 @@ public class Playlist extends Label {
             boolean addAgain = program.dialogOpener.openDuplicateWarningDialog(this, song);
             if (!addAgain) return;
         }
-        songs.add(song);
-        if (program.mainCon.selectedPlaylist == null) return;
-        if (program.mainCon.selectedPlaylist.equals(this)) {
-            program.mainCon.songsTableView.setItems(FXCollections.observableList(songs));
-            program.mainCon.playlistPictureImageView.setImage(playlistImage);
-        }
-        program.mainCon.updatePlaylistLabelSize();
+        updatePlaylist(song);
     }
 
     public void setSong(Song song) {
@@ -60,6 +54,10 @@ public class Playlist extends Label {
         if (songs.contains(song)) {
             return;
         }
+        updatePlaylist(song);
+    }
+
+    private void updatePlaylist(Song song) {
         songs.add(song);
         if (program.mainCon.selectedPlaylist == null) return;
         if (program.mainCon.selectedPlaylist.equals(this)) {

@@ -76,6 +76,7 @@ public class ContextMenuFactory {
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Audio", "*.mp3", ".MP3", "*.wav", "*.WAV", "*.aac", "*.AAC", "*.aiff", "*.AIFF"));
                 fileChooser.setTitle(program.resourceBundle.getString("chooseFile"));
                 List<File> chosenFiles = fileChooser.showOpenMultipleDialog(program.primaryStage);
+                if(chosenFiles == null || chosenFiles.isEmpty()) return;
                 List<Song> newSongs = new ArrayList<>();
                 for (File chosenFile : chosenFiles) {
                     Song newSong = Song.getSongFromFile(program, chosenFile);

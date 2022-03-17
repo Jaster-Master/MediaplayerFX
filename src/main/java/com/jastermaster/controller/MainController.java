@@ -371,7 +371,6 @@ public class MainController implements Initializable {
         playlistPictureImageView.setImage(newPlaylist.getPlaylistImage());
         upDownSortSongsToggle.setSelected(newPlaylist.isAscendingSort());
         updatePlaylistLabelSize();
-        songsTableView.getItems().clear();
         songsTableView.setItems(selectedPlaylist.getSongs());
         sortSongsComboBox.getSelectionModel().select(newPlaylist.getComparatorIndex());
         songsTableView.sort();

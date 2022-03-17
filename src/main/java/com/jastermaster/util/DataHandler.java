@@ -7,7 +7,7 @@ import com.jastermaster.media.Playlist;
 import com.jastermaster.media.Song;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.scene.image.Image;
+import javafx.scene.image.*;
 import javafx.scene.media.Media;
 
 import java.io.*;
@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class DataHandler {
 
@@ -90,8 +89,22 @@ public class DataHandler {
             return null;
         }
         songInfo.setTitle(song.getTitle());
+        songInfo.setDuration(song.getSong().getDuration().toMillis());
         songInfo.setInterpreter(song.getInterpreter());
         songInfo.setAlbum(song.getAlbum());
+        Image songImage = song.getSongImage();
+        if (songImage != null) {
+            int imageWidth = (int) songImage.getWidth();
+            int imageHeight = (int) songImage.getHeight();
+            byte[] imageBytes = new byte[imageWidth * imageHeight * 4];
+            PixelReader reader = songImage.getPixelReader();
+            if (reader != null) {
+                reader.getPixels(0, 0, imageWidth, imageHeight, PixelFormat.getByteBgraInstance(), imageBytes, 0, imageWidth * 4);
+                songInfo.setImage(imageBytes);
+                songInfo.setImageWidth(imageWidth);
+                songInfo.setImageHeight(imageHeight);
+            }
+        }
         songInfo.setAddedOn(song.getAddedOn());
         songInfo.setPlayedOn(song.getPlayedOn());
         return songInfo;
@@ -102,10 +115,21 @@ public class DataHandler {
         if (!new File(URI.create(songInfo.getSongPath()).getPath()).exists()) {
             return null;
         }
-        song.setSong(new Media(songInfo.getSongPath()));
+        song.setSong(new Media(songInfo.getSongPath()), false);
+        song.setDuration(songInfo.getDuration());
         song.setTitle(songInfo.getTitle());
         song.setInterpreter(songInfo.getInterpreter());
         song.setAlbum(songInfo.getAlbum());
+        if (songInfo.getImage() != null) {
+            int imageWidth = songInfo.getImageWidth();
+            int imageHeight = songInfo.getImageHeight();
+            WritableImage image = new WritableImage(imageWidth, imageHeight);
+            PixelWriter writer = image.getPixelWriter();
+            if (writer != null) {
+                writer.setPixels(0, 0, imageWidth, imageHeight, PixelFormat.getByteBgraInstance(), songInfo.getImage(), 0, imageWidth * 4);
+                song.setSongImage(image);
+            }
+        }
         Platform.runLater(() -> {
             song.setAddedOn(songInfo.getAddedOn());
             song.setPlayedOn(songInfo.getPlayedOn());
@@ -149,7 +173,7 @@ public class DataHandler {
         playlist.setAscendingSort(playlistInfo.isAscendingSort());
         if (!lastPlaylist) {
             Platform.runLater(() -> {
-                List<Image> songImages = songs.stream().map(Song::getSongImage).filter(Objects::nonNull).collect(Collectors.toList());
+                List<Image> songImages = songs.stream().map(Song::getSongImage).filter(Objects::nonNull).toList();
                 if (songImages.size() > 0) {
                     playlist.setPlaylistImage(songImages.get(0));
                 }
@@ -163,11 +187,6 @@ public class DataHandler {
         private Settings settings;
 
         public Data() {
-        }
-
-        public Data(List<PlaylistInfo> playlists, Settings settings) {
-            this.playlists = playlists;
-            this.settings = settings;
         }
 
         public List<PlaylistInfo> getPlaylists() {
@@ -249,9 +268,13 @@ public class DataHandler {
 
     static class SongInfo implements Serializable {
         private String songPath;
+        private double duration;
         private String title;
         private String interpreter;
         private String album;
+        private byte[] image;
+        private int imageWidth;
+        private int imageHeight;
         private LocalDate addedOn;
         private LocalDateTime playedOn;
 
@@ -265,6 +288,14 @@ public class DataHandler {
 
         public void setSongPath(String songPath) {
             this.songPath = songPath;
+        }
+
+        public double getDuration() {
+            return duration;
+        }
+
+        public void setDuration(double duration) {
+            this.duration = duration;
         }
 
         public String getTitle() {
@@ -291,6 +322,14 @@ public class DataHandler {
             this.album = album;
         }
 
+        public byte[] getImage() {
+            return image;
+        }
+
+        public void setImage(byte[] image) {
+            this.image = image;
+        }
+
         public LocalDate getAddedOn() {
             return addedOn;
         }
@@ -305,6 +344,22 @@ public class DataHandler {
 
         public void setPlayedOn(LocalDateTime playedOn) {
             this.playedOn = playedOn;
+        }
+
+        public int getImageWidth() {
+            return imageWidth;
+        }
+
+        public void setImageWidth(int imageWidth) {
+            this.imageWidth = imageWidth;
+        }
+
+        public int getImageHeight() {
+            return imageHeight;
+        }
+
+        public void setImageHeight(int imageHeight) {
+            this.imageHeight = imageHeight;
         }
     }
 }

@@ -81,7 +81,7 @@ public class Song implements Comparable<Song> {
     public static Song getSongFromFile(Program program, File songFile) {
         Media media = new Media(songFile.toURI().toString());
         Song song = new Song(program);
-        song.setSong(media);
+        song.setSong(media, true);
         return song;
     }
 
@@ -108,8 +108,9 @@ public class Song implements Comparable<Song> {
         });
     }
 
-    public void setSong(Media song) {
+    public void setSong(Media song, boolean addListener) {
         this.song = song;
+        if (!addListener) return;
         try {
             new MediaPlayer(song).setOnReady(() -> {
                 this.time.set(Util.getStringFromMillis(song.getDuration().toMillis()));
@@ -213,6 +214,10 @@ public class Song implements Comparable<Song> {
 
     public SimpleBooleanProperty isReadyProperty() {
         return isReady;
+    }
+
+    public void setDuration(double millis) {
+        this.time.set(Util.getStringFromMillis(millis));
     }
 
     @Override

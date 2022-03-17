@@ -31,12 +31,10 @@ public class Program extends Application {
     private void loadProgramData() {
         new Thread(() -> {
             ObservableList<Playlist> playlists = FXCollections.observableArrayList(DataHandler.loadData(this));
+            if (playlists.isEmpty()) return;
             Platform.runLater(() -> {
-                if (!playlists.isEmpty()) {
-                    this.mainCon.setUpLastPlayedSongsPlaylist(playlists.remove(playlists.size() - 1));
-                    this.mainCon.playlistTableView.setItems(playlists);
-                }
-                primaryStage.show();
+                this.mainCon.setUpLastPlayedSongsPlaylist(playlists.remove(playlists.size() - 1));
+                this.mainCon.playlistTableView.setItems(playlists);
             });
         }).start();
     }
@@ -64,6 +62,8 @@ public class Program extends Application {
         primaryStage.getScene().getStylesheets().add(cssPath);
 
         changeLanguage(settings.getSelectedLanguage());
+
+        primaryStage.show();
     }
 
     public void changeLanguage(Locale newLocale) {

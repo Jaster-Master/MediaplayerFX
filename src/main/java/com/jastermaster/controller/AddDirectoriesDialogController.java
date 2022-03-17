@@ -82,7 +82,12 @@ public class AddDirectoriesDialogController implements Initializable {
                 newSong.isReadyProperty().addListener((observableValue, oldValue, newValue) -> {
                     clickedPlaylist.setSong(newSong);
                 });
-                while (!newSong.isReadyProperty().get()) Thread.onSpinWait();
+                while (!newSong.isReadyProperty().get()) {
+                    if (!Main.runningProgram.primaryStage.isShowing()) {
+                        return;
+                    }
+                    Thread.onSpinWait();
+                }
             }
         }
         if (directory.getAbsolutePath().equals(directoryPathField.getText())) {
@@ -96,7 +101,7 @@ public class AddDirectoriesDialogController implements Initializable {
             try {
                 subDirectories = Integer.parseInt(newValue);
             } catch (NumberFormatException e) {
-                subDirectoryCountSpinner.getEditor().setText(oldValue);
+                subDirectories = 0;
             }
         });
     }
